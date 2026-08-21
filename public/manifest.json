@@ -1,0 +1,24 @@
+{
+  "name": "سجل الطالب الإلكتروني — Student Notes",
+  "short_name": "سجل الطالب",
+  "description": "المنظومة الإلكترونية المتكاملة للمعلم لإدارة الصفوف والطلاب والملاحظات والمتابعات",
+  "start_url": "/dashboard",
+  "display": "standalone",
+  "background_color": "#0f172a",
+  "theme_color": "#4f46e5",
+  "orientation": "portrait-primary",
+  "dir": "rtl",
+  "lang": "ar",
+  "icons": [
+    {
+      "src": "/icon.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/icon.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
