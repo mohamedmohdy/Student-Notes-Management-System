@@ -1,22 +1,31 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { ClassRepository } from '@/lib/db';
-import { getCurrentUser } from '@/lib/auth';
+import { requireActiveTeacher } from '@/lib/auth';
+
+export async function GET(request: NextRequest, { params }: { params: { id: string } }) {
+  try {
+    const authCheck = await requireActiveTeacher();
+    if ('error' in authCheck) return NextResponse.json({ error: authCheck.error }, { status: authCheck.status });
+
+    const classRoom = await ClassRepository.findById(params.id, authCheck.user.userId);
+    if (!classRoom) return NextResponse.json({ error: 'الفصل غير موجود أو غير تابع لحسابك' }, { status: 404 });
+
+    return NextResponse.json({ class: classRoom });
+  } catch (error: any) {
+    return NextResponse.json({ error: 'حدث خطأ أثناء جلب الفصل' }, { status: 500 });
+  }
+}
 
 export async function PUT(request: NextRequest, { params }: { params: { id: string } }) {
   try {
-    const session = await getCurrentUser();
-    if (!session) return NextResponse.json({ error: 'غير مصرح' }, { status: 401 });
+    const authCheck = await requireActiveTeacher();
+    if ('error' in authCheck) return NextResponse.json({ error: authCheck.error }, { status: authCheck.status });
 
     const body = await request.json();
-    const { name, grade_id } = body;
-    if (!name || !name.trim()) {
-      return NextResponse.json({ error: 'اسم الفصل مطلوب' }, { status: 400 });
-    }
+    const classRoom = await ClassRepository.update(params.id, body.name, authCheck.user.userId);
+    if (!classRoom) return NextResponse.json({ error: 'الفصل غير موجود أو غير تابع لحسابك' }, { status: 404 });
 
-    const classRoom = ClassRepository.update(params.id, name, grade_id);
-    if (!classRoom) return NextResponse.json({ error: 'الفصل غير موجود' }, { status: 404 });
-
-    return NextResponse.json({ classRoom, message: 'تم تعديل الفصل بنجاح' });
+    return NextResponse.json({ class: classRoom, message: 'تم تعديل الفصل بنجاح' });
   } catch (error: any) {
     return NextResponse.json({ error: 'حدث خطأ أثناء تعديل الفصل' }, { status: 500 });
   }
@@ -24,19 +33,14 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
 
 export async function DELETE(request: NextRequest, { params }: { params: { id: string } }) {
   try {
-    const session = await getCurrentUser();
-    if (!session) return NextResponse.json({ error: 'غير مصرح' }, { status: 401 });
+    const authCheck = await requireActiveTeacher();
+    if ('error' in authCheck) return NextResponse.json({ error: authCheck.error }, { status: authCheck.status });
 
-    const permanent = request.nextUrl.searchParams.get('permanent') === 'true';
+    const ok = await ClassRepository.archive(params.id, authCheck.user.userId);
+    if (!ok) return NextResponse.json({ error: 'الفصل غير موجود أو غير تابع لحسابك' }, { status: 404 });
 
-    if (permanent) {
-      ClassRepository.deletePermanent(params.id);
-      return NextResponse.json({ message: 'تم حذف الفصل وكافة الطلاب والملاحظات التابعة له نهائياً بنجاح' });
-    } else {
-      ClassRepository.setArchived(params.id, true);
-      return NextResponse.json({ message: 'تم أرشفة الفصل بنجاح' });
-    }
+    return NextResponse.json({ message: 'تم أرشفة الفصل بنجاح' });
   } catch (error: any) {
-    return NextResponse.json({ error: 'حدث خطأ أثناء حذف الفصل' }, { status: 500 });
+    return NextResponse.json({ error: 'حدث خطأ أثناء أرشفة الفصل' }, { status: 500 });
   }
 }

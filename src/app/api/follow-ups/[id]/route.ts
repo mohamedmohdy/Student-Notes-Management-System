@@ -1,26 +1,29 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { FollowUpRepository } from '@/lib/db';
-import { getCurrentUser } from '@/lib/auth';
+import { requireActiveTeacher } from '@/lib/auth';
+
+export async function GET(request: NextRequest, { params }: { params: { id: string } }) {
+  try {
+    const authCheck = await requireActiveTeacher();
+    if ('error' in authCheck) return NextResponse.json({ error: authCheck.error }, { status: authCheck.status });
+
+    const followUp = await FollowUpRepository.findById(params.id, authCheck.user.userId);
+    if (!followUp) return NextResponse.json({ error: 'المتابعة غير موجودة أو غير تابعة لحسابك' }, { status: 404 });
+
+    return NextResponse.json({ followUp });
+  } catch (error: any) {
+    return NextResponse.json({ error: 'حدث خطأ أثناء جلب المتابعة' }, { status: 500 });
+  }
+}
 
 export async function PUT(request: NextRequest, { params }: { params: { id: string } }) {
   try {
-    const session = await getCurrentUser();
-    if (!session) return NextResponse.json({ error: 'غير مصرح' }, { status: 401 });
+    const authCheck = await requireActiveTeacher();
+    if ('error' in authCheck) return NextResponse.json({ error: authCheck.error }, { status: authCheck.status });
 
     const body = await request.json();
-    const { status, result, additional_notes } = body;
-
-    if (!status) {
-      return NextResponse.json({ error: 'حالة المتابعة مطلوبة' }, { status: 400 });
-    }
-
-    const followUp = FollowUpRepository.resolve(params.id, {
-      status,
-      result,
-      additional_notes,
-    });
-
-    if (!followUp) return NextResponse.json({ error: 'سجل المتابعة غير موجود' }, { status: 404 });
+    const followUp = await FollowUpRepository.resolve(params.id, body, authCheck.user.userId);
+    if (!followUp) return NextResponse.json({ error: 'المتابعة غير موجودة أو غير تابعة لحسابك' }, { status: 404 });
 
     return NextResponse.json({ followUp, message: 'تم تحديث حالة المتابعة بنجاح' });
   } catch (error: any) {

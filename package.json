@@ -4,13 +4,16 @@
   "private": true,
   "scripts": {
     "dev": "next dev -p 3000",
+    "db:server": "node scripts/pg-server.mjs",
     "build": "next build",
     "start": "next start -p 3000",
     "seed": "node scripts/seed.js",
     "test-db": "node scripts/test-db.js"
   },
   "dependencies": {
+    "@electric-sql/pglite": "^0.5.8",
     "@types/nodemailer": "^8.0.1",
+    "@types/pg": "^8.23.1",
     "bcryptjs": "^2.4.3",
     "clsx": "^2.1.1",
     "framer-motion": "^13.1.1",
@@ -18,6 +21,8 @@
     "lucide-react": "^0.453.0",
     "next": "14.2.15",
     "nodemailer": "^9.0.5",
+    "pg": "^8.23.0",
+    "pglite-server": "^0.1.5",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "recharts": "^2.13.0",

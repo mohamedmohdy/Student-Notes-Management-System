@@ -33,6 +33,7 @@ import { NOTE_TYPE_LABELS, formatDateArabic, formatDateTimeArabic, STUDENT_STATU
 import { requestNotificationPermission, checkAndNotifyUrgentFollowUps } from '@/lib/notifications';
 import { useToast } from '@/components/UI/Toast';
 import { heroTheme } from '@/lib/heroui-theme';
+import { AnnouncementBanner } from '@/components/Dashboard/AnnouncementBanner';
 
 export default function DashboardPage() {
   const toast = useToast();
@@ -86,408 +87,266 @@ export default function DashboardPage() {
     return () => window.removeEventListener('refresh-data', handleRefresh);
   }, [loadDashboardData]);
 
-  const handleEnableNotifications = async () => {
-    const granted = await requestNotificationPermission();
-    if (granted) {
-      toast.success('تم تفعيل التنبيهات والإشعارات بنجاح على هذا الجهاز 🔔');
-      if (stats?.urgentFollowUps) {
-        checkAndNotifyUrgentFollowUps(stats.urgentFollowUps);
-      }
-    } else {
-      toast.error('تم رفض إذن الإشعارات من المتصفح');
-    }
-  };
-
-  const handleQuickStatusChange = async (studentId: string, newStatus: any) => {
-    try {
-      const res = await fetch(`/api/students/${studentId}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ status: newStatus }),
-      });
-      if (!res.ok) throw new Error();
-      toast.success('تم تحديث حالة الطالب بنجاح');
-      loadDashboardData();
-    } catch {
-      toast.error('حدث خطأ أثناء تحديث الحالة');
-    }
-  };
-
   if (loading) {
-    return <LoadingSkeleton count={6} type="card" />;
+    return <LoadingSkeleton count={6} />;
   }
 
-  if (!stats) return null;
-
-  const matrixStudents = selectedClassId === 'all'
-    ? students.slice(0, 12)
+  const filteredStudents = selectedClassId === 'all'
+    ? students
     : students.filter((s) => s.class_id === selectedClassId);
 
   return (
-    <div className="space-y-8">
-      {/* Top Welcome Banner */}
-      <div className="relative overflow-hidden p-6 sm:p-8 rounded-3xl bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 text-white shadow-2xl shadow-indigo-950/20 border border-indigo-500/20">
+    <div className="space-y-8 animate-in fade-in duration-300">
+      {/* Platform-wide Announcements Banner */}
+      <AnnouncementBanner />
+
+      {/* Top Welcome Card with Quick Note Button */}
+      <div className="relative overflow-hidden p-6 sm:p-8 bg-gradient-to-tr from-indigo-900 via-indigo-800 to-purple-800 dark:from-slate-900 dark:via-indigo-950 dark:to-purple-950 rounded-3xl text-white shadow-xl shadow-indigo-950/20 border border-indigo-700/40">
         <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
-          <div className="space-y-2 max-w-2xl">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 dark:bg-white/10 backdrop-blur-md text-xs font-bold text-indigo-200">
-              <Bot className="w-3.5 h-3.5 text-amber-300 animate-pulse" />
-              <span>مساعدك الذكي: التقرير اليومي ومصفوفة الفصول التفاعلية</span>
+          <div className="space-y-2">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 backdrop-blur-md border border-white/15 text-xs font-bold">
+              <Sparkles className="w-3.5 h-3.5 text-amber-300" />
+              <span>مساحة العمل الخاصة بك 🔒</span>
             </div>
-            <h2 className="text-2xl sm:text-3xl font-black tracking-tight">
+            <h1 className="text-2xl sm:text-3xl font-black tracking-tight">
               أهلاً بك يا {user?.name || 'أستاذنا الفاضل'} 👋
-            </h2>
-            <p className="text-xs sm:text-sm text-indigo-200 leading-relaxed font-medium">
-              لديك اليوم <strong className="text-white font-bold">{stats.totalStudents} طالباً</strong> في{' '}
-              <strong className="text-white font-bold">{stats.totalClasses} فصول</strong>. هناك{' '}
-              <strong className="text-amber-300 font-bold">{stats.studentsNeedingFollowUp} طلاب</strong> يتطلب وضعهم متابعة قريبة.
+            </h1>
+            <p className="text-xs sm:text-sm text-indigo-100/90 font-medium max-w-xl">
+              لوحة التحكم التفاعلية لمتابعة فصولك وطلابك ({stats?.totalStudents || 0} طالباً) وتسجيل الملاحظات اليومية.
             </p>
           </div>
 
           <div className="flex flex-wrap items-center gap-3">
             <button
-              onClick={() => setIsAddNoteOpen(true)}
-              className="flex items-center gap-2 px-5 py-3 bg-white hover:bg-indigo-50 text-indigo-950 rounded-2xl text-xs font-black shadow-lg transition active:scale-95"
+              onClick={() => {
+                setQuickNoteStudent(null);
+                setIsAddNoteOpen(true);
+              }}
+              className="px-5 py-3 bg-white text-indigo-900 hover:bg-indigo-50 rounded-2xl text-xs font-black shadow-lg shadow-black/10 transition active:scale-95 flex items-center gap-2"
             >
               <Plus className="w-4 h-4 text-indigo-600" />
-              <span>+ تسجيل ملاحظة سريعة</span>
+              <span>تدوين ملاحظة سريعة</span>
             </button>
 
-            <button
-              onClick={handleEnableNotifications}
-              className="flex items-center gap-2 px-4 py-3 bg-white/10 hover:bg-white/20 border border-white/20 backdrop-blur-md text-white rounded-2xl text-xs font-bold transition"
+            <Link
+              href="/reports"
+              className="px-4 py-3 bg-white/10 hover:bg-white/20 border border-white/20 rounded-2xl text-xs font-bold transition flex items-center gap-1.5"
             >
-              <Bell className="w-4 h-4 text-amber-300" />
-              <span>تفعيل التنبيهات والإشعارات</span>
-            </button>
+              <FileText className="w-4 h-4" />
+              <span>التقارير الشاملة</span>
+            </Link>
           </div>
         </div>
       </div>
 
-      {/* Primary KPI Stats Grid (8 Cards) */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <StatCard
-          title="إجمالي الصفوف"
-          value={stats.totalGrades}
-          icon={GraduationCap}
-          color="indigo"
-          href="/grades"
-        />
-        <StatCard
-          title="إجمالي الفصول"
-          value={stats.totalClasses}
-          icon={School}
-          color="cyan"
-          href="/grades"
-        />
+      {/* KPI Cards Grid */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5">
         <StatCard
           title="إجمالي الطلاب"
-          value={stats.totalStudents}
+          value={stats?.totalStudents || 0}
           icon={Users}
-          color="purple"
+          description="في فصولك الخاصة"
+          variant="indigo"
           href="/students"
         />
         <StatCard
-          title="إجمالي الملاحظات"
-          value={stats.totalNotes}
+          title="الملاحظات المسجلة"
+          value={stats?.totalNotes || 0}
           icon={FileText}
-          color="emerald"
+          description="ملاحظات فصولك"
+          variant="purple"
           href="/notes"
-        />
-        <StatCard
-          title="يحتاجون متابعة"
-          value={stats.studentsNeedingFollowUp}
-          subtitle="حالات تتطلب تدخلاً"
-          icon={AlertTriangle}
-          color="rose"
-          href="/follow-ups"
         />
         <StatCard
           title="ملاحظات اليوم"
-          value={stats.notesToday}
-          subtitle="خلال الـ 24 ساعة"
-          icon={Clock}
-          color="amber"
-          href="/notes"
-        />
-        <StatCard
-          title="ملاحظات هذا الأسبوع"
-          value={stats.notesThisWeek}
+          value={stats?.notesToday || 0}
           icon={Calendar}
-          color="indigo"
+          description="تم تدوينها اليوم"
+          variant="cyan"
           href="/notes"
         />
         <StatCard
-          title="ملاحظات هذا الشهر"
-          value={stats.notesThisMonth}
-          icon={TrendingUp}
-          color="emerald"
-          href="/notes"
+          title="متابعات معلقة"
+          value={stats?.pendingFollowUps || 0}
+          icon={AlertTriangle}
+          description="تتطلب متابعة"
+          variant={stats?.pendingFollowUps > 0 ? 'rose' : 'emerald'}
+          href="/follow-ups"
         />
       </div>
 
-      {/* INTERACTIVE CLASS SELECTOR & STUDENT MATRIX */}
-      <div className="p-6 bg-white/90 dark:bg-slate-900/90 backdrop-blur-xl rounded-3xl border border-slate-200/80 dark:border-slate-800 shadow-xs space-y-6">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-          <div className="space-y-1">
-            <h3 className="text-base sm:text-lg font-black text-slate-900 dark:text-white flex items-center gap-2">
-              <School className="w-5 h-5 text-indigo-600 dark:text-indigo-400" />
-              <span>مصفوفة الطلاب التفاعلية للفصول</span>
-            </h3>
-            <p className="text-xs text-slate-500 dark:text-slate-400 font-medium">
-              اختر الفصل للاطلاع الفوري على حالة طلابه وتغيير حالاتهم وإضافة ملاحظات بنقرة واحدة
-            </p>
+      {/* Interactive Class Filter & Students Quick Grid */}
+      <div className="p-6 bg-white dark:bg-slate-900 rounded-3xl border border-slate-200/80 dark:border-slate-800 shadow-xs space-y-5">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-100 dark:border-slate-800 pb-4">
+          <div className="flex items-center gap-2">
+            <School className="w-5 h-5 text-indigo-600 dark:text-indigo-400" />
+            <h2 className="text-base font-black text-slate-900 dark:text-white">فصولي والوصول السريع للطلاب</h2>
           </div>
 
-          {/* Class Switcher Tabs */}
+          {/* Class Filter Tabs */}
           <div className="flex items-center gap-1.5 overflow-x-auto pb-1 max-w-full">
             <button
               onClick={() => setSelectedClassId('all')}
-              className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition shrink-0 ${
+              className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition ${
                 selectedClassId === 'all'
-                  ? 'bg-gradient-to-r from-indigo-600 to-indigo-700 text-white shadow-xs'
-                  : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700'
+                  ? 'bg-indigo-600 text-white shadow-xs'
+                  : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200'
               }`}
             >
-              كافة الفصول ({students.length})
+              جميع الفصول ({students.length})
             </button>
-            {classes.map((cls) => (
+            {classes.map((c) => (
               <button
-                key={cls.id}
-                onClick={() => setSelectedClassId(cls.id)}
-                className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition shrink-0 ${
-                  selectedClassId === cls.id
-                    ? 'bg-gradient-to-r from-indigo-600 to-indigo-700 text-white shadow-xs'
-                    : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700'
+                key={c.id}
+                onClick={() => setSelectedClassId(c.id)}
+                className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition ${
+                  selectedClassId === c.id
+                    ? 'bg-indigo-600 text-white shadow-xs'
+                    : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200'
                 }`}
               >
-                فصل {cls.name} ({cls.students_count || 0})
+                {c.name}
               </button>
             ))}
           </div>
         </div>
 
-        {/* Matrix Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3.5">
-          {matrixStudents.map((s) => (
+        {/* Quick Students Grid */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 max-h-96 overflow-y-auto pr-1">
+          {filteredStudents.map((s) => (
             <div
               key={s.id}
-              className="p-4 rounded-2xl bg-slate-50/70 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 hover:border-indigo-300 dark:hover:border-indigo-500/40 hover:bg-white dark:hover:bg-slate-800 transition flex flex-col justify-between space-y-3"
+              className="p-3.5 rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200/70 dark:border-slate-700/60 hover:border-indigo-300 dark:hover:border-indigo-700 transition flex items-center justify-between gap-3 group"
             >
-              <div className="flex items-start justify-between gap-2">
-                <div>
-                  <Link
-                    href={`/students/${s.id}`}
-                    className="text-xs font-black text-slate-900 dark:text-white hover:text-indigo-600 dark:hover:text-indigo-400 transition"
-                  >
+              <div className="flex items-center gap-2.5 overflow-hidden">
+                <div className="w-8 h-8 rounded-xl bg-indigo-100 dark:bg-indigo-950 text-indigo-700 dark:text-indigo-300 font-bold flex items-center justify-center text-xs shrink-0">
+                  {s.name.charAt(0)}
+                </div>
+                <div className="truncate">
+                  <Link href={`/students/${s.id}`} className="text-xs font-bold text-slate-800 dark:text-slate-200 hover:text-indigo-600 dark:hover:text-indigo-400 truncate block">
                     {s.name}
                   </Link>
-                  <p className="text-[11px] text-slate-400 dark:text-slate-400 font-semibold mt-0.5">
-                    رقم: {s.student_number} • {s.class_name}
-                  </p>
+                  <span className="text-[10px] text-slate-400 font-semibold">{s.class_name} • #{s.student_number}</span>
                 </div>
-
-                <span
-                  className={`text-[10px] font-extrabold px-2 py-0.5 rounded-full ${
-                    s.status === 'excellent'
-                      ? 'bg-emerald-100 dark:bg-emerald-950 text-emerald-800 dark:text-emerald-300'
-                      : s.status === 'needs_followup'
-                      ? 'bg-rose-100 dark:bg-rose-950 text-rose-800 dark:text-rose-300'
-                      : 'bg-indigo-100 dark:bg-indigo-950 text-indigo-800 dark:text-indigo-300'
-                  }`}
-                >
-                  {s.status === 'excellent' ? 'ممتاز' : s.status === 'needs_followup' ? 'يحتاج متابعة' : 'طبيعي'}
-                </span>
               </div>
 
-              {/* Quick Actions for this student */}
-              <div className="flex items-center justify-between pt-2 border-t border-slate-200/60 dark:border-slate-700/60 text-xs">
-                <select
-                  value={s.status}
-                  onChange={(e) => handleQuickStatusChange(s.id, e.target.value)}
-                  className="px-2 py-1 bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg text-[11px] font-bold text-slate-700 dark:text-slate-200"
-                >
-                  <option value="excellent">ممتاز</option>
-                  <option value="normal">طبيعي</option>
-                  <option value="needs_followup">يحتاج متابعة</option>
-                </select>
-
-                <button
-                  onClick={() => {
-                    setQuickNoteStudent(s);
-                    setIsAddNoteOpen(true);
-                  }}
-                  className="px-2.5 py-1 bg-indigo-50 dark:bg-indigo-950 hover:bg-indigo-600 hover:text-white text-indigo-700 dark:text-indigo-300 rounded-lg text-[11px] font-bold transition"
-                >
-                  + ملاحظة
-                </button>
-              </div>
+              <button
+                onClick={() => {
+                  setQuickNoteStudent(s);
+                  setIsAddNoteOpen(true);
+                }}
+                className="p-1.5 text-indigo-600 dark:text-indigo-400 hover:bg-indigo-100 dark:hover:bg-indigo-950 rounded-lg text-[10px] font-bold shrink-0 transition"
+                title="إضافة ملاحظة سريعة للطالب"
+              >
+                + ملاحظة
+              </button>
             </div>
           ))}
         </div>
       </div>
 
-      {/* Visual Charts Grid */}
+      {/* Recent Notes & Urgent Followups Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Notes by Type Bar Breakdown */}
-        <div className="p-6 bg-white/90 dark:bg-slate-900/90 backdrop-blur-xl rounded-3xl border border-slate-200/80 dark:border-slate-800 shadow-xs space-y-4">
-          <div className="flex items-center justify-between">
-            <h3 className="font-extrabold text-slate-900 dark:text-white text-base">توزيع الملاحظات حسب النوع</h3>
-            <span className="text-xs font-semibold text-slate-400 dark:text-slate-400">إجمالي {stats.totalNotes} ملاحظة</span>
-          </div>
-
-          <div className="space-y-3 pt-2">
-            {stats.notesByType.map((item: any) => {
-              const percentage = stats.totalNotes > 0 ? Math.round((item.count / stats.totalNotes) * 100) : 0;
-              return (
-                <div key={item.type} className="space-y-1.5">
-                  <div className="flex items-center justify-between text-xs font-bold">
-                    <span className="text-slate-700 dark:text-slate-200">{item.label}</span>
-                    <span className="text-slate-500 dark:text-slate-400">{item.count} ملاحظة ({percentage}%)</span>
-                  </div>
-                  <div className="w-full h-2.5 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
-                    <div
-                      className="h-full bg-gradient-to-r from-indigo-600 to-indigo-500 rounded-full transition-all duration-500"
-                      style={{ width: `${percentage}%` }}
-                    ></div>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        </div>
-
-        {/* Student Health Breakdown */}
-        <div className="p-6 bg-white/90 dark:bg-slate-900/90 backdrop-blur-xl rounded-3xl border border-slate-200/80 dark:border-slate-800 shadow-xs space-y-4">
-          <div className="flex items-center justify-between">
-            <h3 className="font-extrabold text-slate-900 dark:text-white text-base">مؤشر أداء وسلامة الطلاب</h3>
-            <Link href="/students" className="text-xs font-bold text-indigo-600 dark:text-indigo-400 hover:underline">
-              دليل الطلاب
+        {/* Urgent Follow-ups */}
+        <div className="p-6 bg-white dark:bg-slate-900 rounded-3xl border border-slate-200/80 dark:border-slate-800 shadow-xs space-y-4">
+          <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-3">
+            <div className="flex items-center gap-2 text-rose-600 dark:text-rose-400">
+              <AlertTriangle className="w-5 h-5" />
+              <h2 className="text-base font-black text-slate-900 dark:text-white">متابعات عاجلة مطلوبة</h2>
+            </div>
+            <Link href="/follow-ups" className="text-xs font-bold text-indigo-600 hover:underline">
+              عرض الكل
             </Link>
           </div>
 
-          <div className="space-y-3 pt-2">
-            {stats.studentsByStatus && stats.studentsByStatus.map((item: any) => {
-              const percentage = stats.totalStudents > 0 ? Math.round((item.count / stats.totalStudents) * 100) : 0;
-              const color = item.status === 'excellent' ? 'bg-emerald-500' : item.status === 'needs_followup' ? 'bg-rose-500' : 'bg-indigo-500';
-              return (
-                <div key={item.status} className="space-y-1.5">
-                  <div className="flex items-center justify-between text-xs font-bold">
-                    <span className="text-slate-700 dark:text-slate-200">{item.label}</span>
-                    <span className="text-slate-500 dark:text-slate-400">{item.count} طالب ({percentage}%)</span>
-                  </div>
-                  <div className="w-full h-2.5 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
-                    <div
-                      className={`h-full rounded-full transition-all duration-500 ${color}`}
-                      style={{ width: `${percentage}%` }}
-                    ></div>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        </div>
-      </div>
-
-      {/* Bottom Grid: Recent Activity Feed & Urgent Follow-ups */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Recent Activities Timeline */}
-        <div className="p-6 bg-white/90 dark:bg-slate-900/90 backdrop-blur-xl rounded-3xl border border-slate-200/80 dark:border-slate-800 shadow-xs space-y-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <Activity className="w-5 h-5 text-indigo-600 dark:text-indigo-400" />
-              <h3 className="font-extrabold text-slate-900 dark:text-white text-base">سجل النشاطات والأحداث الأخيرة</h3>
-            </div>
-            <span className="text-xs text-slate-400 dark:text-slate-400 font-semibold">مباشر</span>
-          </div>
-
-          <div className="divide-y divide-slate-100 dark:divide-slate-800">
-            {stats.recentActivities && stats.recentActivities.length > 0 ? (
-              stats.recentActivities.map((act: any) => (
-                <div key={act.id} className="py-3.5 flex items-start gap-3.5">
-                  <div className="w-8 h-8 rounded-xl bg-indigo-50 dark:bg-indigo-950 text-indigo-600 dark:text-indigo-400 flex items-center justify-center shrink-0 mt-0.5">
-                    {act.type === 'note' ? <FileText className="w-4 h-4" /> : <CheckCircle2 className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />}
-                  </div>
-                  <div className="space-y-1 flex-1">
-                    <p className="text-xs font-black text-slate-800 dark:text-slate-200">{act.title}</p>
-                    <p className="text-xs text-slate-500 dark:text-slate-400 line-clamp-1">{act.desc}</p>
-                    <p className="text-[10px] text-slate-400 dark:text-slate-500 font-semibold">{formatDateArabic(act.time)}</p>
-                  </div>
-                </div>
-              ))
-            ) : (
-              <div className="py-8 text-center text-xs text-slate-400 dark:text-slate-500">
-                لا توجد نشاطات مسجلة مؤخراً.
-              </div>
-            )}
-          </div>
-        </div>
-
-        {/* Urgent Follow-ups List */}
-        <div className="p-6 bg-white/90 dark:bg-slate-900/90 backdrop-blur-xl rounded-3xl border border-slate-200/80 dark:border-slate-800 shadow-xs space-y-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <div className="w-2.5 h-2.5 rounded-full bg-rose-500 animate-ping"></div>
-              <h3 className="font-extrabold text-slate-900 dark:text-white text-base">متابعات عاجلة تتطلب اتخاذ إجراء</h3>
-            </div>
-            <Link href="/follow-ups" className="text-xs font-bold text-indigo-600 dark:text-indigo-400 hover:underline flex items-center gap-1">
-              <span>عرض الكل</span>
-              <ArrowLeft className="w-3.5 h-3.5" />
-            </Link>
-          </div>
-
-          <div className="divide-y divide-slate-100 dark:divide-slate-800">
-            {stats.urgentFollowUps && stats.urgentFollowUps.length > 0 ? (
-              stats.urgentFollowUps.map((fu: any) => (
-                <div key={fu.id} className="py-3.5 flex items-start justify-between gap-3">
-                  <div className="space-y-1">
-                    <div className="flex items-center gap-2">
-                      <Link href={`/students/${fu.student_id}`} className="text-sm font-bold text-slate-800 dark:text-slate-200 hover:text-indigo-600 dark:hover:text-indigo-400 transition">
-                        {fu.student_name}
-                      </Link>
-                      <span className="text-[11px] text-slate-400 dark:text-slate-500 font-semibold">({fu.grade_name} - {fu.class_name})</span>
-                    </div>
-                    <p className="text-xs text-slate-600 dark:text-slate-300 line-clamp-2">{fu.note_content}</p>
-                    <p className="text-[11px] text-rose-600 dark:text-rose-400 font-bold">
-                      موعد المتابعة: {formatDateArabic(fu.follow_up_date)}
-                    </p>
+          <div className="space-y-3">
+            {stats?.urgentFollowUps && stats.urgentFollowUps.length > 0 ? (
+              stats.urgentFollowUps.map((f: FollowUp) => (
+                <div
+                  key={f.id}
+                  className="p-4 rounded-2xl bg-rose-50/50 dark:bg-rose-950/20 border border-rose-100 dark:border-rose-900/40 flex items-center justify-between gap-3"
+                >
+                  <div className="space-y-1 overflow-hidden">
+                    <span className="text-xs font-bold text-slate-900 dark:text-slate-100 block truncate">{f.student_name}</span>
+                    <p className="text-[11px] text-slate-500 dark:text-slate-400 truncate">{f.note_content}</p>
+                    <span className="text-[10px] font-bold text-rose-600 dark:text-rose-400">موعد المتابعة: {f.follow_up_date}</span>
                   </div>
 
                   <button
-                    onClick={() => setResolvingFollowUp(fu)}
-                    className="shrink-0 px-3 py-1.5 bg-indigo-50 dark:bg-indigo-950/80 hover:bg-indigo-100 dark:hover:bg-indigo-900 text-indigo-700 dark:text-indigo-300 rounded-xl text-xs font-bold transition"
+                    onClick={() => setResolvingFollowUp(f)}
+                    className="px-3 py-1.5 bg-rose-600 hover:bg-rose-700 text-white rounded-xl text-xs font-bold transition shrink-0"
                   >
-                    إتمام الإجراء
+                    معالجة
                   </button>
                 </div>
               ))
             ) : (
-              <div className="py-8 text-center text-xs text-slate-400 dark:text-slate-500">
-                رائع! لا توجد حالات متابعة متأخرة أو قيد الانتظار حالياً.
+              <div className="py-8 text-center text-xs text-slate-400">
+                👏 لا توجد متابعات عاجلة حالياً.
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Recent Notes */}
+        <div className="p-6 bg-white dark:bg-slate-900 rounded-3xl border border-slate-200/80 dark:border-slate-800 shadow-xs space-y-4">
+          <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-3">
+            <div className="flex items-center gap-2 text-indigo-600 dark:text-indigo-400">
+              <FileText className="w-5 h-5" />
+              <h2 className="text-base font-black text-slate-900 dark:text-white">أحدث الملاحظات المدونة</h2>
+            </div>
+            <Link href="/notes" className="text-xs font-bold text-indigo-600 hover:underline">
+              عرض السجل الكامل
+            </Link>
+          </div>
+
+          <div className="space-y-3">
+            {stats?.recentNotes && stats.recentNotes.length > 0 ? (
+              stats.recentNotes.map((n: Note) => (
+                <div
+                  key={n.id}
+                  className="p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/40 border border-slate-200/70 dark:border-slate-700/60 space-y-1.5"
+                >
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-black text-slate-900 dark:text-white">{n.student_name}</span>
+                    <span className="text-[10px] text-slate-400">{formatDateArabic(n.created_at)}</span>
+                  </div>
+                  <p className="text-xs text-slate-600 dark:text-slate-300 line-clamp-2">{n.content}</p>
+                </div>
+              ))
+            ) : (
+              <div className="py-8 text-center text-xs text-slate-400">
+                لم يتم تسجيل ملاحظات مؤخراً.
               </div>
             )}
           </div>
         </div>
       </div>
 
-      {/* Global Modals */}
+      {/* Add Note Modal */}
       <AddEditNoteModal
-        isOpen={!!editingNote || isAddNoteOpen}
-        onClose={() => {
-          setEditingNote(null);
+        isOpen={isAddNoteOpen}
+        onClose={() => setIsAddNoteOpen(false)}
+        initialStudent={quickNoteStudent}
+        onSuccess={() => {
           setIsAddNoteOpen(false);
-          setQuickNoteStudent(null);
+          loadDashboardData();
+          toast.success('تم تدوين الملاحظة بنجاح');
         }}
-        onSuccess={loadDashboardData}
-        initialNote={editingNote}
-        presetStudentId={quickNoteStudent?.id}
       />
 
-      <ResolveFollowUpModal
-        isOpen={!!resolvingFollowUp}
-        onClose={() => setResolvingFollowUp(null)}
-        onSuccess={loadDashboardData}
-        followUp={resolvingFollowUp}
-      />
+      {/* Resolve Follow Up Modal */}
+      {resolvingFollowUp && (
+        <ResolveFollowUpModal
+          isOpen={true}
+          followUp={resolvingFollowUp}
+          onClose={() => setResolvingFollowUp(null)}
+          onSuccess={() => {
+            setResolvingFollowUp(null);
+            loadDashboardData();
+          }}
+        />
+      )}
     </div>
   );
 }

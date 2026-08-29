@@ -1,11 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { ArchiveRepository } from '@/lib/db';
-import { getCurrentUser } from '@/lib/auth';
+import { requireActiveTeacher } from '@/lib/auth';
 
 export async function POST(request: NextRequest) {
   try {
-    const session = await getCurrentUser();
-    if (!session) return NextResponse.json({ error: 'غير مصرح' }, { status: 401 });
+    const authCheck = await requireActiveTeacher();
+    if ('error' in authCheck) return NextResponse.json({ error: authCheck.error }, { status: authCheck.status });
 
     const body = await request.json();
     const { type, id } = body;
@@ -14,8 +14,12 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'النوع والمعرف مطلوبان' }, { status: 400 });
     }
 
-    ArchiveRepository.restoreItem(type, id);
-    return NextResponse.json({ message: 'تم استعادة العنصر من الأرشيف بنجاح' });
+    const ok = await ArchiveRepository.restore(type, id, authCheck.user.userId);
+    if (!ok) {
+      return NextResponse.json({ error: 'العنصر غير موجود في الأرشيف الخاص بحسابك' }, { status: 404 });
+    }
+
+    return NextResponse.json({ message: 'تم استعادة العنصر بنجاح' });
   } catch (error: any) {
     return NextResponse.json({ error: 'حدث خطأ أثناء استعادة العنصر' }, { status: 500 });
   }

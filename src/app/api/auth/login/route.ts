@@ -11,7 +11,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'يرجى إدخال البريد الإلكتروني وكلمة المرور' }, { status: 400 });
     }
 
-    const user = UserRepository.findByEmail(email);
+    const user = await UserRepository.findByEmail(email);
     if (!user) {
       return NextResponse.json({ error: 'البريد الإلكتروني أو كلمة المرور غير صحيحة' }, { status: 401 });
     }
@@ -21,12 +21,30 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'البريد الإلكتروني أو كلمة المرور غير صحيحة' }, { status: 401 });
     }
 
+    // Update last login timestamp
+    await UserRepository.updateLastLogin(user.id);
+
     const token = createToken({
       id: user.id,
       email: user.email,
       name: user.name,
       role: user.role,
+      status: user.status,
+      must_change_password: user.must_change_password || 0,
     });
+
+    const isOwner = user.role.toUpperCase() === 'OWNER';
+    let redirectUrl = '/dashboard';
+
+    if (isOwner) {
+      redirectUrl = '/owner';
+    } else if (user.status === 'pending') {
+      redirectUrl = '/pending-activation';
+    } else if (user.status === 'disabled') {
+      redirectUrl = '/account-disabled';
+    } else if (user.must_change_password === 1) {
+      redirectUrl = '/change-password';
+    }
 
     const response = NextResponse.json({
       user: {
@@ -34,7 +52,10 @@ export async function POST(request: NextRequest) {
         name: user.name,
         email: user.email,
         role: user.role,
+        status: user.status,
+        must_change_password: user.must_change_password || 0,
       },
+      redirectUrl,
       message: 'تم تسجيل الدخول بنجاح',
     });
 
@@ -48,6 +69,7 @@ export async function POST(request: NextRequest) {
 
     return response;
   } catch (error: any) {
+    console.error('Login error:', error);
     return NextResponse.json({ error: 'حدث خطأ أثناء تسجيل الدخول' }, { status: 500 });
   }
 }

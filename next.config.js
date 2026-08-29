@@ -4,7 +4,7 @@ const nextConfig = {
   reactStrictMode: true,
   poweredByHeader: false,
   experimental: {
-    serverComponentsExternalPackages: ['node:sqlite'],
+    serverComponentsExternalPackages: ['@electric-sql/pglite', 'pg', 'node:sqlite'],
   },
 };
 

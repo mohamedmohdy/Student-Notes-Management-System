@@ -7,7 +7,7 @@ export async function GET() {
     const session = await getCurrentUser();
     if (!session) return NextResponse.json({ error: 'غير مصرح' }, { status: 401 });
 
-    const data = BackupRepository.exportAll();
+    const data = await BackupRepository.exportAll();
     const jsonStr = JSON.stringify(data, null, 2);
 
     return new NextResponse(jsonStr, {

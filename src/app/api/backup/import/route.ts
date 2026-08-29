@@ -8,7 +8,7 @@ export async function POST(request: NextRequest) {
     if (!session) return NextResponse.json({ error: 'غير مصرح' }, { status: 401 });
 
     const body = await request.json();
-    BackupRepository.importAll(body);
+    await BackupRepository.importAll(body);
 
     return NextResponse.json({ message: 'تم استعادة النسخة الاحتياطية بنجاح' });
   } catch (error: any) {

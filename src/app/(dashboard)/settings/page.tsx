@@ -11,11 +11,14 @@ import {
   AlertTriangle,
   Database,
   ShieldCheck,
+  Sparkles,
+  GraduationCap,
 } from 'lucide-react';
 import { ConfirmDialog } from '@/components/UI/ConfirmDialog';
 import { LoadingSkeleton } from '@/components/UI/LoadingSkeleton';
 import { useToast } from '@/components/UI/Toast';
 import { formatDateArabic } from '@/lib/utils';
+import { heroTheme } from '@/lib/heroui-theme';
 
 export default function SettingsPage() {
   const toast = useToast();
@@ -47,6 +50,19 @@ export default function SettingsPage() {
   useEffect(() => {
     loadArchive();
   }, [loadArchive]);
+
+  // Launch Tour
+  const handleReLaunchTour = async () => {
+    try {
+      await fetch('/api/user/onboarding', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'reset' }),
+      });
+    } catch {}
+    window.dispatchEvent(new Event('start-platform-tour'));
+    toast.success('تم بدء الجولة التعريفية التفاعلية للمنصة');
+  };
 
   // Export Full Backup
   const handleExportBackup = () => {
@@ -119,209 +135,179 @@ export default function SettingsPage() {
     <div className="space-y-8">
       {/* Header */}
       <div>
-        <h2 className="text-xl sm:text-2xl font-black text-slate-900">الإعدادات، الأمان، وإدارة البيانات</h2>
-        <p className="text-xs sm:text-sm text-slate-500 font-medium mt-0.5">
-          النسخ الاحتياطي الكامل، الاستعادة، استعراض العناصر المؤرشفة، وإعادة تهيئة البيانات
+        <h2 className="text-xl sm:text-2xl font-black text-slate-900 dark:text-white">الإعدادات، الأمان، وإدارة البيانات</h2>
+        <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 font-medium mt-0.5">
+          النسخ الاحتياطي الكامل، الاستعادة، استعراض العناصر المؤرشفة، وإعادة تشغيل الجولة التعريفية
         </p>
+      </div>
+
+      {/* Guided Tour Banner */}
+      <div className="p-6 rounded-3xl bg-gradient-to-r from-amber-500/10 via-indigo-500/10 to-purple-500/10 border border-amber-500/30 flex flex-col sm:flex-row items-center justify-between gap-4">
+        <div className="flex items-center gap-4">
+          <div className="w-12 h-12 rounded-2xl bg-amber-500 text-white flex items-center justify-center shadow-lg shadow-amber-500/20 shrink-0">
+            <GraduationCap className="w-6 h-6" />
+          </div>
+          <div>
+            <h3 className="text-base font-black text-slate-900 dark:text-white">الجولة التعريفية للمنصة</h3>
+            <p className="text-xs text-slate-500 dark:text-slate-400 font-medium">
+              شرح تفاعلي خطوة بخطوة لجميع أدوات وأقسام المنصة لتسهيل الاستخدام
+            </p>
+          </div>
+        </div>
+
+        <button
+          onClick={handleReLaunchTour}
+          className="flex items-center gap-2 px-5 py-3 bg-amber-500 hover:bg-amber-600 text-white rounded-2xl text-xs font-black shadow-md shadow-amber-500/20 transition active:scale-95 shrink-0"
+        >
+          <Sparkles className="w-4 h-4" />
+          <span>🎓 إعادة الجولة التعريفية</span>
+        </button>
       </div>
 
       {/* Backup & Safety Actions */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
         {/* Export Backup Card */}
-        <div className="p-6 bg-white rounded-3xl border border-slate-200/80 shadow-xs space-y-4 flex flex-col justify-between">
+        <div className="p-6 bg-white dark:bg-slate-900 rounded-3xl border border-slate-200/80 dark:border-slate-800 shadow-xs space-y-4 flex flex-col justify-between">
           <div className="space-y-2">
-            <div className="w-12 h-12 rounded-2xl bg-indigo-50 text-indigo-600 flex items-center justify-center font-black">
+            <div className="w-12 h-12 rounded-2xl bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 flex items-center justify-center font-black">
               <Download className="w-6 h-6" />
             </div>
-            <h3 className="text-base font-extrabold text-slate-900">تصدير نسخة احتياطية كاملة</h3>
-            <p className="text-xs text-slate-500 leading-relaxed font-medium">
+            <h3 className="text-base font-extrabold text-slate-900 dark:text-white">تصدير نسخة احتياطية كاملة</h3>
+            <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed font-medium">
               تنزيل ملف JSON آمن يحتوي على كافة الصفوف، الفصول، الطلاب، الملاحظات، وسجلات المتابعة.
             </p>
           </div>
           <button
             onClick={handleExportBackup}
-            className="w-full py-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-2xl text-xs font-bold shadow-md shadow-indigo-200 transition"
+            className="w-full py-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-2xl text-xs font-bold shadow-md shadow-indigo-200 dark:shadow-none transition"
           >
             تنزيل ملف Backup (JSON)
           </button>
         </div>
 
         {/* Restore Backup Card */}
-        <div className="p-6 bg-white rounded-3xl border border-slate-200/80 shadow-xs space-y-4 flex flex-col justify-between">
+        <div className="p-6 bg-white dark:bg-slate-900 rounded-3xl border border-slate-200/80 dark:border-slate-800 shadow-xs space-y-4 flex flex-col justify-between">
           <div className="space-y-2">
-            <div className="w-12 h-12 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center font-black">
+            <div className="w-12 h-12 rounded-2xl bg-emerald-50 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400 flex items-center justify-center font-black">
               <Upload className="w-6 h-6" />
             </div>
-            <h3 className="text-base font-extrabold text-slate-900">استعادة من نسخة احتياطية</h3>
-            <p className="text-xs text-slate-500 leading-relaxed font-medium">
-              استيراد ملف نسخة احتياطية تم تنزيلها مسبقاً واسترجاع كافة البيانات وقاعدة البيانات.
+            <h3 className="text-base font-extrabold text-slate-900 dark:text-white">استعادة نسخة احتياطية</h3>
+            <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed font-medium">
+              رفع ملف النسخة الاحتياطية واسترجاع كافة البيانات والصفوف والطلاب المسجلين فورياً.
             </p>
           </div>
-
-          <input
-            type="file"
-            ref={fileInputRef}
-            onChange={handleFileChange}
-            accept=".json"
-            className="hidden"
-          />
-
-          <button
-            onClick={() => fileInputRef.current?.click()}
-            className="w-full py-3 bg-emerald-600 hover:bg-emerald-700 text-white rounded-2xl text-xs font-bold shadow-sm transition"
-          >
-            اختيار ملف واستعادة البيانات
-          </button>
+          <div>
+            <input
+              type="file"
+              ref={fileInputRef}
+              onChange={handleFileChange}
+              accept=".json"
+              className="hidden"
+            />
+            <button
+              onClick={() => fileInputRef.current?.click()}
+              className="w-full py-3 bg-emerald-600 hover:bg-emerald-700 text-white rounded-2xl text-xs font-bold shadow-md shadow-emerald-200 dark:shadow-none transition"
+            >
+              اختيار ملف النسخة الاحتياطية
+            </button>
+          </div>
         </div>
 
-        {/* Re-seed / Demo Data Card */}
-        <div className="p-6 bg-white rounded-3xl border border-slate-200/80 shadow-xs space-y-4 flex flex-col justify-between">
+        {/* Re-seed / Reset Data Card */}
+        <div className="p-6 bg-white dark:bg-slate-900 rounded-3xl border border-slate-200/80 dark:border-slate-800 shadow-xs space-y-4 flex flex-col justify-between">
           <div className="space-y-2">
-            <div className="w-12 h-12 rounded-2xl bg-amber-50 text-amber-600 flex items-center justify-center font-black">
-              <RefreshCw className="w-6 h-6" />
+            <div className="w-12 h-12 rounded-2xl bg-rose-50 dark:bg-rose-950/60 text-rose-600 dark:text-rose-400 flex items-center justify-center font-black">
+              <RotateCcw className="w-6 h-6" />
             </div>
-            <h3 className="text-base font-extrabold text-slate-900">إعادة توليد البيانات التجريبية</h3>
-            <p className="text-xs text-slate-500 leading-relaxed font-medium">
-              إنشاء بيانات اختبارية للصف الرابع والخامس وأكثر من 40 طالباً وملاحظات متنوعة ومتابعات.
+            <h3 className="text-base font-extrabold text-slate-900 dark:text-white">إعادة تعيين البيانات التجريبية</h3>
+            <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed font-medium">
+              إعادة توليد بيانات تجريبية افتراضية كاملة (صفوف، فصول، طلاب، ملاحظات) للاختبار والمعاينة.
             </p>
           </div>
           <button
             onClick={() => setIsSeedConfirmOpen(true)}
-            className="w-full py-3 bg-amber-600 hover:bg-amber-700 text-white rounded-2xl text-xs font-bold shadow-sm transition"
+            className="w-full py-3 bg-rose-600 hover:bg-rose-700 text-white rounded-2xl text-xs font-bold shadow-md shadow-rose-200 dark:shadow-none transition"
           >
-            توليد بيانات تجريبية (Seed)
+            إعادة تعيين البيانات التجريبية
           </button>
         </div>
       </div>
 
-      {/* Archive Management Section */}
-      <div className="p-6 sm:p-8 bg-white rounded-3xl border border-slate-200/80 shadow-xs space-y-6">
-        <div className="flex items-center gap-3">
-          <div className="p-2.5 rounded-2xl bg-slate-100 text-slate-700">
-            <Archive className="w-5 h-5" />
-          </div>
-          <div>
-            <h3 className="text-base font-extrabold text-slate-900">سجل العناصر المؤرشفة (Soft Delete)</h3>
-            <p className="text-xs text-slate-400 font-medium">
-              العناصر المؤرشفة تظل محفوظة بأمان ولا يتم حذفها نهائياً، ويمكنك استعادتها في أي وقت
-            </p>
-          </div>
+      {/* Archive Section */}
+      <div className="space-y-4">
+        <div className="flex items-center gap-2 border-r-4 border-indigo-600 pr-3">
+          <h3 className="text-lg font-black text-slate-900 dark:text-white flex items-center gap-2">
+            <Archive className="w-5 h-5 text-indigo-600 dark:text-indigo-400" />
+            <span>سجل العناصر المؤرشفة (الأرشيف)</span>
+          </h3>
         </div>
 
         {loading ? (
           <LoadingSkeleton count={3} type="table" />
         ) : (
-          <div className="space-y-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {/* Archived Students */}
-            <div className="space-y-3">
-              <h4 className="text-xs font-bold text-slate-700">الطلاب المؤرشفون ({archived.students.length})</h4>
-              {archived.students.length > 0 ? (
-                <div className="divide-y divide-slate-100 border border-slate-200 rounded-2xl overflow-hidden">
-                  {archived.students.map((s) => (
-                    <div key={s.id} className="p-3.5 flex items-center justify-between bg-slate-50/50 text-xs">
+            <div className="p-5 bg-white dark:bg-slate-900 rounded-3xl border border-slate-200/80 dark:border-slate-800 shadow-xs space-y-3">
+              <h4 className="text-xs font-extrabold text-slate-700 dark:text-slate-300">الطلاب المؤرشفون ({archived.students?.length || 0})</h4>
+              {archived.students?.length === 0 ? (
+                <p className="text-xs text-slate-400 italic">لا يوجد طلاب مؤرشفون</p>
+              ) : (
+                <div className="space-y-2 max-h-48 overflow-y-auto">
+                  {archived.students?.map((s) => (
+                    <div key={s.id} className="flex items-center justify-between p-2.5 rounded-xl bg-slate-50 dark:bg-slate-800 text-xs">
                       <div>
-                        <strong className="text-slate-800 font-bold">{s.name}</strong>
-                        <span className="text-slate-400 mr-2">(رقم: {s.student_number} • {s.grade_name} - {s.class_name})</span>
+                        <p className="font-black text-slate-900 dark:text-white">{s.name}</p>
+                        <p className="text-[11px] text-slate-500">{s.student_number}</p>
                       </div>
                       <button
                         onClick={() => handleRestore('student', s.id)}
-                        className="flex items-center gap-1 px-3 py-1 bg-white hover:bg-indigo-50 border border-slate-200 text-indigo-600 font-bold rounded-xl transition"
+                        className="px-2.5 py-1 bg-indigo-50 dark:bg-indigo-950 text-indigo-600 dark:text-indigo-400 rounded-lg font-bold hover:bg-indigo-100 transition"
                       >
-                        <RotateCcw className="w-3.5 h-3.5" />
-                        <span>استعادة الطالب</span>
+                        استعادة
                       </button>
                     </div>
                   ))}
                 </div>
-              ) : (
-                <p className="text-xs text-slate-400 italic">لا يوجد طلاب مؤرشفون حالياً.</p>
               )}
             </div>
 
             {/* Archived Notes */}
-            <div className="space-y-3">
-              <h4 className="text-xs font-bold text-slate-700">الملاحظات المؤرشفة ({archived.notes.length})</h4>
-              {archived.notes.length > 0 ? (
-                <div className="divide-y divide-slate-100 border border-slate-200 rounded-2xl overflow-hidden">
-                  {archived.notes.map((n) => (
-                    <div key={n.id} className="p-3.5 flex items-center justify-between bg-slate-50/50 text-xs">
-                      <div className="max-w-md">
-                        <strong className="text-slate-800 font-bold">{n.student_name}:</strong>
-                        <span className="text-slate-600 mr-2">{n.content}</span>
+            <div className="p-5 bg-white dark:bg-slate-900 rounded-3xl border border-slate-200/80 dark:border-slate-800 shadow-xs space-y-3">
+              <h4 className="text-xs font-extrabold text-slate-700 dark:text-slate-300">الملاحظات المؤرشفة ({archived.notes?.length || 0})</h4>
+              {archived.notes?.length === 0 ? (
+                <p className="text-xs text-slate-400 italic">لا توجد ملاحظات مؤرشفة</p>
+              ) : (
+                <div className="space-y-2 max-h-48 overflow-y-auto">
+                  {archived.notes?.map((n) => (
+                    <div key={n.id} className="flex items-center justify-between p-2.5 rounded-xl bg-slate-50 dark:bg-slate-800 text-xs">
+                      <div className="max-w-[70%]">
+                        <p className="font-black text-slate-900 dark:text-white truncate">{n.student_name}</p>
+                        <p className="text-[11px] text-slate-500 truncate">{n.content}</p>
                       </div>
                       <button
                         onClick={() => handleRestore('note', n.id)}
-                        className="flex items-center gap-1 px-3 py-1 bg-white hover:bg-indigo-50 border border-slate-200 text-indigo-600 font-bold rounded-xl transition"
+                        className="px-2.5 py-1 bg-indigo-50 dark:bg-indigo-950 text-indigo-600 dark:text-indigo-400 rounded-lg font-bold hover:bg-indigo-100 transition"
                       >
-                        <RotateCcw className="w-3.5 h-3.5" />
-                        <span>استعادة الملاحظة</span>
+                        استعادة
                       </button>
                     </div>
                   ))}
                 </div>
-              ) : (
-                <p className="text-xs text-slate-400 italic">لا توجد ملاحظات مؤرشفة حالياً.</p>
               )}
-            </div>
-
-            {/* Archived Classes & Grades */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <h4 className="text-xs font-bold text-slate-700">الفصول المؤرشفة ({archived.classes.length})</h4>
-                {archived.classes.length > 0 ? (
-                  <div className="divide-y divide-slate-100 border border-slate-200 rounded-2xl overflow-hidden">
-                    {archived.classes.map((c) => (
-                      <div key={c.id} className="p-3 flex items-center justify-between bg-slate-50/50 text-xs">
-                        <span>فصل {c.name} ({c.grade_name})</span>
-                        <button
-                          onClick={() => handleRestore('class', c.id)}
-                          className="text-indigo-600 font-bold hover:underline"
-                        >
-                          استعادة
-                        </button>
-                      </div>
-                    ))}
-                  </div>
-                ) : (
-                  <p className="text-xs text-slate-400 italic">لا توجد فصول مؤرشفة.</p>
-                )}
-              </div>
-
-              <div className="space-y-2">
-                <h4 className="text-xs font-bold text-slate-700">الصفوف المؤرشفة ({archived.grades.length})</h4>
-                {archived.grades.length > 0 ? (
-                  <div className="divide-y divide-slate-100 border border-slate-200 rounded-2xl overflow-hidden">
-                    {archived.grades.map((g) => (
-                      <div key={g.id} className="p-3 flex items-center justify-between bg-slate-50/50 text-xs">
-                        <span>{g.name}</span>
-                        <button
-                          onClick={() => handleRestore('grade', g.id)}
-                          className="text-indigo-600 font-bold hover:underline"
-                        >
-                          استعادة
-                        </button>
-                      </div>
-                    ))}
-                  </div>
-                ) : (
-                  <p className="text-xs text-slate-400 italic">لا توجد صفوف مؤرشفة.</p>
-                )}
-              </div>
             </div>
           </div>
         )}
       </div>
 
-      {/* Confirmation Dialogs */}
+      {/* Confirmation Dialog for Seed */}
       <ConfirmDialog
         isOpen={isSeedConfirmOpen}
         onClose={() => setIsSeedConfirmOpen(false)}
         onConfirm={handleReSeed}
-        isLoading={seeding}
-        isDestructive={false}
-        title="توليد البيانات التجريبية"
-        message="سيتم استبدال البيانات الحالية بالبيانات التجريبية المعيارية للصف الرابع والخامس والطلاب والملاحظات النموذجية. هل ترغب في المتابعة؟"
-        confirmLabel="نعم، قم بالتوليد"
+        title="تأكيد إعادة تعيين البيانات التجريبية"
+        message="سيؤدي هذا الإجراء إلى مسح كافة البيانات الحالية وتوليد مجموعة بيانات تجريبية جديدة بالكامل. هل تود المتابعة؟"
+        confirmText={seeding ? 'جاري التوليد...' : 'نعم، أعد التعيين'}
+        isDangerous={true}
       />
     </div>
   );

@@ -11,14 +11,14 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'يرجى إدخال البريد الإلكتروني' }, { status: 400 });
     }
 
-    const user = UserRepository.findByEmail(email);
+    const user = await UserRepository.findByEmail(email);
     if (!user) {
       return NextResponse.json({ error: 'لم يتم العثور على حساب مسجل بهذا البريد الإلكتروني' }, { status: 404 });
     }
 
     // Generate random 6-digit OTP code
     const code = Math.floor(100000 + Math.random() * 900000).toString();
-    UserRepository.createPasswordReset(email, code);
+    await UserRepository.createPasswordReset(email, code);
 
     // Send real email to teacher's Gmail address
     await sendPasswordResetEmail(email.trim(), code);

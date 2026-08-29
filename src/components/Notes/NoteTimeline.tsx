@@ -21,7 +21,9 @@ export function NoteTimeline({
   onResolveFollowUp,
   onAddNewNote,
 }: NoteTimelineProps) {
-  if (notes.length === 0) {
+  const safeNotes = Array.isArray(notes) ? notes : [];
+
+  if (safeNotes.length === 0) {
     return (
       <EmptyState
         title="لا توجد ملاحظات مسجلة حتى الآن"
@@ -35,7 +37,7 @@ export function NoteTimeline({
 
   return (
     <div className="space-y-4">
-      {notes.map((note) => (
+      {safeNotes.map((note) => (
         <NoteCard
           key={note.id}
           note={note}

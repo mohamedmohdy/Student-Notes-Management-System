@@ -1,0 +1,902 @@
+{
+  "users": [
+    {
+      "id": "user_owner_root",
+      "name": "المهندس / مالك المنصة",
+      "email": "owner@school.edu",
+      "password_hash": "$2a$10$7rX2Ub1AQe9yLBUbCO3ejuZd0SmesuBw2rurzKRjxDn.nP7tX.KLO",
+      "role": "OWNER",
+      "created_at": "2026-08-29T09:02:50.166Z",
+      "updated_at": "2026-08-29T12:33:41.574Z",
+      "status": "active",
+      "last_login": "2026-08-29T12:33:41.574Z",
+      "must_change_password": 0
+    },
+    {
+      "id": "user_teacher_1",
+      "name": "أ. محمد بن عبد الله الشمري",
+      "email": "teacher@school.edu",
+      "password_hash": "$2a$10$K/alFcPEpeEuu3ER24Rf6eRKgXcgUppKPvqaAOHLpO14oWE1THd86",
+      "role": "TEACHER",
+      "created_at": "2026-08-29T12:22:12.675Z",
+      "updated_at": "2026-08-29T12:22:12.675Z",
+      "status": "active",
+      "last_login": null,
+      "must_change_password": 0
+    },
+    {
+      "id": "user_teacher_2",
+      "name": "أ. عبد العزيز بن سعود الحربي",
+      "email": "teacher2@school.edu",
+      "password_hash": "$2a$10$K/alFcPEpeEuu3ER24Rf6eRKgXcgUppKPvqaAOHLpO14oWE1THd86",
+      "role": "TEACHER",
+      "created_at": "2026-08-29T12:22:12.675Z",
+      "updated_at": "2026-08-29T12:22:12.675Z",
+      "status": "active",
+      "last_login": null,
+      "must_change_password": 0
+    }
+  ],
+  "grades": [
+    {
+      "id": "t1_grade_4",
+      "name": "الصف الرابع الابتدائي",
+      "archived": 0,
+      "created_at": "2026-08-29T12:22:12.675Z",
+      "updated_at": "2026-08-29T12:22:12.675Z",
+      "teacher_id": "user_teacher_1"
+    },
+    {
+      "id": "t1_grade_5",
+      "name": "الصف الخامس الابتدائي",
+      "archived": 0,
+      "created_at": "2026-08-29T12:22:12.675Z",
+      "updated_at": "2026-08-29T12:22:12.675Z",
+      "teacher_id": "user_teacher_1"
+    },
+    {
+      "id": "t2_grade_6",
+      "name": "الصف السادس الابتدائي",
+      "archived": 0,
+      "created_at": "2026-08-29T12:22:12.675Z",
+      "updated_at": "2026-08-29T12:22:12.675Z",
+      "teacher_id": "user_teacher_2"
+    }
+  ],
+  "classes": [
+    {
+      "id": "t1_class_4a",
+      "grade_id": "t1_grade_4",
+      "name": "4/أ",
+      "archived": 0,
+      "created_at": "2026-08-29T12:22:12.675Z",
+      "updated_at": "2026-08-29T12:22:12.675Z",
+      "teacher_id": "user_teacher_1"
+    },
+    {
+      "id": "t1_class_4b",
+      "grade_id": "t1_grade_4",
+      "name": "4/ب",
+      "archived": 0,
+      "created_at": "2026-08-29T12:22:12.675Z",
+      "updated_at": "2026-08-29T12:22:12.675Z",
+      "teacher_id": "user_teacher_1"
+    },
+    {
+      "id": "t2_class_6a",
+      "grade_id": "t2_grade_6",
+      "name": "6/أ",
+      "archived": 0,
+      "created_at": "2026-08-29T12:22:12.675Z",
+      "updated_at": "2026-08-29T12:22:12.675Z",
+      "teacher_id": "user_teacher_2"
+    }
+  ],
+  "students": [
+    {
+      "id": "t1_s_401",
+      "class_id": "t1_class_4a",
+      "student_number": "401",
+      "name": "عبد الرحمن بن خالد العتيبي",
+      "photo": null,
+      "status": "excellent",
+      "archived": 0,
+      "created_at": "2026-08-29T12:22:12.675Z",
+      "updated_at": "2026-08-29T12:22:12.675Z",
+      "teacher_id": "user_teacher_1"
+    },
+    {
+      "id": "t1_s_402",
+      "class_id": "t1_class_4a",
+      "student_number": "402",
+      "name": "سعود بن فهد الدوسري",
+      "photo": null,
+      "status": "normal",
+      "archived": 0,
+      "created_at": "2026-08-29T12:22:12.675Z",
+      "updated_at": "2026-08-29T12:22:12.675Z",
+      "teacher_id": "user_teacher_1"
+    },
+    {
+      "id": "t1_s_403",
+      "class_id": "t1_class_4a",
+      "student_number": "403",
+      "name": "عمر بن إبراهيم السليمان",
+      "photo": null,
+      "status": "needs_followup",
+      "archived": 0,
+      "created_at": "2026-08-29T12:22:12.675Z",
+      "updated_at": "2026-08-29T12:22:12.675Z",
+      "teacher_id": "user_teacher_1"
+    },
+    {
+      "id": "t1_s_404",
+      "class_id": "t1_class_4a",
+      "student_number": "404",
+      "name": "فيصل بن عبدالعزيز القرني",
+      "photo": null,
+      "status": "normal",
+      "archived": 0,
+      "created_at": "2026-08-29T12:22:12.675Z",
+      "updated_at": "2026-08-29T12:22:12.675Z",
+      "teacher_id": "user_teacher_1"
+    },
+    {
+      "id": "t1_s_405",
+      "class_id": "t1_class_4a",
+      "student_number": "405",
+      "name": "ريان بن صالح الزهراني",
+      "photo": null,
+      "status": "excellent",
+      "archived": 0,
+      "created_at": "2026-08-29T12:22:12.675Z",
+      "updated_at": "2026-08-29T12:22:12.675Z",
+      "teacher_id": "user_teacher_1"
+    },
+    {
+      "id": "t1_s_406",
+      "class_id": "t1_class_4a",
+      "student_number": "406",
+      "name": "يوسف بن أحمد الغامدي",
+      "photo": null,
+      "status": "normal",
+      "archived": 0,
+      "created_at": "2026-08-29T12:22:12.675Z",
+      "updated_at": "2026-08-29T12:22:12.675Z",
+      "teacher_id": "user_teacher_1"
+    },
+    {
+      "id": "t1_s_407",
+      "class_id": "t1_class_4a",
+      "student_number": "407",
+      "name": "تركي بن ماجد العنزي",
+      "photo": null,
+      "status": "needs_followup",
+      "archived": 0,
+      "created_at": "2026-08-29T12:22:12.675Z",
+      "updated_at": "2026-08-29T12:22:12.675Z",
+      "teacher_id": "user_teacher_1"
+    },
+    {
+      "id": "t1_s_408",
+      "class_id": "t1_class_4a",
+      "student_number": "408",
+      "name": "سلطان بن فهد المطيري",
+      "photo": null,
+      "status": "normal",
+      "archived": 0,
+      "created_at": "2026-08-29T12:22:12.675Z",
+      "updated_at": "2026-08-29T12:22:12.675Z",
+      "teacher_id": "user_teacher_1"
+    },
+    {
+      "id": "t1_s_409",
+      "class_id": "t1_class_4a",
+      "student_number": "409",
+      "name": "خالد بن ناصر القحطاني",
+      "photo": null,
+      "status": "excellent",
+      "archived": 0,
+      "created_at": "2026-08-29T12:22:12.675Z",
+      "updated_at": "2026-08-29T12:22:12.675Z",
+      "teacher_id": "user_teacher_1"
+    },
+    {
+      "id": "t1_s_410",
+      "class_id": "t1_class_4a",
+      "student_number": "410",
+      "name": "بدر بن هشام التميمي",
+      "photo": null,
+      "status": "normal",
+      "archived": 0,
+      "created_at": "2026-08-29T12:22:12.675Z",
+      "updated_at": "2026-08-29T12:22:12.675Z",
+      "teacher_id": "user_teacher_1"
+    },
+    {
+      "id": "t1_s_421",
+      "class_id": "t1_class_4b",
+      "student_number": "421",
+      "name": "عبد الله بن سعد العمري",
+      "photo": null,
+      "status": "normal",
+      "archived": 0,
+      "created_at": "2026-08-29T12:22:12.675Z",
+      "updated_at": "2026-08-29T12:22:12.675Z",
+      "teacher_id": "user_teacher_1"
+    },
+    {
+      "id": "t1_s_422",
+      "class_id": "t1_class_4b",
+      "student_number": "422",
+      "name": "سلمان بن حمد الحربي",
+      "photo": null,
+      "status": "excellent",
+      "archived": 0,
+      "created_at": "2026-08-29T12:22:12.675Z",
+      "updated_at": "2026-08-29T12:22:12.675Z",
+      "teacher_id": "user_teacher_1"
+    },
+    {
+      "id": "t1_s_423",
+      "class_id": "t1_class_4b",
+      "student_number": "423",
+      "name": "محمد بن يحيى المالكي",
+      "photo": null,
+      "status": "needs_followup",
+      "archived": 0,
+      "created_at": "2026-08-29T12:22:12.675Z",
+      "updated_at": "2026-08-29T12:22:12.675Z",
+      "teacher_id": "user_teacher_1"
+    },
+    {
+      "id": "t1_s_424",
+      "class_id": "t1_class_4b",
+      "student_number": "424",
+      "name": "نواف بن راشد الخالدي",
+      "photo": null,
+      "status": "normal",
+      "archived": 0,
+      "created_at": "2026-08-29T12:22:12.675Z",
+      "updated_at": "2026-08-29T12:22:12.675Z",
+      "teacher_id": "user_teacher_1"
+    },
+    {
+      "id": "t1_s_425",
+      "class_id": "t1_class_4b",
+      "student_number": "425",
+      "name": "علي بن حسن الشهري",
+      "photo": null,
+      "status": "normal",
+      "archived": 0,
+      "created_at": "2026-08-29T12:22:12.675Z",
+      "updated_at": "2026-08-29T12:22:12.675Z",
+      "teacher_id": "user_teacher_1"
+    },
+    {
+      "id": "t1_s_426",
+      "class_id": "t1_class_4b",
+      "student_number": "426",
+      "name": "مشاري بن منصور الرشيدي",
+      "photo": null,
+      "status": "excellent",
+      "archived": 0,
+      "created_at": "2026-08-29T12:22:12.675Z",
+      "updated_at": "2026-08-29T12:22:12.675Z",
+      "teacher_id": "user_teacher_1"
+    },
+    {
+      "id": "t1_s_427",
+      "class_id": "t1_class_4b",
+      "student_number": "427",
+      "name": "معاذ بن عبدالمحسن السبيعي",
+      "photo": null,
+      "status": "normal",
+      "archived": 0,
+      "created_at": "2026-08-29T12:22:12.675Z",
+      "updated_at": "2026-08-29T12:22:12.675Z",
+      "teacher_id": "user_teacher_1"
+    },
+    {
+      "id": "t1_s_428",
+      "class_id": "t1_class_4b",
+      "student_number": "428",
+      "name": "حاتم بن عيسى العسيري",
+      "photo": null,
+      "status": "needs_followup",
+      "archived": 0,
+      "created_at": "2026-08-29T12:22:12.675Z",
+      "updated_at": "2026-08-29T12:22:12.675Z",
+      "teacher_id": "user_teacher_1"
+    },
+    {
+      "id": "t1_s_429",
+      "class_id": "t1_class_4b",
+      "student_number": "429",
+      "name": "فهد بن سلطان الحازمي",
+      "photo": null,
+      "status": "normal",
+      "archived": 0,
+      "created_at": "2026-08-29T12:22:12.675Z",
+      "updated_at": "2026-08-29T12:22:12.675Z",
+      "teacher_id": "user_teacher_1"
+    },
+    {
+      "id": "t1_s_430",
+      "class_id": "t1_class_4b",
+      "student_number": "430",
+      "name": "إياد بن وليد الرويلي",
+      "photo": null,
+      "status": "normal",
+      "archived": 0,
+      "created_at": "2026-08-29T12:22:12.675Z",
+      "updated_at": "2026-08-29T12:22:12.675Z",
+      "teacher_id": "user_teacher_1"
+    },
+    {
+      "id": "t2_s_601",
+      "class_id": "t2_class_6a",
+      "student_number": "601",
+      "name": "أحمد بن إبراهيم الحازمي",
+      "photo": null,
+      "status": "excellent",
+      "archived": 0,
+      "created_at": "2026-08-29T12:22:12.675Z",
+      "updated_at": "2026-08-29T12:22:12.675Z",
+      "teacher_id": "user_teacher_2"
+    },
+    {
+      "id": "t2_s_602",
+      "class_id": "t2_class_6a",
+      "student_number": "602",
+      "name": "باسم بن صالح العمري",
+      "photo": null,
+      "status": "normal",
+      "archived": 0,
+      "created_at": "2026-08-29T12:22:12.675Z",
+      "updated_at": "2026-08-29T12:22:12.675Z",
+      "teacher_id": "user_teacher_2"
+    },
+    {
+      "id": "t2_s_603",
+      "class_id": "t2_class_6a",
+      "student_number": "603",
+      "name": "عادل بن طارق الزهراني",
+      "photo": null,
+      "status": "needs_followup",
+      "archived": 0,
+      "created_at": "2026-08-29T12:22:12.675Z",
+      "updated_at": "2026-08-29T12:22:12.675Z",
+      "teacher_id": "user_teacher_2"
+    },
+    {
+      "id": "t2_s_604",
+      "class_id": "t2_class_6a",
+      "student_number": "604",
+      "name": "مازن بن ناصر الشهري",
+      "photo": null,
+      "status": "normal",
+      "archived": 0,
+      "created_at": "2026-08-29T12:22:12.675Z",
+      "updated_at": "2026-08-29T12:22:12.675Z",
+      "teacher_id": "user_teacher_2"
+    },
+    {
+      "id": "t2_s_605",
+      "class_id": "t2_class_6a",
+      "student_number": "605",
+      "name": "وليد بن خالد القحطاني",
+      "photo": null,
+      "status": "excellent",
+      "archived": 0,
+      "created_at": "2026-08-29T12:22:12.675Z",
+      "updated_at": "2026-08-29T12:22:12.675Z",
+      "teacher_id": "user_teacher_2"
+    }
+  ],
+  "notes": [
+    {
+      "id": "t1_note_1",
+      "student_id": "t1_s_401",
+      "teacher_id": "user_teacher_1",
+      "type": "positive",
+      "priority": "high",
+      "content": "تميز لافت في مادة الرياضيات وإتقان المسائل.",
+      "action_taken": "تكريم الطالب",
+      "requires_follow_up": 0,
+      "archived": 0,
+      "created_at": "2026-08-29T12:22:12.675Z",
+      "updated_at": "2026-08-29T12:22:12.675Z"
+    },
+    {
+      "id": "t1_note_2",
+      "student_id": "t1_s_403",
+      "teacher_id": "user_teacher_1",
+      "type": "academic",
+      "priority": "high",
+      "content": "تراجع في الإملاء ويحتاج لتدريب إضافي.",
+      "action_taken": "خطة إملائية",
+      "requires_follow_up": 1,
+      "archived": 0,
+      "created_at": "2026-08-29T12:22:12.675Z",
+      "updated_at": "2026-08-29T12:22:12.675Z"
+    },
+    {
+      "id": "t1_note_3",
+      "student_id": "t1_s_407",
+      "teacher_id": "user_teacher_1",
+      "type": "behavioral",
+      "priority": "medium",
+      "content": "تشتت وانشغال جانبي أثناء الشرح.",
+      "action_taken": "تغيير المقعد",
+      "requires_follow_up": 1,
+      "archived": 0,
+      "created_at": "2026-08-29T12:22:12.675Z",
+      "updated_at": "2026-08-29T12:22:12.675Z"
+    },
+    {
+      "id": "t1_note_4",
+      "student_id": "t1_s_422",
+      "teacher_id": "user_teacher_1",
+      "type": "participation",
+      "priority": "medium",
+      "content": "تفاعل ممتاز ومشاركة فعالة في النشاط الجماعي.",
+      "action_taken": "تعزيز إيجابي",
+      "requires_follow_up": 0,
+      "archived": 0,
+      "created_at": "2026-08-29T12:22:12.675Z",
+      "updated_at": "2026-08-29T12:22:12.675Z"
+    },
+    {
+      "id": "t1_note_5",
+      "student_id": "t1_s_423",
+      "teacher_id": "user_teacher_1",
+      "type": "needs_followup",
+      "priority": "high",
+      "content": "صعوبة في القراءة من المقاعد الخلفية.",
+      "action_taken": "مخاطبة ولي الأمر",
+      "requires_follow_up": 1,
+      "archived": 0,
+      "created_at": "2026-08-29T12:22:12.675Z",
+      "updated_at": "2026-08-29T12:22:12.675Z"
+    },
+    {
+      "id": "t1_note_6",
+      "student_id": "t1_s_426",
+      "teacher_id": "user_teacher_1",
+      "type": "skill",
+      "priority": "high",
+      "content": "إلقاء رائع في الإذاعة المدرسية.",
+      "action_taken": "ترشيح للمسابقة",
+      "requires_follow_up": 0,
+      "archived": 0,
+      "created_at": "2026-08-29T12:22:12.675Z",
+      "updated_at": "2026-08-29T12:22:12.675Z"
+    },
+    {
+      "id": "t2_note_1",
+      "student_id": "t2_s_601",
+      "teacher_id": "user_teacher_2",
+      "type": "positive",
+      "priority": "high",
+      "content": "مستوى استثنائي في مسابقة العلوم الوطنية.",
+      "action_taken": "وسام التفوق",
+      "requires_follow_up": 0,
+      "archived": 0,
+      "created_at": "2026-08-29T12:22:12.675Z",
+      "updated_at": "2026-08-29T12:22:12.675Z"
+    },
+    {
+      "id": "t2_note_2",
+      "student_id": "t2_s_603",
+      "teacher_id": "user_teacher_2",
+      "type": "academic",
+      "priority": "high",
+      "content": "يحتاج لمساندة في مادة لغتي الجميلة.",
+      "action_taken": "حصة دعم",
+      "requires_follow_up": 1,
+      "archived": 0,
+      "created_at": "2026-08-29T12:22:12.675Z",
+      "updated_at": "2026-08-29T12:22:12.675Z"
+    },
+    {
+      "id": "t2_note_3",
+      "student_id": "t2_s_605",
+      "teacher_id": "user_teacher_2",
+      "type": "skill",
+      "priority": "medium",
+      "content": "مهارة فائقة في التصميم والرسم.",
+      "action_taken": "معرض المدرسة",
+      "requires_follow_up": 0,
+      "archived": 0,
+      "created_at": "2026-08-29T12:22:12.675Z",
+      "updated_at": "2026-08-29T12:22:12.675Z"
+    }
+  ],
+  "class_notes": [
+    {
+      "id": "cnote_1",
+      "teacher_id": "user_teacher_1",
+      "class_id": "t1_class_4a",
+      "title": "متابعة تفاعل الحصة",
+      "content": "الفصل متفاعل جدًا أثناء الشرح وهناك تحسن كبير في المشاركة والأنشطة الجماعية.",
+      "type": "engagement",
+      "note_date": "2026-08-28",
+      "archived": 0,
+      "created_at": "2026-08-29T12:22:12.675Z",
+      "updated_at": "2026-08-29T12:22:12.675Z"
+    },
+    {
+      "id": "cnote_2",
+      "teacher_id": "user_teacher_1",
+      "class_id": "t1_class_4a",
+      "title": "تنبيه انضباط",
+      "content": "يوجد بعض التشتت أثناء الأنشطة الجماعية ويحتاج إلى إعادة تنظيم وتوزيع المجموعات.",
+      "type": "discipline",
+      "note_date": "2026-08-25",
+      "archived": 0,
+      "created_at": "2026-08-29T12:22:12.675Z",
+      "updated_at": "2026-08-29T12:22:12.675Z"
+    },
+    {
+      "id": "cnote_3",
+      "teacher_id": "user_teacher_2",
+      "class_id": "t2_class_6a",
+      "title": "سلوك الحصة الأولى",
+      "content": "الطلاب ملتزمون بالهدوء والتعليمات بشكل ممتاز وروح التعاون عالية.",
+      "type": "behavior",
+      "note_date": "2026-08-27",
+      "archived": 0,
+      "created_at": "2026-08-29T12:22:12.675Z",
+      "updated_at": "2026-08-29T12:22:12.675Z"
+    }
+  ],
+  "follow_ups": [
+    {
+      "id": "t1_fu_1",
+      "note_id": "t1_note_2",
+      "student_id": "t1_s_403",
+      "teacher_id": "user_teacher_1",
+      "follow_up_date": "2026-08-30",
+      "status": "pending",
+      "result": null,
+      "additional_notes": null,
+      "created_at": "2026-08-29T12:22:12.675Z",
+      "updated_at": "2026-08-29T12:22:12.675Z"
+    },
+    {
+      "id": "t1_fu_2",
+      "note_id": "t1_note_3",
+      "student_id": "t1_s_407",
+      "teacher_id": "user_teacher_1",
+      "follow_up_date": "2026-08-28",
+      "status": "pending",
+      "result": null,
+      "additional_notes": null,
+      "created_at": "2026-08-29T12:22:12.675Z",
+      "updated_at": "2026-08-29T12:22:12.675Z"
+    },
+    {
+      "id": "t1_fu_3",
+      "note_id": "t1_note_5",
+      "student_id": "t1_s_423",
+      "teacher_id": "user_teacher_1",
+      "follow_up_date": "2026-08-25",
+      "status": "completed",
+      "result": "تم إجراء فحص النظر وحجز موعد طبي.",
+      "additional_notes": null,
+      "created_at": "2026-08-29T12:22:12.675Z",
+      "updated_at": "2026-08-29T12:22:12.675Z"
+    },
+    {
+      "id": "t2_fu_1",
+      "note_id": "t2_note_2",
+      "student_id": "t2_s_603",
+      "teacher_id": "user_teacher_2",
+      "follow_up_date": "2026-08-31",
+      "status": "pending",
+      "result": null,
+      "additional_notes": null,
+      "created_at": "2026-08-29T12:22:12.675Z",
+      "updated_at": "2026-08-29T12:22:12.675Z"
+    }
+  ],
+  "announcements": [
+    {
+      "id": "ann_welcome_1",
+      "title": "🎉 أهلاً بكم في منصة سجل الطالب الإلكتروني!",
+      "content": "نرحب بجميع المعلمين الأفاضل. تم تفعيل حسابك بنجاح للوصول غير المحدود مدى الحياة مع دعم كامل للذكاء الاصطناعي واستيراد ملفات الإكسيل.",
+      "type": "event",
+      "is_published": 1,
+      "expires_at": null,
+      "created_at": "2026-08-29T12:22:12.675Z",
+      "updated_at": "2026-08-29T12:22:12.675Z"
+    }
+  ],
+  "announcement_reads": [],
+  "support_tickets": [],
+  "password_resets": [
+    {
+      "id": "reset_mt2ruew3a2ni9a",
+      "email": "mohamed.mohdy.career@gmail.com",
+      "code": "423749",
+      "expires_at": "2026-08-21T10:08:18.819Z",
+      "created_at": "2026-08-21T09:53:18.819Z"
+    },
+    {
+      "id": "reset_mte4fpyv96ahjw",
+      "email": "mm0779403@gmail.com",
+      "code": "866556",
+      "expires_at": "2026-08-29T08:46:16.279Z",
+      "created_at": "2026-08-29T08:31:16.279Z"
+    },
+    {
+      "id": "reset_mte61rxhvso8v1",
+      "email": "teacher@school.edu",
+      "code": "713285",
+      "expires_at": "2026-08-29T09:31:24.869Z",
+      "created_at": "2026-08-29T09:16:24.869Z"
+    }
+  ],
+  "audit_logs": [
+    {
+      "id": "log_mte8j84kthlam9",
+      "user_id": "user_owner_root",
+      "action": "RESET_PASSWORD",
+      "details": "المالك قام بإعادة تعيين كلمة مرور المعلم: teacher@school.edu بتاريخ ٢٩ أغسطس ٢٠٢٦",
+      "created_at": "2026-08-29T10:25:58.244Z"
+    },
+    {
+      "id": "log_mte8n6hzth3cfm",
+      "user_id": "user_owner_root",
+      "action": "RESET_PASSWORD",
+      "details": "المالك قام بإعادة تعيين كلمة مرور المعلم: mohdy123@gmail.com بتاريخ ٢٩ أغسطس ٢٠٢٦",
+      "created_at": "2026-08-29T10:29:02.759Z"
+    },
+    {
+      "id": "log_mte8zgiry8uv0m",
+      "user_id": "user_owner_root",
+      "action": "CREATE_ANNOUNCEMENT",
+      "details": "المالك قام بنشر إعلان جديد بعنوان: 🌙 تهنئة بمناسبة قرب شهر رمضان المبارك",
+      "created_at": "2026-08-29T10:38:35.619Z"
+    },
+    {
+      "id": "log_mte8zqg4cnei1y",
+      "user_id": "user_owner_root",
+      "action": "CREATE_ANNOUNCEMENT",
+      "details": "المالك قام بنشر إعلان جديد بعنوان: 🌙 تهنئة بمناسبة قرب شهر رمضان المبارك",
+      "created_at": "2026-08-29T10:38:48.484Z"
+    },
+    {
+      "id": "log_mte8zuj48hhxyi",
+      "user_id": "user_owner_root",
+      "action": "CREATE_ANNOUNCEMENT",
+      "details": "المالك قام بنشر إعلان جديد بعنوان: 🌙 تهنئة بمناسبة قرب شهر رمضان المبارك",
+      "created_at": "2026-08-29T10:38:53.776Z"
+    },
+    {
+      "id": "log_mte906pxnnzvww",
+      "user_id": "user_owner_root",
+      "action": "RESET_PASSWORD",
+      "details": "المالك قام بإعادة تعيين كلمة مرور المعلم: teacher@school.edu بتاريخ ٢٩ أغسطس ٢٠٢٦",
+      "created_at": "2026-08-29T10:39:09.573Z"
+    },
+    {
+      "id": "log_mte97ttlf5o7lj",
+      "user_id": "user_owner_root",
+      "action": "CREATE_ANNOUNCEMENT",
+      "details": "المالك قام بنشر إعلان جديد بعنوان: رمضان كريم ايها المعلمين الافاضل (ادارة المنصة)",
+      "created_at": "2026-08-29T10:45:06.105Z"
+    },
+    {
+      "id": "log_mte9iujff8kxa3",
+      "user_id": "user_owner_root",
+      "action": "CREATE_ANNOUNCEMENT",
+      "details": "المالك قام بنشر إعلان جديد بعنوان: 🌙 تهنئة بمناسبة قرب شهر رمضان المبارك",
+      "created_at": "2026-08-29T10:53:40.251Z"
+    },
+    {
+      "id": "audit_mte9v83krxw8c2",
+      "user_id": "user_owner_root",
+      "action": "CREATE_ANNOUNCEMENT",
+      "details": "المالك قام بنشر إعلان جديد بعنوان: 🌙 تهنئة بمناسبة قرب شهر رمضان المبارك",
+      "created_at": "2026-08-29T11:03:17.696Z"
+    },
+    {
+      "id": "audit_mte9vzymelem1i",
+      "user_id": "user_owner_root",
+      "action": "CREATE_ANNOUNCEMENT",
+      "details": "المالك قام بنشر إعلان جديد بعنوان: 🌙 تهنئة بمناسبة قرب شهر رمضان المبارك",
+      "created_at": "2026-08-29T11:03:53.806Z"
+    },
+    {
+      "id": "audit_mte9wm4hv6ax9y",
+      "user_id": "user_owner_root",
+      "action": "CREATE_ANNOUNCEMENT",
+      "details": "المالك قام بنشر إعلان جديد بعنوان: 🌙 تهنئة بمناسبة قرب شهر رمضان المبارك",
+      "created_at": "2026-08-29T11:04:22.529Z"
+    },
+    {
+      "id": "audit_mte9wnpplcth4b",
+      "user_id": "user_owner_root",
+      "action": "RESET_PASSWORD",
+      "details": "المالك قام بإعادة تعيين كلمة مرور المعلم: teacher@school.edu بتاريخ ٢٩ أغسطس ٢٠٢٦",
+      "created_at": "2026-08-29T11:04:24.589Z"
+    },
+    {
+      "id": "audit_mte9x4a7a5tevt",
+      "user_id": "user_owner_root",
+      "action": "CREATE_ANNOUNCEMENT",
+      "details": "المالك قام بنشر إعلان جديد بعنوان: 🌙 تهنئة بمناسبة قرب شهر رمضان المبارك",
+      "created_at": "2026-08-29T11:04:46.063Z"
+    },
+    {
+      "id": "audit_mte9x5vajua4iv",
+      "user_id": "user_owner_root",
+      "action": "RESET_PASSWORD",
+      "details": "المالك قام بإعادة تعيين كلمة مرور المعلم: teacher@school.edu بتاريخ ٢٩ أغسطس ٢٠٢٦",
+      "created_at": "2026-08-29T11:04:48.118Z"
+    },
+    {
+      "id": "audit_mtea388g4bh396",
+      "user_id": "user_owner_root",
+      "action": "CREATE_ANNOUNCEMENT",
+      "details": "المالك قام بنشر إعلان جديد بعنوان: 🌙 تهنئة بمناسبة قرب شهر رمضان المبارك",
+      "created_at": "2026-08-29T11:09:31.120Z"
+    },
+    {
+      "id": "audit_mtea3zuj2bsguo",
+      "user_id": "user_owner_root",
+      "action": "RESET_PASSWORD",
+      "details": "المالك قام بإعادة تعيين كلمة مرور المعلم: teacher@school.edu بتاريخ ٢٩ أغسطس ٢٠٢٦",
+      "created_at": "2026-08-29T11:10:06.907Z"
+    },
+    {
+      "id": "audit_mtea43p3xjb8uz",
+      "user_id": "user_owner_root",
+      "action": "CREATE_ANNOUNCEMENT",
+      "details": "المالك قام بنشر إعلان جديد بعنوان: 🌙 تهنئة بمناسبة قرب شهر رمضان المبارك",
+      "created_at": "2026-08-29T11:10:11.895Z"
+    },
+    {
+      "id": "audit_mtea45m2x49k9c",
+      "user_id": "user_owner_root",
+      "action": "CREATE_ANNOUNCEMENT",
+      "details": "المالك قام بنشر إعلان جديد بعنوان: 🌙 تهنئة بمناسبة قرب شهر رمضان المبارك",
+      "created_at": "2026-08-29T11:10:14.378Z"
+    },
+    {
+      "id": "audit_mtea4716e17xc7",
+      "user_id": "user_owner_root",
+      "action": "RESET_PASSWORD",
+      "details": "المالك قام بإعادة تعيين كلمة مرور المعلم: teacher@school.edu بتاريخ ٢٩ أغسطس ٢٠٢٦",
+      "created_at": "2026-08-29T11:10:16.218Z"
+    },
+    {
+      "id": "audit_mtea48ggeu31i2",
+      "user_id": "user_owner_root",
+      "action": "RESET_PASSWORD",
+      "details": "المالك قام بإعادة تعيين كلمة مرور المعلم: teacher@school.edu بتاريخ ٢٩ أغسطس ٢٠٢٦",
+      "created_at": "2026-08-29T11:10:18.064Z"
+    },
+    {
+      "id": "audit_mtea4eeha0inl8",
+      "user_id": "user_owner_root",
+      "action": "CREATE_ANNOUNCEMENT",
+      "details": "المالك قام بنشر إعلان جديد بعنوان: 🌙 تهنئة بمناسبة قرب شهر رمضان المبارك",
+      "created_at": "2026-08-29T11:10:25.769Z"
+    },
+    {
+      "id": "audit_mtea4g0kk3s9oa",
+      "user_id": "user_owner_root",
+      "action": "RESET_PASSWORD",
+      "details": "المالك قام بإعادة تعيين كلمة مرور المعلم: teacher@school.edu بتاريخ ٢٩ أغسطس ٢٠٢٦",
+      "created_at": "2026-08-29T11:10:27.860Z"
+    },
+    {
+      "id": "audit_mteaalsteb16d1",
+      "user_id": "user_owner_root",
+      "action": "CREATE_ANNOUNCEMENT",
+      "details": "المالك قام بنشر إعلان جديد بعنوان: 🌙 تهنئة بمناسبة قرب شهر رمضان المبارك",
+      "created_at": "2026-08-29T11:15:15.293Z"
+    },
+    {
+      "id": "audit_mteaavy3gvp14w",
+      "user_id": "user_owner_root",
+      "action": "RESET_PASSWORD",
+      "details": "المالك قام بإعادة تعيين كلمة مرور المعلم: teacher@school.edu بتاريخ ٢٩ أغسطس ٢٠٢٦",
+      "created_at": "2026-08-29T11:15:28.443Z"
+    },
+    {
+      "id": "audit_mteagk71otkd7y",
+      "user_id": "user_owner_root",
+      "action": "RESET_PASSWORD",
+      "details": "المالك قام بإعادة تعيين كلمة مرور المعلم: mohdy123@gmail.com بتاريخ ٢٩ أغسطس ٢٠٢٦",
+      "created_at": "2026-08-29T11:19:53.149Z"
+    },
+    {
+      "id": "audit_mteaviwsr8w6h4",
+      "user_id": "user_owner_root",
+      "action": "CREATE_ANNOUNCEMENT",
+      "details": "المالك قام بنشر إعلان جديد بعنوان: 🌙 تهنئة بمناسبة قرب شهر رمضان المبارك",
+      "created_at": "2026-08-29T11:31:31.324Z"
+    },
+    {
+      "id": "audit_mteavmwchcdkg4",
+      "user_id": "user_owner_root",
+      "action": "RESET_PASSWORD",
+      "details": "المالك قام بإعادة تعيين كلمة مرور المعلم: teacher@school.edu بتاريخ ٢٩ أغسطس ٢٠٢٦",
+      "created_at": "2026-08-29T11:31:36.492Z"
+    },
+    {
+      "id": "audit_mteaw1dvmuxv2f",
+      "user_id": "user_owner_root",
+      "action": "CREATE_ANNOUNCEMENT",
+      "details": "المالك قام بنشر إعلان جديد بعنوان: 🌙 تهنئة بمناسبة قرب شهر رمضان المبارك",
+      "created_at": "2026-08-29T11:31:55.267Z"
+    },
+    {
+      "id": "audit_mteaw39fln84xr",
+      "user_id": "user_owner_root",
+      "action": "RESET_PASSWORD",
+      "details": "المالك قام بإعادة تعيين كلمة مرور المعلم: teacher@school.edu بتاريخ ٢٩ أغسطس ٢٠٢٦",
+      "created_at": "2026-08-29T11:31:57.699Z"
+    },
+    {
+      "id": "audit_mteawd4iap1xka",
+      "user_id": "user_owner_root",
+      "action": "CREATE_ANNOUNCEMENT",
+      "details": "المالك قام بنشر إعلان جديد بعنوان: 🌙 تهنئة بمناسبة قرب شهر رمضان المبارك",
+      "created_at": "2026-08-29T11:32:10.482Z"
+    },
+    {
+      "id": "audit_mteaweo65648v1",
+      "user_id": "user_owner_root",
+      "action": "RESET_PASSWORD",
+      "details": "المالك قام بإعادة تعيين كلمة مرور المعلم: teacher@school.edu بتاريخ ٢٩ أغسطس ٢٠٢٦",
+      "created_at": "2026-08-29T11:32:12.486Z"
+    },
+    {
+      "id": "audit_mteawzmlpxp2iu",
+      "user_id": "user_owner_root",
+      "action": "CREATE_ANNOUNCEMENT",
+      "details": "المالك قام بنشر إعلان جديد بعنوان: 🌙 تهنئة بمناسبة قرب شهر رمضان المبارك",
+      "created_at": "2026-08-29T11:32:39.645Z"
+    },
+    {
+      "id": "audit_mteax17hh0v3nr",
+      "user_id": "user_owner_root",
+      "action": "RESET_PASSWORD",
+      "details": "المالك قام بإعادة تعيين كلمة مرور المعلم: teacher@school.edu بتاريخ ٢٩ أغسطس ٢٠٢٦",
+      "created_at": "2026-08-29T11:32:41.693Z"
+    },
+    {
+      "id": "audit_mtebw1c24ci2cs",
+      "user_id": "user_owner_root",
+      "action": "CREATE_ANNOUNCEMENT",
+      "details": "المالك قام بنشر إعلان جديد بعنوان: 🌙 تهنئة بمناسبة قرب شهر رمضان المبارك",
+      "created_at": "2026-08-29T11:59:54.818Z"
+    },
+    {
+      "id": "audit_mtebwhuqd2t3do",
+      "user_id": "user_owner_root",
+      "action": "RESET_PASSWORD",
+      "details": "المالك قام بإعادة تعيين كلمة مرور المعلم: teacher@school.edu بتاريخ ٢٩ أغسطس ٢٠٢٦",
+      "created_at": "2026-08-29T12:00:16.226Z"
+    },
+    {
+      "id": "audit_mtecmud9t5drfn",
+      "user_id": "user_owner_root",
+      "action": "CREATE_ANNOUNCEMENT",
+      "details": "المالك قام بنشر إعلان جديد بعنوان: 🌙 تهنئة بمناسبة قرب شهر رمضان المبارك",
+      "created_at": "2026-08-29T12:20:45.501Z"
+    },
+    {
+      "id": "audit_mtecnlvhydpy7l",
+      "user_id": "user_owner_root",
+      "action": "RESET_PASSWORD",
+      "details": "المالك قام بإعادة تعيين كلمة مرور المعلم: teacher@school.edu بتاريخ ٢٩ أغسطس ٢٠٢٦",
+      "created_at": "2026-08-29T12:21:21.149Z"
+    }
+  ]
+}

@@ -6,7 +6,8 @@ import { Sidebar } from '@/components/Layout/Sidebar';
 import { Header } from '@/components/Layout/Header';
 import { GlobalSearchModal } from '@/components/Layout/GlobalSearchModal';
 import { AddEditNoteModal } from '@/components/Notes/AddEditNoteModal';
-import { TeacherBot } from '@/components/Assistant/TeacherBot';
+import { InteractiveTour } from '@/components/Tour/InteractiveTour';
+import { FloatingAnalystButton } from '@/components/AI/FloatingAnalystButton';
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -23,6 +24,30 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         return res.json();
       })
       .then((data) => {
+        if (!data.user) {
+          router.replace('/login');
+          return;
+        }
+
+        const role = (data.user.role || '').toUpperCase();
+        const status = data.user.status;
+
+        // Route Guard for pending, disabled, or forced password change
+        if (role !== 'OWNER' && role !== 'ADMIN') {
+          if (status === 'pending') {
+            router.replace('/pending-activation');
+            return;
+          }
+          if (status === 'disabled') {
+            router.replace('/account-disabled');
+            return;
+          }
+          if (data.user.must_change_password === 1) {
+            router.replace('/change-password');
+            return;
+          }
+        }
+
         setUser(data.user);
         setLoading(false);
       })
@@ -31,7 +56,6 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       });
   }, [router]);
 
-  // Keyboard shortcut listener for Ctrl+K
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') {
@@ -45,17 +69,17 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-slate-50">
+      <div className="min-h-screen flex items-center justify-center bg-slate-50 dark:bg-slate-950">
         <div className="flex flex-col items-center gap-4">
           <div className="w-10 h-10 border-4 border-indigo-600 border-t-transparent rounded-full animate-spin"></div>
-          <p className="text-xs font-bold text-slate-500">جاري التحقق من الجلسة...</p>
+          <p className="text-xs font-bold text-slate-500">جاري التحقق من الجلسة والصلاحيات...</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen flex bg-slate-50">
+    <div className="min-h-screen flex bg-slate-50 dark:bg-slate-950 transition-colors">
       {/* Sidebar */}
       <Sidebar
         isOpen={sidebarOpen}
@@ -79,8 +103,11 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         </main>
       </div>
 
-      {/* Teacher Assistant Bot Widget */}
-      <TeacherBot onOpenAddNote={() => setAddNoteOpen(true)} />
+      {/* Interactive Platform Tour */}
+      <InteractiveTour />
+
+      {/* Floating AI Data Analyst Button */}
+      <FloatingAnalystButton />
 
       {/* Global Modals */}
       <GlobalSearchModal

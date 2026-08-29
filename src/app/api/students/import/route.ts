@@ -1,11 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { StudentRepository } from '@/lib/db';
-import { getCurrentUser } from '@/lib/auth';
+import { requireActiveTeacher } from '@/lib/auth';
 
 export async function POST(request: NextRequest) {
   try {
-    const session = await getCurrentUser();
-    if (!session) return NextResponse.json({ error: 'غير مصرح' }, { status: 401 });
+    const authCheck = await requireActiveTeacher();
+    if ('error' in authCheck) return NextResponse.json({ error: authCheck.error }, { status: authCheck.status });
 
     const body = await request.json();
     let { students, classId } = body;
@@ -21,10 +21,10 @@ export async function POST(request: NextRequest) {
       }));
     }
 
-    const count = StudentRepository.importBatch(students);
+    const count = await StudentRepository.importBatch(students, authCheck.user.userId);
     return NextResponse.json({
       count,
-      message: `تم استيراد وإضافة ${count} طالباً بنجاح من ملف Excel!`,
+      message: `تم استيراد وإضافة ${count} طالباً بنجاح في فصولك!`,
     });
   } catch (error: any) {
     console.error('Import students error:', error);

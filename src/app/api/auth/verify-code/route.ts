@@ -10,7 +10,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'البريد الإلكتروني ورمز التحقق مطلوبان' }, { status: 400 });
     }
 
-    const isValid = UserRepository.verifyPasswordReset(email, code);
+    const isValid = await UserRepository.verifyPasswordReset(email, code);
     if (!isValid) {
       return NextResponse.json({ error: 'رمز التحقق غير صحيح أو انتهت صلاحيته (صلاحية الرمز 15 دقيقة)' }, { status: 400 });
     }

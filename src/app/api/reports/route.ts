@@ -1,12 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { NoteRepository, StudentRepository, GradeRepository, ClassRepository, FollowUpRepository } from '@/lib/db';
-import { getCurrentUser } from '@/lib/auth';
+import { NoteRepository, StudentRepository, GradeRepository, ClassRepository, FollowUpRepository, ClassNoteRepository } from '@/lib/db';
+import { requireActiveTeacher } from '@/lib/auth';
 
 export async function GET(request: NextRequest) {
   try {
-    const session = await getCurrentUser();
-    if (!session) return NextResponse.json({ error: 'غير مصرح' }, { status: 401 });
-
+    const authCheck = await requireActiveTeacher();
+    if ('error' in authCheck) {
+      return NextResponse.json({ error: authCheck.error }, { status: authCheck.status });
+    }
     const searchParams = request.nextUrl.searchParams;
     const gradeId = searchParams.get('gradeId') || undefined;
     const classId = searchParams.get('classId') || undefined;
@@ -16,11 +17,12 @@ export async function GET(request: NextRequest) {
     const startDate = searchParams.get('startDate') || undefined;
     const endDate = searchParams.get('endDate') || undefined;
 
-    const notes = NoteRepository.getAll({ gradeId, classId, studentId, type, priority, startDate, endDate });
-    const students = StudentRepository.getAll({ gradeId, classId });
-    const grades = GradeRepository.getAll();
-    const classes = ClassRepository.getAll();
-    const followUps = FollowUpRepository.getAll({ studentId });
+    const notes = await NoteRepository.getAll({ gradeId, classId, studentId, type, priority, startDate, endDate, teacherId: authCheck.user.userId });
+    const students = await StudentRepository.getAll({ gradeId, classId, teacherId: authCheck.user.userId });
+    const grades = await GradeRepository.getAll({ teacherId: authCheck.user.userId });
+    const classes = await ClassRepository.getAll({ teacherId: authCheck.user.userId });
+    const followUps = await FollowUpRepository.getAll({ studentId, teacherId: authCheck.user.userId });
+    const classNotes = await ClassNoteRepository.getAll({ classId, startDate, endDate, teacherId: authCheck.user.userId });
 
     return NextResponse.json({
       notes,
@@ -28,6 +30,7 @@ export async function GET(request: NextRequest) {
       grades,
       classes,
       followUps,
+      classNotes,
     });
   } catch (error: any) {
     return NextResponse.json({ error: 'حدث خطأ أثناء إعداد التقرير' }, { status: 500 });

@@ -1,14 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { NoteRepository } from '@/lib/db';
-import { getCurrentUser } from '@/lib/auth';
+import { requireActiveTeacher } from '@/lib/auth';
 
 export async function GET(request: NextRequest, { params }: { params: { id: string } }) {
   try {
-    const session = await getCurrentUser();
-    if (!session) return NextResponse.json({ error: 'غير مصرح' }, { status: 401 });
+    const authCheck = await requireActiveTeacher();
+    if ('error' in authCheck) return NextResponse.json({ error: authCheck.error }, { status: authCheck.status });
 
-    const note = NoteRepository.findById(params.id);
-    if (!note) return NextResponse.json({ error: 'الملاحظة غير موجودة' }, { status: 404 });
+    const note = await NoteRepository.findById(params.id, authCheck.user.userId);
+    if (!note) return NextResponse.json({ error: 'الملاحظة غير موجودة أو غير تابعة لحسابك' }, { status: 404 });
 
     return NextResponse.json({ note });
   } catch (error: any) {
@@ -18,12 +18,12 @@ export async function GET(request: NextRequest, { params }: { params: { id: stri
 
 export async function PUT(request: NextRequest, { params }: { params: { id: string } }) {
   try {
-    const session = await getCurrentUser();
-    if (!session) return NextResponse.json({ error: 'غير مصرح' }, { status: 401 });
+    const authCheck = await requireActiveTeacher();
+    if ('error' in authCheck) return NextResponse.json({ error: authCheck.error }, { status: authCheck.status });
 
     const body = await request.json();
-    const note = NoteRepository.update(params.id, body);
-    if (!note) return NextResponse.json({ error: 'الملاحظة غير موجودة' }, { status: 404 });
+    const note = await NoteRepository.update(params.id, body, authCheck.user.userId);
+    if (!note) return NextResponse.json({ error: 'الملاحظة غير موجودة أو غير تابعة لحسابك' }, { status: 404 });
 
     return NextResponse.json({ note, message: 'تم تعديل الملاحظة بنجاح' });
   } catch (error: any) {
@@ -33,10 +33,12 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
 
 export async function DELETE(request: NextRequest, { params }: { params: { id: string } }) {
   try {
-    const session = await getCurrentUser();
-    if (!session) return NextResponse.json({ error: 'غير مصرح' }, { status: 401 });
+    const authCheck = await requireActiveTeacher();
+    if ('error' in authCheck) return NextResponse.json({ error: authCheck.error }, { status: authCheck.status });
 
-    NoteRepository.setArchived(params.id, true);
+    const ok = await NoteRepository.setArchived(params.id, true, authCheck.user.userId);
+    if (!ok) return NextResponse.json({ error: 'الملاحظة غير موجودة أو غير تابعة لحسابك' }, { status: 404 });
+
     return NextResponse.json({ message: 'تم أرشفة الملاحظة بنجاح' });
   } catch (error: any) {
     return NextResponse.json({ error: 'حدث خطأ أثناء أرشفة الملاحظة' }, { status: 500 });

@@ -1,20 +1,29 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { GradeRepository } from '@/lib/db';
-import { getCurrentUser } from '@/lib/auth';
+import { requireActiveTeacher } from '@/lib/auth';
+
+export async function GET(request: NextRequest, { params }: { params: { id: string } }) {
+  try {
+    const authCheck = await requireActiveTeacher();
+    if ('error' in authCheck) return NextResponse.json({ error: authCheck.error }, { status: authCheck.status });
+
+    const grade = await GradeRepository.findById(params.id, authCheck.user.userId);
+    if (!grade) return NextResponse.json({ error: 'الصف غير موجود أو غير تابع لحسابك' }, { status: 404 });
+
+    return NextResponse.json({ grade });
+  } catch (error: any) {
+    return NextResponse.json({ error: 'حدث خطأ أثناء جلب الصف' }, { status: 500 });
+  }
+}
 
 export async function PUT(request: NextRequest, { params }: { params: { id: string } }) {
   try {
-    const session = await getCurrentUser();
-    if (!session) return NextResponse.json({ error: 'غير مصرح' }, { status: 401 });
+    const authCheck = await requireActiveTeacher();
+    if ('error' in authCheck) return NextResponse.json({ error: authCheck.error }, { status: authCheck.status });
 
     const body = await request.json();
-    const { name } = body;
-    if (!name || !name.trim()) {
-      return NextResponse.json({ error: 'اسم الصف مطلوب' }, { status: 400 });
-    }
-
-    const grade = GradeRepository.update(params.id, name);
-    if (!grade) return NextResponse.json({ error: 'الصف غير موجود' }, { status: 404 });
+    const grade = await GradeRepository.update(params.id, body.name, authCheck.user.userId);
+    if (!grade) return NextResponse.json({ error: 'الصف غير موجود أو غير تابع لحسابك' }, { status: 404 });
 
     return NextResponse.json({ grade, message: 'تم تعديل الصف بنجاح' });
   } catch (error: any) {
@@ -24,19 +33,14 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
 
 export async function DELETE(request: NextRequest, { params }: { params: { id: string } }) {
   try {
-    const session = await getCurrentUser();
-    if (!session) return NextResponse.json({ error: 'غير مصرح' }, { status: 401 });
+    const authCheck = await requireActiveTeacher();
+    if ('error' in authCheck) return NextResponse.json({ error: authCheck.error }, { status: authCheck.status });
 
-    const permanent = request.nextUrl.searchParams.get('permanent') === 'true';
+    const ok = await GradeRepository.archive(params.id, authCheck.user.userId);
+    if (!ok) return NextResponse.json({ error: 'الصف غير موجود أو غير تابع لحسابك' }, { status: 404 });
 
-    if (permanent) {
-      GradeRepository.deletePermanent(params.id);
-      return NextResponse.json({ message: 'تم حذف الصف وكافة فصوله وطلابه وملاحظاته نهائياً بنجاح' });
-    } else {
-      GradeRepository.setArchived(params.id, true);
-      return NextResponse.json({ message: 'تم أرشفة الصف بنجاح' });
-    }
+    return NextResponse.json({ message: 'تم أرشفة الصف بنجاح' });
   } catch (error: any) {
-    return NextResponse.json({ error: 'حدث خطأ أثناء حذف الصف' }, { status: 500 });
+    return NextResponse.json({ error: 'حدث خطأ أثناء أرشفة الصف' }, { status: 500 });
   }
 }

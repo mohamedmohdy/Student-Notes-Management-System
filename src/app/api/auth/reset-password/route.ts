@@ -15,14 +15,14 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'يجب أن تتكون كلمة المرور الجديدة من 6 خانات على الأقل' }, { status: 400 });
     }
 
-    const isValid = UserRepository.verifyPasswordReset(email, code);
+    const isValid = await UserRepository.verifyPasswordReset(email, code);
     if (!isValid) {
       return NextResponse.json({ error: 'رمز التحقق غير صحيح أو منتهي الصلاحية' }, { status: 400 });
     }
 
     const password_hash = hashPassword(newPassword);
-    UserRepository.updatePassword(email, password_hash);
-    UserRepository.clearPasswordReset(email);
+    await UserRepository.updatePassword(email, password_hash);
+    await UserRepository.clearPasswordReset(email);
 
     return NextResponse.json({ message: 'تم تعيين كلمة المرور الجديدة بنجاح، يمكنك الآن تسجيل الدخول' });
   } catch (error: any) {
