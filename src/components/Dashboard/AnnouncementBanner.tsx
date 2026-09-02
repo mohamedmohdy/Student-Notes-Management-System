@@ -71,28 +71,29 @@ const TYPE_STYLES: Record<
   },
 };
 
-export function AnnouncementBanner() {
-  const toast = useToast();
-  const [announcements, setAnnouncements] = useState<Announcement[]>([]);
-  const [loading, setLoading] = useState(true);
+export interface AnnouncementBannerProps {
+  initialAnnouncements?: Announcement[];
+}
 
-  const fetchAnnouncements = async () => {
-    try {
-      const res = await fetch('/api/announcements');
-      const data = await res.json();
-      if (data.announcements) {
-        setAnnouncements(data.announcements);
-      }
-    } catch (e) {
-      console.error(e);
-    } finally {
-      setLoading(false);
-    }
-  };
+export function AnnouncementBanner({ initialAnnouncements }: AnnouncementBannerProps = {}) {
+  const toast = useToast();
+  const [announcements, setAnnouncements] = useState<Announcement[]>(initialAnnouncements || []);
+  const [loading, setLoading] = useState(initialAnnouncements === undefined);
 
   useEffect(() => {
-    fetchAnnouncements();
-  }, []);
+    if (initialAnnouncements !== undefined) {
+      setAnnouncements(initialAnnouncements);
+      setLoading(false);
+      return;
+    }
+    fetch('/api/announcements')
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.announcements) setAnnouncements(data.announcements);
+      })
+      .catch((e) => console.error(e))
+      .finally(() => setLoading(false));
+  }, [initialAnnouncements]);
 
   const handleMarkAsRead = async (id: string) => {
     try {
@@ -116,7 +117,10 @@ export function AnnouncementBanner() {
   if (loading || announcements.length === 0) return null;
 
   return (
-    <div className="space-y-3 mb-6 animate-in fade-in duration-300">
+    <section aria-labelledby="announcements-heading" className="space-y-3 mb-6 animate-in fade-in duration-300">
+      <h2 id="announcements-heading" className="sr-only">
+        الإعلانات والتنبيهات العامة
+      </h2>
       {announcements.map((ann) => {
         const style = TYPE_STYLES[ann.type] || TYPE_STYLES.general;
         const Icon = style.icon;
@@ -136,27 +140,27 @@ export function AnnouncementBanner() {
 
                 <div className="space-y-1.5">
                   <div className="flex flex-wrap items-center gap-2">
-                    <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-black shadow-xs ${style.badgeBg}`}>
+                    <span className={`px-2.5 py-0.5 rounded-full text-xs font-black shadow-xs ${style.badgeBg}`}>
                       {style.label}
                     </span>
 
                     {isUnread && (
-                      <span className="px-2 py-0.5 rounded-full bg-rose-500 text-white text-[10px] font-black animate-pulse flex items-center gap-1">
+                      <span className="px-2 py-0.5 rounded-full bg-rose-500 text-white text-xs font-black animate-pulse flex items-center gap-1">
                         <span className="w-1.5 h-1.5 rounded-full bg-white" />
                         <span>🔴 إعلان جديد</span>
                       </span>
                     )}
 
-                    <span className="text-[10px] text-slate-500 dark:text-slate-400 font-bold">
+                    <span className="text-xs text-slate-600 dark:text-slate-400 font-bold">
                       {formatDateArabic(ann.created_at)}
                     </span>
                   </div>
 
-                  <h3 className="text-sm font-black text-slate-900 dark:text-white group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition">
+                  <h3 className="text-sm sm:text-base font-black text-slate-900 dark:text-white group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition">
                     {ann.title}
                   </h3>
 
-                  <p className="text-xs text-slate-700 dark:text-slate-300 leading-relaxed font-medium whitespace-pre-line">
+                  <p className="text-xs sm:text-sm text-slate-700 dark:text-slate-300 leading-relaxed font-medium whitespace-pre-line">
                     {ann.content}
                   </p>
                 </div>
@@ -164,12 +168,14 @@ export function AnnouncementBanner() {
 
               {/* Hide Button */}
               <button
+                type="button"
                 onClick={(e) => {
                   e.stopPropagation();
                   handleHide(ann.id);
                 }}
-                className="p-1.5 text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-white/60 dark:hover:bg-slate-800/60 rounded-xl transition shrink-0"
+                className="p-2 min-h-[44px] min-w-[44px] flex items-center justify-center text-slate-500 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-white/60 dark:hover:bg-slate-800/60 rounded-xl transition shrink-0"
                 title="إخفاء الإعلان من لوحتك"
+                aria-label="إخفاء الإعلان من لوحتك"
               >
                 <X className="w-4 h-4" />
               </button>
@@ -177,6 +183,6 @@ export function AnnouncementBanner() {
           </div>
         );
       })}
-    </div>
+    </section>
   );
 }

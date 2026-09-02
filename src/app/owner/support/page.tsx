@@ -4,22 +4,22 @@ import React, { useState, useEffect, useCallback } from 'react';
 import {
   LifeBuoy,
   Search,
-  Filter,
-  CheckCircle2,
+  RefreshCw,
   Clock,
+  CheckCircle2,
   AlertCircle,
   MessageSquare,
-  Users,
-  Eye,
-  RefreshCw,
+  ChevronLeft,
 } from 'lucide-react';
+import { PageContainer } from '@/components/Layout/PageContainer';
 import { OwnerTicketDetailsModal } from '@/components/Owner/OwnerTicketDetailsModal';
+import { StatCard } from '@/components/UI/StatCard';
+import { Badge } from '@/components/UI/Badge';
 import { LoadingSkeleton } from '@/components/UI/LoadingSkeleton';
 import { EmptyState } from '@/components/UI/EmptyState';
-import { useToast } from '@/components/UI/Toast';
-import { formatDateArabic, TICKET_CATEGORY_LABELS, TICKET_STATUS_LABELS } from '@/lib/utils';
 import { SupportTicket, SupportTicketCategory, SupportTicketStatus } from '@/lib/types';
-import { heroTheme } from '@/lib/heroui-theme';
+import { formatDateArabic, TICKET_CATEGORY_LABELS, TICKET_STATUS_LABELS } from '@/lib/utils';
+import { useToast } from '@/components/UI/Toast';
 
 export default function OwnerSupportPage() {
   const toast = useToast();
@@ -55,189 +55,197 @@ export default function OwnerSupportPage() {
 
   const newCount = tickets.filter((t) => t.status === 'new').length;
   const inProgressCount = tickets.filter((t) => t.status === 'in_progress').length;
-  const resolvedCount = tickets.filter((t) => t.status === 'resolved').length;
+  const resolvedCount = tickets.filter((t) => t.status === 'resolved' || t.status === 'closed').length;
 
   return (
-    <div className="space-y-6 animate-fadeIn">
-      {/* Header */}
+    <PageContainer>
+      {/* 1. Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div className="space-y-1">
-          <div className="flex items-center gap-2">
-            <h2 className="text-xl sm:text-2xl font-black text-slate-900 dark:text-white">
-              🛟 إدارة الدعم الفني والتذاكر
-            </h2>
-            <span className="text-xs px-2.5 py-0.5 rounded-full bg-amber-100 dark:bg-amber-950 text-amber-800 dark:text-amber-300 font-black border border-amber-300 dark:border-amber-800">
+          <div className="flex items-center gap-2.5">
+            <div className="p-2 rounded-xl bg-amber-50 dark:bg-amber-950/60 text-amber-600 dark:text-amber-400">
+              <LifeBuoy className="w-5 h-5" />
+            </div>
+            <h1 className="text-xl sm:text-2xl font-black text-slate-900 dark:text-slate-100 tracking-tight">
+              إدارة الدعم الفني والتذاكر
+            </h1>
+            <span className="text-xs px-2 py-0.5 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 font-bold border border-slate-200 dark:border-slate-700">
               {tickets.length} تذكرة
             </span>
           </div>
           <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 font-medium">
-            استعراض تذاكر ومشاكل واستفسارات المعلمين ومتابعتها والرد عليها
+            استعراض تذاكر ومشاكل واستفسارات المعلمين ومتابعتها والرد عليها.
           </p>
         </div>
 
         <button
+          type="button"
           onClick={loadTickets}
-          className="flex items-center gap-2 px-4 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 rounded-xl text-xs font-bold transition shadow-xs self-start"
+          className="p-2.5 min-h-[44px] min-w-[44px] text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 rounded-xl border border-slate-200 dark:border-slate-700 flex items-center justify-center self-start"
+          title="تحديث القائمة"
         >
-          <RefreshCw className={`w-3.5 h-3.5 ${loading ? 'animate-spin' : ''}`} />
-          <span>تحديث القائمة</span>
+          <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
         </button>
       </div>
 
-      {/* Stat Cards */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3.5">
-        <div className="p-4 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-xs">
-          <span className="text-xs font-bold text-slate-400">إجمالي التذاكر</span>
-          <p className="text-xl font-black text-slate-900 dark:text-white mt-1">{tickets.length}</p>
-        </div>
+      {/* 2. Ticket KPIs */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+        <StatCard
+          title="إجمالي التذاكر"
+          value={tickets.length}
+          description="كافة الطلبات المسجلة"
+          icon={LifeBuoy}
+          color="indigo"
+        />
 
-        <div className="p-4 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-xs">
-          <span className="text-xs font-bold text-amber-500">🟡 تذاكر جديدة</span>
-          <p className="text-xl font-black text-amber-600 dark:text-amber-400 mt-1">{newCount}</p>
-        </div>
+        <StatCard
+          title="تذاكر جديدة"
+          value={newCount}
+          description="تحتاج مراجعة"
+          icon={Clock}
+          color="amber"
+        />
 
-        <div className="p-4 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-xs">
-          <span className="text-xs font-bold text-sky-500">🔵 قيد المراجعة</span>
-          <p className="text-xl font-black text-sky-600 dark:text-sky-400 mt-1">{inProgressCount}</p>
-        </div>
+        <StatCard
+          title="قيد المعالجة"
+          value={inProgressCount}
+          description="جاري العمل عليها"
+          icon={AlertCircle}
+          color="cyan"
+        />
 
-        <div className="p-4 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-xs">
-          <span className="text-xs font-bold text-emerald-500">🟢 تم الحل</span>
-          <p className="text-xl font-black text-emerald-600 dark:text-emerald-400 mt-1">{resolvedCount}</p>
-        </div>
+        <StatCard
+          title="تم حلها"
+          value={resolvedCount}
+          description="مغلقة بنجاح"
+          icon={CheckCircle2}
+          color="emerald"
+        />
       </div>
 
-      {/* Filter & Search Bar */}
-      <div className="p-4 bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/80 dark:border-slate-800 shadow-xs flex flex-col md:flex-row items-center justify-between gap-3">
-        <div className="relative w-full md:w-80">
-          <Search className="w-4 h-4 text-slate-400 absolute right-3.5 top-3" />
+      {/* 3. Filters Toolbar */}
+      <div className="p-4 sm:p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 shadow-xs flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
+        <div className="relative flex-1">
+          <Search className="w-4 h-4 text-slate-400 absolute right-3.5 top-1/2 -translate-y-1/2" />
           <input
             type="text"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            placeholder="بحث بالمعلم أو رقم التذكرة أو العنوان..."
-            className={heroTheme.input}
+            placeholder="بحث بالمعلم أو رقم التذكرة أو الموضوع..."
+            className="w-full min-h-[44px] bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 rounded-xl pr-10 pl-4 text-xs sm:text-sm font-semibold text-slate-900 dark:text-slate-100 placeholder:text-slate-400 focus:ring-2 focus:ring-amber-500/20 focus:border-amber-600 outline-none transition"
           />
         </div>
 
-        <div className="flex flex-wrap items-center gap-2.5 w-full md:w-auto">
-          {/* Status filter */}
+        <div className="flex flex-wrap items-center gap-2 shrink-0">
           <select
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value)}
-            className="px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-bold text-slate-700 dark:text-slate-300 focus:ring-2 focus:ring-amber-500"
+            className="min-h-[44px] px-3 py-2 bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-bold text-slate-700 dark:text-slate-200 focus:ring-2 focus:ring-amber-500/20 focus:border-amber-600 outline-none transition"
           >
             <option value="all">كافة الحالات</option>
             {Object.entries(TICKET_STATUS_LABELS).map(([k, v]) => (
-              <option key={k} value={k}>
-                {v.label}
-              </option>
+              <option key={k} value={k}>{v.label}</option>
             ))}
           </select>
 
-          {/* Category filter */}
           <select
             value={categoryFilter}
             onChange={(e) => setCategoryFilter(e.target.value)}
-            className="px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-bold text-slate-700 dark:text-slate-300 focus:ring-2 focus:ring-amber-500"
+            className="min-h-[44px] px-3 py-2 bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-bold text-slate-700 dark:text-slate-200 focus:ring-2 focus:ring-amber-500/20 focus:border-amber-600 outline-none transition"
           >
             <option value="all">كافة الأنواع</option>
             {Object.entries(TICKET_CATEGORY_LABELS).map(([k, v]) => (
-              <option key={k} value={k}>
-                {v.label}
-              </option>
+              <option key={k} value={k}>{v.label}</option>
             ))}
           </select>
         </div>
       </div>
 
-      {/* Tickets Table / List */}
+      {/* 4. Ticket List */}
       {loading ? (
-        <LoadingSkeleton count={4} type="table" />
+        <LoadingSkeleton count={4} type="card" />
       ) : tickets.length === 0 ? (
         <EmptyState
           title="لا توجد تذاكر دعم فني مطابقة"
           description="لا توجد تذاكر مسجلة حالياً بناءً على معايير البحث والتصفية المحددة."
-          icon={<LifeBuoy className="w-12 h-12" />}
+          icon={<LifeBuoy className="w-10 h-10" />}
         />
       ) : (
-        <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200/80 dark:border-slate-800 overflow-hidden shadow-xs">
-          <div className="overflow-x-auto">
-            <table className="w-full text-right border-collapse">
-              <thead>
-                <tr className="bg-slate-50/70 dark:bg-slate-800/50 border-b border-slate-100 dark:border-slate-800 text-[11px] font-black text-slate-500 uppercase tracking-wider">
-                  <th className="p-4">رقم التذكرة</th>
-                  <th className="p-4">المعلم</th>
-                  <th className="p-4">نوع المشكلة</th>
-                  <th className="p-4">عنوان التذكرة</th>
-                  <th className="p-4">الحالة</th>
-                  <th className="p-4">تاريخ الإرسال</th>
-                  <th className="p-4 text-center">الإجراء</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-100 dark:divide-slate-800/80 text-xs">
-                {tickets.map((t) => {
-                  const categoryKey = t.category as SupportTicketCategory;
-                  const categoryInfo = TICKET_CATEGORY_LABELS[categoryKey] || { label: t.category };
+        <div className="space-y-3">
+          {tickets.map((t) => {
+            const categoryKey = t.category as SupportTicketCategory;
+            const categoryInfo = TICKET_CATEGORY_LABELS[categoryKey] || { label: t.category };
+            const statusKey = t.status as SupportTicketStatus;
+            const statusInfo = TICKET_STATUS_LABELS[statusKey] || { label: t.status };
 
-                  const statusKey = t.status as SupportTicketStatus;
-                  const statusInfo = TICKET_STATUS_LABELS[statusKey] || { label: t.status, badgeClass: 'bg-slate-100 text-slate-800' };
+            const statusBadgeVariant: 'warning' | 'success' | 'info' | 'neutral' =
+              statusKey === 'new' ? 'warning' : statusKey === 'in_progress' ? 'info' : statusKey === 'resolved' || statusKey === 'closed' ? 'success' : 'neutral';
 
-                  return (
-                    <tr
-                      key={t.id}
-                      onClick={() => setSelectedTicket(t)}
-                      className="hover:bg-slate-50/80 dark:hover:bg-slate-800/50 transition cursor-pointer"
-                    >
-                      <td className="p-4 font-mono font-black text-indigo-600 dark:text-indigo-400">
+            return (
+              <div
+                key={t.id}
+                onClick={() => setSelectedTicket(t)}
+                className="p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 shadow-xs hover:border-amber-300 dark:hover:border-amber-500/40 transition-all duration-150 cursor-pointer flex flex-col sm:flex-row sm:items-center justify-between gap-4 group"
+              >
+                <div className="flex items-start gap-4">
+                  <div className="w-10 h-10 rounded-xl bg-amber-50 dark:bg-amber-950/60 text-amber-600 dark:text-amber-400 flex items-center justify-center shrink-0 border border-amber-100 dark:border-amber-900/60 group-hover:scale-105 transition-transform">
+                    <LifeBuoy className="w-5 h-5" />
+                  </div>
+
+                  <div className="space-y-1 min-w-0">
+                    <div className="flex flex-wrap items-center gap-2">
+                      <span className="text-xs font-mono font-black text-amber-600 dark:text-amber-400">
                         {t.ticket_number}
-                      </td>
-                      <td className="p-4">
-                        <p className="font-extrabold text-slate-900 dark:text-white">{t.teacher_name}</p>
-                        <p className="text-[11px] text-slate-400">{t.teacher_email}</p>
-                      </td>
-                      <td className="p-4 font-bold text-slate-700 dark:text-slate-300">
-                        {categoryInfo.label}
-                      </td>
-                      <td className="p-4">
-                        <p className="font-extrabold text-slate-800 dark:text-slate-200 max-w-xs truncate">{t.subject}</p>
-                        <p className="text-[11px] text-slate-400 line-clamp-1 max-w-xs">{t.description}</p>
-                      </td>
-                      <td className="p-4">
-                        <span className={`text-[10px] px-2.5 py-0.5 rounded-full font-black border ${statusInfo.badgeClass}`}>
-                          {statusInfo.label}
-                        </span>
-                      </td>
-                      <td className="p-4 text-slate-500 font-semibold whitespace-nowrap">
-                        {formatDateArabic(t.created_at)}
-                      </td>
-                      <td className="p-4 text-center">
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            setSelectedTicket(t);
-                          }}
-                          className="px-3 py-1.5 bg-amber-50 dark:bg-amber-950/60 text-amber-700 dark:text-amber-300 hover:bg-amber-100 rounded-xl text-xs font-black transition"
-                        >
-                          معاينة ورد 📝
-                        </button>
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          </div>
+                      </span>
+                      <Badge variant={statusBadgeVariant} size="sm">
+                        {statusInfo.label}
+                      </Badge>
+                      <span className="text-[11px] font-bold text-slate-400 dark:text-slate-500">
+                        • المعلم: {t.teacher_name || 'معلم'} ({categoryInfo.label})
+                      </span>
+                    </div>
+
+                    <h4 className="text-sm font-black text-slate-900 dark:text-slate-100 truncate max-w-md group-hover:text-amber-600 dark:group-hover:text-amber-400 transition-colors">
+                      {t.subject}
+                    </h4>
+
+                    <p className="text-xs text-slate-500 dark:text-slate-400 line-clamp-1 max-w-lg">
+                      {t.description}
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex items-center justify-between sm:justify-end gap-4 pt-2 sm:pt-0 border-t sm:border-t-0 border-slate-100 dark:border-slate-800 shrink-0">
+                  <div className="text-right">
+                    <span className="text-[11px] text-slate-400 font-semibold block">
+                      {formatDateArabic(t.created_at)}
+                    </span>
+                    {t.admin_reply && (
+                      <span className="text-[10px] text-emerald-600 dark:text-emerald-400 font-black inline-flex items-center gap-1 mt-0.5">
+                        <MessageSquare className="w-3 h-3" />
+                        <span>تم الرد</span>
+                      </span>
+                    )}
+                  </div>
+
+                  <div className="flex items-center gap-1 text-xs font-bold text-slate-600 dark:text-slate-400 group-hover:text-amber-600 dark:group-hover:text-amber-400 transition">
+                    <span>مراجعة</span>
+                    <ChevronLeft className="w-3.5 h-3.5" />
+                  </div>
+                </div>
+              </div>
+            );
+          })}
         </div>
       )}
 
-      {/* Owner Ticket Details & Reply Modal */}
+      {/* Ticket Details Modal */}
       <OwnerTicketDetailsModal
         ticket={selectedTicket}
         isOpen={!!selectedTicket}
         onClose={() => setSelectedTicket(null)}
         onSuccess={loadTickets}
       />
-    </div>
+    </PageContainer>
   );
 }

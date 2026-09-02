@@ -7,12 +7,14 @@ import { AlertTriangle } from 'lucide-react';
 interface ConfirmDialogProps {
   isOpen: boolean;
   onClose: () => void;
-  onConfirm: () => void;
+  onConfirm: () => void | Promise<void>;
   title: string;
   message: string;
   confirmLabel?: string;
+  confirmText?: string;
   cancelLabel?: string;
   isDestructive?: boolean;
+  isDangerous?: boolean;
   isLoading?: boolean;
 }
 
@@ -22,18 +24,23 @@ export function ConfirmDialog({
   onConfirm,
   title,
   message,
-  confirmLabel = 'تأكيد',
+  confirmLabel,
+  confirmText,
   cancelLabel = 'إلغاء',
-  isDestructive = true,
+  isDestructive,
+  isDangerous,
   isLoading = false,
 }: ConfirmDialogProps) {
+  const actualConfirm = confirmText || confirmLabel || 'تأكيد';
+  const destructive = isDangerous !== undefined ? isDangerous : (isDestructive !== undefined ? isDestructive : true);
+
   return (
     <Modal isOpen={isOpen} onClose={onClose} title={title} maxWidth="md">
       <div className="space-y-4">
         <div className="flex items-start gap-4">
           <div
             className={`p-3 rounded-xl shrink-0 ${
-              isDestructive ? 'bg-rose-100 text-rose-600' : 'bg-amber-100 text-amber-600'
+              destructive ? 'bg-rose-100 text-rose-600' : 'bg-amber-100 text-amber-600'
             }`}
           >
             <AlertTriangle className="w-6 h-6" />
@@ -55,12 +62,12 @@ export function ConfirmDialog({
             onClick={onConfirm}
             disabled={isLoading}
             className={`px-5 py-2.5 rounded-xl text-white text-sm font-bold shadow-sm transition ${
-              isDestructive
+              destructive
                 ? 'bg-rose-600 hover:bg-rose-700'
                 : 'bg-indigo-600 hover:bg-indigo-700'
             }`}
           >
-            {isLoading ? 'جاري التنفيذ...' : confirmLabel}
+            {isLoading ? 'جاري التنفيذ...' : actualConfirm}
           </button>
         </div>
       </div>

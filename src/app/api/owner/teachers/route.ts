@@ -1,11 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { UserRepository } from '@/lib/db';
 import { requireOwner, hashPassword } from '@/lib/auth';
+import { getSupabaseUserClient } from '@/lib/supabase';
 import { UserStatus } from '@/lib/types';
 
 export async function GET(request: NextRequest) {
   try {
-    const authCheck = await requireOwner();
+    const authCheck = await requireOwner(request);
     if ('error' in authCheck) {
       return NextResponse.json({ error: authCheck.error }, { status: authCheck.status });
     }
@@ -18,13 +19,13 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ teachers });
   } catch (error: any) {
     console.error('Owner teachers list error:', error);
-    return NextResponse.json({ error: 'حدث خطأ أثناء جلب قائمة المعلمين' }, { status: 500 });
+    return NextResponse.json({ error: error.message || 'حدث خطأ أثناء جلب قائمة المعلمين', details: error.details || null, code: error.code || null }, { status: 500 });
   }
 }
 
 export async function POST(request: NextRequest) {
   try {
-    const authCheck = await requireOwner();
+    const authCheck = await requireOwner(request);
     if ('error' in authCheck) {
       return NextResponse.json({ error: authCheck.error }, { status: authCheck.status });
     }
@@ -48,12 +49,14 @@ export async function POST(request: NextRequest) {
     const password_hash = hashPassword(password);
     const userStatus: UserStatus = (status === 'pending' || status === 'disabled') ? status : 'active';
 
+    const userClient = getSupabaseUserClient(authCheck.user.supabaseAccessToken);
     const newTeacher = await UserRepository.createTeacher({
       name: name.trim(),
       email: email.trim().toLowerCase(),
+      password,
       password_hash,
       status: userStatus,
-    });
+    }, userClient);
 
     // Log the audit event
     await UserRepository.logActivity(
@@ -70,6 +73,6 @@ export async function POST(request: NextRequest) {
     });
   } catch (error: any) {
     console.error('Create teacher error:', error);
-    return NextResponse.json({ error: 'حدث خطأ أثناء إنشاء حساب المعلم' }, { status: 500 });
+    return NextResponse.json({ error: error.message || 'حدث خطأ أثناء إنشاء حساب المعلم', details: error.details || null, code: error.code || null }, { status: 500 });
   }
 }

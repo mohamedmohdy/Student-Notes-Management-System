@@ -1,14 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { BackupRepository } from '@/lib/db';
-import { getCurrentUser } from '@/lib/auth';
+import { requireActiveTeacher } from '@/lib/auth';
 
 export async function POST(request: NextRequest) {
   try {
-    const session = await getCurrentUser();
-    if (!session) return NextResponse.json({ error: 'غير مصرح' }, { status: 401 });
+    const authCheck = await requireActiveTeacher(request);
+    if ('error' in authCheck) return NextResponse.json({ error: authCheck.error }, { status: authCheck.status });
 
     const body = await request.json();
-    await BackupRepository.importAll(body);
+    await BackupRepository.importAll(body, authCheck.user.userId);
 
     return NextResponse.json({ message: 'تم استعادة النسخة الاحتياطية بنجاح' });
   } catch (error: any) {

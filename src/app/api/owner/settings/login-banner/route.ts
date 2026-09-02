@@ -25,14 +25,18 @@ export async function PUT(req: NextRequest) {
 
   try {
     const body = await req.json();
-    const { title, content, priceText, badgeText, isActive } = body;
+    const title = body.title;
+    const content = body.content || body.message;
+    const priceText = body.priceText;
+    const badgeText = body.badgeText;
+    const isActive = body.isActive !== undefined ? Boolean(body.isActive) : (body.enabled !== undefined ? Boolean(body.enabled) : undefined);
 
     const updated = await SystemSettingsRepository.updateLoginBanner({
       title,
       content,
       priceText,
       badgeText,
-      isActive: isActive !== undefined ? Boolean(isActive) : undefined,
+      isActive,
     });
 
     return NextResponse.json({

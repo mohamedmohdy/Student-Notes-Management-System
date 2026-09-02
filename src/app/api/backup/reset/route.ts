@@ -1,13 +1,13 @@
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { BackupRepository } from '@/lib/db';
-import { getCurrentUser } from '@/lib/auth';
+import { requireActiveTeacher } from '@/lib/auth';
 
-export async function POST() {
+export async function POST(request: NextRequest) {
   try {
-    const session = await getCurrentUser();
-    if (!session) return NextResponse.json({ error: 'غير مصرح' }, { status: 401 });
+    const authCheck = await requireActiveTeacher(request);
+    if ('error' in authCheck) return NextResponse.json({ error: authCheck.error }, { status: authCheck.status });
 
-    await BackupRepository.resetAllData();
+    await BackupRepository.resetAllData(authCheck.user.userId);
     return NextResponse.json({ message: 'تم تصفير وحذف كافة البيانات بنجاح، يمكنك الآن البدء بإدخال بيانات جديدة.' });
   } catch (error: any) {
     console.error('Reset error:', error);

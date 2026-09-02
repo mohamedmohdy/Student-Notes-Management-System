@@ -170,7 +170,7 @@ const tourSteps: TourStep[] = [
 export function InteractiveTour() {
   const [isOpen, setIsOpen] = useState(false);
   const [currentStepIndex, setCurrentStepIndex] = useState(-1); // -1: Welcome, 0..N-1: Steps, N: Finished
-  const [targetRect, setTargetRect] = useState(null);
+  const [targetRect, setTargetRect] = useState<DOMRect | null>(null);
   const [isSkipConfirmOpen, setIsSkipConfirmOpen] = useState(false);
 
   // 1. Fetch onboarding state from PostgreSQL on mount
@@ -375,7 +375,7 @@ export function InteractiveTour() {
   const StepIcon = currentStep.icon;
   const progressPercent = Math.round(((currentStepIndex + 1) / tourSteps.length) * 100);
 
-  let tooltipStyle = {
+  let tooltipStyle: React.CSSProperties = {
     position: 'fixed',
     top: '50%',
     left: '50%',

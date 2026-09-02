@@ -21,7 +21,7 @@ export interface User {
 
 export interface AuditLog {
   id: string;
-  user_id: string;
+  user_id?: string | null;
   action: string;
   details: string;
   created_at: string;
@@ -228,7 +228,7 @@ export type SupportTicketStatus = 'new' | 'in_progress' | 'resolved' | 'closed';
 export interface SupportTicket {
   id: string;
   ticket_number: string;
-  teacher_id: string;
+  teacher_id: string | null;
   teacher_name: string;
   teacher_email: string;
   category: SupportTicketCategory;

@@ -4,7 +4,7 @@ import { requireActiveTeacher } from '@/lib/auth';
 
 export async function POST(request: NextRequest) {
   try {
-    const authCheck = await requireActiveTeacher();
+    const authCheck = await requireActiveTeacher(request);
     if ('error' in authCheck) return NextResponse.json({ error: authCheck.error }, { status: authCheck.status });
 
     const body = await request.json();
@@ -27,7 +27,11 @@ export async function POST(request: NextRequest) {
       message: `تم استيراد وإضافة ${count} طالباً بنجاح في فصولك!`,
     });
   } catch (error: any) {
-    console.error('Import students error:', error);
-    return NextResponse.json({ error: 'حدث خطأ أثناء استيراد الطلاب من الملف' }, { status: 500 });
+    console.error('Import students server error:', error);
+    return NextResponse.json({
+      error: error.message || 'حدث خطأ أثناء استيراد الطلاب من الملف',
+      code: error.code || null,
+      details: error.details || null,
+    }, { status: 500 });
   }
 }

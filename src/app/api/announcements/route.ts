@@ -1,18 +1,19 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest } from 'next/server';
 import { AnnouncementRepository } from '@/lib/db';
 import { requireActiveTeacher } from '@/lib/auth';
+import { getSupabaseUserClient } from '@/lib/supabase';
+import { apiSuccess, apiError, apiServerError } from '@/lib/api-response';
 
-export async function GET() {
+export async function GET(request: NextRequest) {
   try {
-    const authCheck = await requireActiveTeacher();
+    const authCheck = await requireActiveTeacher(request);
     if ('error' in authCheck) {
-      return NextResponse.json({ error: authCheck.error }, { status: authCheck.status });
+      return apiError(authCheck.error, { status: authCheck.status });
     }
-
-    const announcements = await AnnouncementRepository.getActiveForTeacher(authCheck.user.userId);
-    return NextResponse.json({ announcements });
+    const client = getSupabaseUserClient(authCheck.user.supabaseAccessToken);
+    const announcements = await AnnouncementRepository.getActiveForTeacher(authCheck.user.userId, client);
+    return apiSuccess({ announcements });
   } catch (error: any) {
-    console.error('Teacher announcements error:', error);
-    return NextResponse.json({ error: 'حدث خطأ أثناء جلب الإعلانات' }, { status: 500 });
+    return apiServerError('حدث خطأ أثناء جلب الإعلانات', error);
   }
 }

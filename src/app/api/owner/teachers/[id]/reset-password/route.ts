@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { UserRepository } from '@/lib/db';
-import { requireOwner, hashPassword } from '@/lib/auth';
+import { requireOwner } from '@/lib/auth';
+import { getAuthenticatedOwnerClient } from '@/lib/supabase';
 
 function generateSecureTempPassword(): string {
   const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnpqrstuvwxyz23456789!@#$%&*';
@@ -14,12 +15,13 @@ function generateSecureTempPassword(): string {
 
 export async function POST(request: NextRequest, { params }: { params: { id: string } }) {
   try {
-    const authCheck = await requireOwner();
+    const authCheck = await requireOwner(request);
     if ('error' in authCheck) {
       return NextResponse.json({ error: authCheck.error }, { status: authCheck.status });
     }
 
-    const teacher = await UserRepository.findById(params.id);
+    const ownerClient = await getAuthenticatedOwnerClient(authCheck.user.supabaseAccessToken);
+    const teacher = await UserRepository.findById(params.id, ownerClient);
     if (!teacher) {
       return NextResponse.json({ error: 'لم يتم العثور على حساب المعلم' }, { status: 404 });
     }
@@ -36,10 +38,9 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
       ? customPassword 
       : generateSecureTempPassword();
 
-    const password_hash = hashPassword(finalPassword);
     const mustChange = isDirectChange ? 0 : 1;
 
-    await UserRepository.updatePassword(params.id, password_hash, mustChange === 1);
+    await UserRepository.updatePassword(params.id, finalPassword, mustChange === 1, ownerClient);
 
     // Log the security audit event
     const actionType = isDirectChange ? 'CHANGE_PASSWORD' : 'RESET_PASSWORD';
@@ -66,6 +67,10 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
     });
   } catch (error: any) {
     console.error('Owner change password error:', error);
-    return NextResponse.json({ error: 'حدث خطأ أثناء تغيير كلمة المرور' }, { status: 500 });
+    return NextResponse.json({
+      error: error.message || 'حدث خطأ أثناء تغيير كلمة المرور',
+      details: error.details || null,
+      code: error.code || null,
+    }, { status: 500 });
   }
 }

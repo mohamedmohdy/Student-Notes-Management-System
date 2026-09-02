@@ -7,6 +7,8 @@ import { EmptyState } from '../UI/EmptyState';
 import { FileText } from 'lucide-react';
 
 interface NoteTimelineProps {
+  onRefresh?: () => Promise<void> | void;
+  onEdit?: (note: any) => void;
   notes: Note[];
   onEditNote?: (note: Note) => void;
   onArchiveSuccess?: () => void;

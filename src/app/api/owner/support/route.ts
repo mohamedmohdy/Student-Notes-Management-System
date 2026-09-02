@@ -4,7 +4,7 @@ import { requireOwner } from '@/lib/auth';
 
 export async function GET(request: NextRequest) {
   try {
-    const authCheck = await requireOwner();
+    const authCheck = await requireOwner(request);
     if ('error' in authCheck) {
       return NextResponse.json({ error: authCheck.error }, { status: authCheck.status });
     }

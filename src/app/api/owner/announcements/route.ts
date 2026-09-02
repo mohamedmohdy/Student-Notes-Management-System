@@ -4,7 +4,7 @@ import { requireOwner } from '@/lib/auth';
 
 export async function GET(request: NextRequest) {
   try {
-    const authCheck = await requireOwner();
+    const authCheck = await requireOwner(request);
     if ('error' in authCheck) {
       return NextResponse.json({ error: authCheck.error }, { status: authCheck.status });
     }
@@ -24,7 +24,7 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
-    const authCheck = await requireOwner();
+    const authCheck = await requireOwner(request);
     if ('error' in authCheck) {
       return NextResponse.json({ error: authCheck.error }, { status: authCheck.status });
     }
@@ -44,7 +44,7 @@ export async function POST(request: NextRequest) {
       expires_at,
     });
 
-    await UserRepository.logActivity(
+    await UserRepository.logAudit(
       authCheck.user.userId,
       'CREATE_ANNOUNCEMENT',
       `المالك قام بنشر إعلان جديد بعنوان: ${title}`

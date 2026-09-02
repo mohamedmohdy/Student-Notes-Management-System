@@ -1,11 +1,24 @@
-@import url('https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700;800;900&display=swap');
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 :root {
-  --font-cairo: 'Cairo', sans-serif;
+  --font-cairo: var(--font-cairo), 'Cairo', sans-serif;
+  
+  /* Institutional Palette Light Mode */
+  --bg-primary: #f8fafc;
+  --bg-surface: #ffffff;
+  --bg-surface-subtle: #f1f5f9;
+  --border-subtle: #e2e8f0;
+  --border-strong: #cbd5e1;
+  --text-primary: #0f172a;
+  --text-secondary: #475569;
+  --text-muted: #64748b;
+  
+  /* Brand Educational Primary */
+  --color-primary: #4338ca;
+  --color-primary-hover: #3730a3;
+  --color-primary-subtle: #eef2ff;
 }
 
 html {
@@ -14,36 +27,44 @@ html {
 
 html.dark {
   color-scheme: dark;
+  
+  /* Institutional Palette Dark Mode */
+  --bg-primary: #090d16;
+  --bg-surface: #0f172a;
+  --bg-surface-subtle: #1e293b;
+  --border-subtle: #1e293b;
+  --border-strong: #334155;
+  --text-primary: #f8fafc;
+  --text-secondary: #cbd5e1;
+  --text-muted: #94a3b8;
+  
+  --color-primary: #6366f1;
+  --color-primary-hover: #818cf8;
+  --color-primary-subtle: #1e1b4b;
 }
 
 body {
   font-family: 'Cairo', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
   direction: rtl;
   text-align: right;
-  background-color: #f8fafc;
-  color: #0f172a;
-  transition: background-color 0.25s ease, color 0.25s ease;
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  transition: background-color 0.2s ease, color 0.2s ease;
+  -webkit-tap-highlight-color: transparent;
+  padding-bottom: env(safe-area-inset-bottom, 0px);
 }
 
-html.dark body {
-  background-color: #090d16;
-  color: #f1f5f9;
-}
-
-/* Custom scrollbar */
+/* Custom Institutional Scrollbar */
 ::-webkit-scrollbar {
   width: 6px;
   height: 6px;
 }
 ::-webkit-scrollbar-track {
-  background: #f1f5f9;
-}
-html.dark ::-webkit-scrollbar-track {
-  background: #0f172a;
+  background: transparent;
 }
 ::-webkit-scrollbar-thumb {
   background: #cbd5e1;
-  border-radius: 4px;
+  border-radius: 9999px;
 }
 html.dark ::-webkit-scrollbar-thumb {
   background: #334155;
@@ -51,16 +72,115 @@ html.dark ::-webkit-scrollbar-thumb {
 ::-webkit-scrollbar-thumb:hover {
   background: #94a3b8;
 }
+html.dark ::-webkit-scrollbar-thumb:hover {
+  background: #475569;
+}
 
-@media print {
-  body {
-    background: #fff !important;
-    color: #000 !important;
+/* Touch Friendly Tap Targets */
+@layer utilities {
+  .touch-target {
+    min-height: 44px;
+    min-width: 44px;
   }
-  .no-print {
+  .safe-pb {
+    padding-bottom: calc(1rem + env(safe-area-inset-bottom, 0px));
+  }
+}
+
+/* Accessibility: Reduced Motion */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  ::before,
+  ::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Professional Print Layout for Educational Reports */
+@media print {
+  @page {
+    size: A4 portrait;
+    margin: 12mm 15mm;
+  }
+
+  html,
+  body {
+    background: #ffffff !important;
+    color: #0f172a !important;
+    font-size: 11pt !important;
+    direction: rtl !important;
+    text-align: right !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  /* Hide application chrome, navigation, buttons, tour, modals, and screen-only elements */
+  header,
+  nav,
+  aside,
+  button,
+  .no-print,
+  [data-tour],
+  .mobile-bottom-nav,
+  [role="dialog"],
+  .screen-only {
     display: none !important;
   }
+
+  /* Show dedicated printable report view */
   .print-only {
     display: block !important;
+  }
+
+  /* Reset layout constraints for printing */
+  main,
+  .page-container,
+  #__next {
+    padding: 0 !important;
+    margin: 0 !important;
+    max-width: 100% !important;
+    width: 100% !important;
+    overflow: visible !important;
+  }
+
+  /* Print Table rules */
+  .print-table {
+    width: 100% !important;
+    border-collapse: collapse !important;
+    margin-top: 0.75rem !important;
+    direction: rtl !important;
+  }
+
+  .print-table th,
+  .print-table td {
+    border: 1px solid #cbd5e1 !important;
+    padding: 6px 8px !important;
+    font-size: 9.5pt !important;
+    text-align: right !important;
+    vertical-align: top !important;
+  }
+
+  .print-table th {
+    background-color: #f1f5f9 !important;
+    color: #0f172a !important;
+    font-weight: 800 !important;
+  }
+
+  .print-table thead {
+    display: table-header-group !important;
+  }
+
+  .print-table tr {
+    break-inside: avoid !important;
+    page-break-inside: avoid !important;
+  }
+
+  /* Avoid breaking critical blocks */
+  .print-avoid-break {
+    break-inside: avoid !important;
+    page-break-inside: avoid !important;
   }
 }

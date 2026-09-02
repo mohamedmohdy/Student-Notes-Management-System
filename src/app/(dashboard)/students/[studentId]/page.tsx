@@ -3,32 +3,22 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { FileText, Filter, AlertTriangle } from 'lucide-react';
+import { PageContainer } from '@/components/Layout/PageContainer';
 import {
-  User,
-  GraduationCap,
-  School,
-  FileText,
-  Clock,
-  Plus,
-  ArrowRight,
-  Edit2,
-  Archive,
-  Filter,
-  CheckCircle2,
-  AlertTriangle,
-} from 'lucide-react';
-import { Student, Note, NoteType, StudentStatus, FollowUp } from '@/lib/types';
+  StudentProfileHeader,
+  StudentOverview,
+  AddEditStudentModal,
+} from '@/components/Students';
 import { NoteTimeline } from '@/components/Notes/NoteTimeline';
 import { AddEditNoteModal } from '@/components/Notes/AddEditNoteModal';
-import { AddEditStudentModal } from '@/components/Students/AddEditStudentModal';
-import { ResolveFollowUpModal } from '@/components/FollowUps/ResolveFollowUpModal';
-import { StudentStatusBadge } from '@/components/Students/StudentStatusBadge';
 import { StudentAIAnalysisCard } from '@/components/AI/StudentAIAnalysisCard';
 import { ConfirmDialog } from '@/components/UI/ConfirmDialog';
 import { LoadingSkeleton } from '@/components/UI/LoadingSkeleton';
+import { Student, Note, StudentStatus } from '@/lib/types';
 import { useToast } from '@/components/UI/Toast';
-import { NOTE_TYPE_LABELS, STUDENT_STATUS_LABELS } from '@/lib/utils';
-import { heroTheme } from '@/lib/heroui-theme';
+import { NOTE_TYPE_LABELS } from '@/lib/utils';
+import { Button } from '@/components/UI/Button';
 
 export default function StudentProfilePage() {
   const params = useParams();
@@ -48,7 +38,6 @@ export default function StudentProfilePage() {
   const [editingNote, setEditingNote] = useState<Note | null>(null);
   const [isEditStudentOpen, setIsEditStudentOpen] = useState(false);
   const [isArchiveConfirmOpen, setIsArchiveConfirmOpen] = useState(false);
-  const [resolvingFollowUp, setResolvingFollowUp] = useState<FollowUp | null>(null);
 
   const loadStudentProfile = useCallback(async () => {
     try {
@@ -95,120 +84,68 @@ export default function StudentProfilePage() {
   };
 
   if (loading) {
-    return <LoadingSkeleton type="profile" />;
+    return (
+      <PageContainer>
+        <LoadingSkeleton type="profile" />
+      </PageContainer>
+    );
   }
 
   if (!student) {
     return (
-      <div className="text-center py-16 space-y-4">
-        <AlertTriangle className="w-12 h-12 text-rose-500 mx-auto" />
-        <h2 className="text-xl font-bold text-slate-800 dark:text-white">الطالب غير موجود</h2>
-        <Link href="/students" className={heroTheme.button.primary}>
-          العودة لقائمة الطلاب
-        </Link>
-      </div>
+      <PageContainer>
+        <div className="text-center py-16 space-y-4">
+          <AlertTriangle className="w-12 h-12 text-rose-500 mx-auto" />
+          <h2 className="text-xl font-bold text-slate-800 dark:text-slate-100">الطالب غير موجود</h2>
+          <Link href="/students">
+            <Button variant="primary">العودة لقائمة الطلاب</Button>
+          </Link>
+        </div>
+      </PageContainer>
     );
   }
 
   const filteredNotes = notes.filter((n) => selectedType === 'all' || n.type === selectedType);
 
   return (
-    <div className="space-y-6">
-      {/* Back Link */}
-      <div>
-        <Link
-          href="/students"
-          className="inline-flex items-center gap-1.5 text-xs font-bold text-indigo-600 dark:text-indigo-400 hover:underline"
-        >
-          <ArrowRight className="w-3.5 h-3.5" />
-          <span>العودة لدليل الطلاب</span>
-        </Link>
-      </div>
+    <PageContainer>
+      {/* 1. Header with back link, avatar, name, and actions */}
+      <StudentProfileHeader
+        student={student}
+        onOpenAddNote={() => {
+          setEditingNote(null);
+          setIsAddNoteOpen(true);
+        }}
+        onOpenEditStudent={() => setIsEditStudentOpen(true)}
+        onOpenArchiveConfirm={() => setIsArchiveConfirmOpen(true)}
+      />
 
-      {/* Student Profile Header Card */}
-      <div className="p-6 sm:p-8 rounded-3xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-xs space-y-6">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6">
-          <div className="flex items-center gap-5">
-            <div className="w-20 h-20 rounded-3xl bg-gradient-to-tr from-indigo-600 to-indigo-500 text-white font-black text-2xl flex items-center justify-center shadow-lg shadow-indigo-100 dark:shadow-none shrink-0">
-              {student.name.charAt(0)}
+      {/* 2. Overview metrics & status selector */}
+      <StudentOverview
+        student={student}
+        notesCount={notes.length}
+        onStatusChange={handleStatusChange}
+      />
+
+      {/* 3. AI Student Analysis */}
+      <StudentAIAnalysisCard studentId={studentId} />
+
+      {/* 4. Notes Section with Type Filter */}
+      <div className="p-5 sm:p-6 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 shadow-xs space-y-5">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-100 dark:border-slate-800 pb-3">
+          <div className="flex items-center gap-2">
+            <div className="p-1.5 rounded-lg bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400">
+              <FileText className="w-4 h-4" />
             </div>
-            <div className="space-y-1">
-              <div className="flex flex-wrap items-center gap-2.5">
-                <h1 className="text-xl sm:text-2xl font-black text-slate-900 dark:text-white">{student.name}</h1>
-                <StudentStatusBadge status={student.status} />
-              </div>
-              <p className="text-xs font-semibold text-slate-500 dark:text-slate-400">
-                الرقم الأكاديمي: <span className="font-bold text-slate-800 dark:text-slate-200">{student.student_number}</span> •{' '}
-                {student.grade_name} - فصل {student.class_name}
+            <div>
+              <h3 className="text-sm sm:text-base font-black text-slate-900 dark:text-slate-100">
+                السجل التاريخي لملاحظات الطالب ({filteredNotes.length})
+              </h3>
+              <p className="text-[11px] text-slate-400 font-semibold">
+                كافة الملاحظات والمتابعات المسجلة للطالب
               </p>
             </div>
           </div>
-
-          {/* Action Buttons */}
-          <div className="flex flex-wrap items-center gap-2.5">
-            <button
-              onClick={() => setIsAddNoteOpen(true)}
-              className={heroTheme.button.primary}
-            >
-              <Plus className="w-4 h-4" />
-              <span>+ إضافة ملاحظة للطالب</span>
-            </button>
-
-            <button
-              onClick={() => setIsEditStudentOpen(true)}
-              className="p-3 text-slate-600 dark:text-slate-300 hover:text-indigo-600 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 transition"
-              title="تعديل بيانات الطالب"
-            >
-              <Edit2 className="w-4 h-4" />
-            </button>
-
-            <button
-              onClick={() => setIsArchiveConfirmOpen(true)}
-              className="p-3 text-slate-600 dark:text-slate-300 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/40 rounded-2xl border border-slate-200 dark:border-slate-700 transition"
-              title="أرشفة الطالب"
-            >
-              <Archive className="w-4 h-4" />
-            </button>
-          </div>
-        </div>
-
-        {/* Quick Stats Banner & Status Changer */}
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-4 border-t border-slate-100 dark:border-slate-800">
-          <div className="p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-100 dark:border-slate-700 flex items-center justify-between">
-            <span className="text-xs font-bold text-slate-500 dark:text-slate-400">إجمالي الملاحظات:</span>
-            <span className="text-base font-black text-slate-800 dark:text-white">{student.notes_count || notes.length} ملاحظة</span>
-          </div>
-
-          <div className="p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-100 dark:border-slate-700 flex items-center justify-between">
-            <span className="text-xs font-bold text-slate-500 dark:text-slate-400">مرات المتابعة:</span>
-            <span className="text-base font-black text-slate-800 dark:text-white">{student.follow_ups_count || 0} متابعة</span>
-          </div>
-
-          <div className="p-3.5 rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-100 dark:border-slate-700 flex items-center justify-between">
-            <span className="text-xs font-bold text-slate-500 dark:text-slate-400">تغيير الحالة:</span>
-            <select
-              value={student.status}
-              onChange={(e) => handleStatusChange(e.target.value as StudentStatus)}
-              className="px-2.5 py-1 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-bold text-slate-800 dark:text-slate-200 focus:ring-2 focus:ring-indigo-500"
-            >
-              {Object.entries(STUDENT_STATUS_LABELS).map(([key, val]) => (
-                <option key={key} value={key}>{val.label}</option>
-              ))}
-            </select>
-          </div>
-        </div>
-      </div>
-
-      {/* Embedded AI Student Analysis Card */}
-      <StudentAIAnalysisCard studentId={studentId} />
-
-      {/* Notes Section with Filter */}
-      <div className="space-y-4">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-          <h3 className="text-base sm:text-lg font-black text-slate-900 dark:text-white flex items-center gap-2">
-            <FileText className="w-5 h-5 text-indigo-600 dark:text-indigo-400" />
-            <span>السجل التاريخي لملاحظات الطالب ({filteredNotes.length})</span>
-          </h3>
 
           {/* Type Filter */}
           <div className="flex items-center gap-2">
@@ -216,11 +153,13 @@ export default function StudentProfilePage() {
             <select
               value={selectedType}
               onChange={(e) => setSelectedType(e.target.value)}
-              className="px-3 py-1.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-bold text-slate-700 dark:text-slate-200 focus:ring-2 focus:ring-indigo-500"
+              className="min-h-[36px] px-3 py-1.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-bold text-slate-700 dark:text-slate-200 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-600 outline-none transition"
             >
               <option value="all">كافة أنواع الملاحظات</option>
               {Object.entries(NOTE_TYPE_LABELS).map(([key, val]) => (
-                <option key={key} value={key}>{val.label}</option>
+                <option key={key} value={key}>
+                  {val.label}
+                </option>
               ))}
             </select>
           </div>
@@ -265,6 +204,6 @@ export default function StudentProfilePage() {
         confirmText="نعم، أرشف الطالب"
         isDangerous={true}
       />
-    </div>
+    </PageContainer>
   );
 }

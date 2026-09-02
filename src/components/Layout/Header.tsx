@@ -1,56 +1,28 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { Menu, Search, Plus, Bell, Smartphone, Bot } from 'lucide-react';
-import Link from 'next/link';
+import { Search, Bot, Bell } from 'lucide-react';
+import { ThemeToggle } from '../UI/ThemeProvider';
+import { AIDataAnalystModal } from '../AI/AIDataAnalystModal';
 import { requestNotificationPermission, sendLocalNotification } from '@/lib/notifications';
-import { useToast } from '@/components/UI/Toast';
-import { ThemeToggle } from '@/components/UI/ThemeProvider';
-import { AIDataAnalystModal } from '@/components/AI/AIDataAnalystModal';
+import { useToast } from '../UI/Toast';
 
-interface HeaderProps {
-  onToggleSidebar: () => void;
+export interface HeaderProps {
+  onToggleSidebar?: () => void;
   onOpenSearch: () => void;
-  onOpenAddNote: () => void;
+  onOpenAddNote?: () => void;
   user: any;
 }
 
-export function Header({ onToggleSidebar, onOpenSearch, onOpenAddNote, user }: HeaderProps) {
+export function Header({ onOpenSearch, user }: HeaderProps) {
   const toast = useToast();
-  const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
-  const [isInstallable, setIsInstallable] = useState(false);
   const [isAIAnalystOpen, setIsAIAnalystOpen] = useState(false);
-
-  useEffect(() => {
-    const handleBeforeInstallPrompt = (e: any) => {
-      e.preventDefault();
-      setDeferredPrompt(e);
-      setIsInstallable(true);
-    };
-
-    window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
-    return () => window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
-  }, []);
-
-  const handleInstallPwa = async () => {
-    if (deferredPrompt) {
-      deferredPrompt.prompt();
-      const { outcome } = await deferredPrompt.userChoice;
-      if (outcome === 'accepted') {
-        toast.success('تم تثبيت التطبيق بنجاح على جهازك!');
-        setIsInstallable(false);
-      }
-      setDeferredPrompt(null);
-    } else {
-      toast.info('لتثبيت التطبيق على الهاتف: اضغط خيارات المتصفح (⋮) ثم اختر "إضافة إلى الشاشة الرئيسية" (Add to Home Screen)');
-    }
-  };
 
   const handleNotificationClick = async () => {
     const granted = await requestNotificationPermission();
     if (granted) {
       sendLocalNotification('سجل الطالب الإلكتروني 🔔', {
-        body: 'تم تفعيل التنبيهات بنجاح! ستتلقى إشعارات فورية بكل المتابعات اليومية ومواعيد الملاحظات.',
+        body: 'تم تفعيل التنبيهات بنجاح للمتابعات اليومية ومواعيد الملاحظات.',
       });
       toast.success('تم تفعيل التنبيهات بنجاح وإرسال إشعار تجريبي');
     } else {
@@ -60,83 +32,57 @@ export function Header({ onToggleSidebar, onOpenSearch, onOpenAddNote, user }: H
 
   return (
     <>
-      <header className="sticky top-0 z-30 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border-b border-slate-200/80 dark:border-slate-800 px-4 lg:px-8 py-3.5 flex items-center justify-between gap-4 transition-colors">
-        <div className="flex items-center gap-3">
+      <header className="sticky top-0 z-30 bg-white/90 dark:bg-slate-900/90 backdrop-blur-md border-b border-slate-200/80 dark:border-slate-800 px-4 sm:px-6 lg:px-8 py-3 flex items-center justify-between gap-3 transition-colors">
+        {/* Global Search Trigger */}
+        <div className="flex items-center flex-1 max-w-md">
           <button
-            onClick={onToggleSidebar}
-            className="p-2 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl lg:hidden transition"
-          >
-            <Menu className="w-6 h-6" />
-          </button>
-
-          {/* Global Search Bar trigger */}
-          <button
+            type="button"
             onClick={onOpenSearch}
             data-tour="search"
-            className="flex items-center gap-3 px-4 py-2 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200/70 dark:hover:bg-slate-700 text-slate-500 dark:text-slate-400 rounded-xl text-sm font-medium transition w-48 sm:w-80 justify-between group"
+            className="flex items-center gap-2.5 px-3.5 py-2 min-h-[44px] bg-slate-100 dark:bg-slate-800 hover:bg-slate-200/80 dark:hover:bg-slate-700 text-slate-500 dark:text-slate-400 rounded-xl text-xs sm:text-sm font-semibold transition w-full justify-between group outline-none focus-visible:ring-2 focus-visible:ring-indigo-500"
           >
-            <div className="flex items-center gap-2.5">
+            <div className="flex items-center gap-2">
               <Search className="w-4 h-4 text-slate-400 group-hover:text-slate-600 dark:group-hover:text-slate-300 transition" />
-              <span className="text-xs sm:text-sm">بحث سريع عن طالب...</span>
+              <span>بحث سريع عن طالب...</span>
             </div>
-            <kbd className="hidden sm:inline-block px-2 py-0.5 text-[10px] font-mono bg-white dark:bg-slate-900 rounded border border-slate-200 dark:border-slate-700 text-slate-400">
+            <kbd className="hidden sm:inline-block px-1.5 py-0.5 text-[10px] font-mono bg-white dark:bg-slate-900 rounded border border-slate-200 dark:border-slate-700 text-slate-400">
               Ctrl + K
             </kbd>
           </button>
         </div>
 
-        <div className="flex items-center gap-2.5">
-          {/* AI Analyst Trigger in Header */}
+        {/* Actions & Utilities */}
+        <div className="flex items-center gap-2 shrink-0">
+          {/* AI Assistant Trigger */}
           <button
+            type="button"
             onClick={() => setIsAIAnalystOpen(true)}
             data-tour="ai-analyst"
-            className="flex items-center gap-1.5 px-3 py-2 bg-indigo-50 dark:bg-indigo-950/60 hover:bg-indigo-100 border border-indigo-200 dark:border-indigo-800 text-indigo-700 dark:text-indigo-300 rounded-xl text-xs font-bold transition shadow-xs"
+            className="flex items-center gap-1.5 px-3 py-2 min-h-[44px] bg-indigo-50 dark:bg-indigo-950/60 hover:bg-indigo-100 dark:hover:bg-indigo-900/60 border border-indigo-200/80 dark:border-indigo-800/60 text-indigo-700 dark:text-indigo-300 rounded-xl text-xs font-bold transition shadow-xs active:scale-95"
             title="التحليل الذكي لبيانات المعلم"
           >
             <Bot className="w-4 h-4 text-indigo-600 dark:text-indigo-400" />
             <span className="hidden sm:inline">التحليل الذكي</span>
           </button>
 
-          {/* Dark Mode Switcher */}
-          <ThemeToggle />
-
-          {/* PWA Mobile Install button */}
+          {/* Notifications Permission */}
           <button
-            onClick={handleInstallPwa}
-            className="hidden sm:flex items-center gap-1.5 px-3 py-2 bg-slate-100 dark:bg-slate-800 hover:bg-indigo-50 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 hover:text-indigo-600 dark:hover:text-indigo-400 rounded-xl text-xs font-bold transition"
-            title="تثبيت التطبيق على الهاتف أو الجهاز"
-          >
-            <Smartphone className="w-4 h-4 text-indigo-600 dark:text-indigo-400" />
-            <span>تثبيت التطبيق 📱</span>
-          </button>
-
-          {/* Notification Bell */}
-          <button
+            type="button"
             onClick={handleNotificationClick}
-            className="relative p-2.5 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200/70 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 rounded-xl transition"
-            title="تفعيل وتفقد الإشعارات والتنبيهات"
+            className="min-h-[44px] min-w-[44px] p-2.5 text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition flex items-center justify-center"
+            title="تفعيل الإشعارات"
+            aria-label="تفعيل الإشعارات"
           >
             <Bell className="w-4 h-4" />
-            <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-rose-500 rounded-full"></span>
           </button>
 
-          {/* Quick Add Note Button */}
-          <button
-            onClick={onOpenAddNote}
-            className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-indigo-600 to-indigo-700 hover:from-indigo-500 hover:to-indigo-600 text-white rounded-xl text-xs sm:text-sm font-bold shadow-sm shadow-indigo-200 dark:shadow-none transition active:scale-95"
-          >
-            <Plus className="w-4 h-4" />
-            <span className="hidden sm:inline">إضافة ملاحظة</span>
-            <span className="sm:hidden">ملاحظة</span>
-          </button>
+          {/* Theme Toggle */}
+          <ThemeToggle />
         </div>
       </header>
 
-      {/* Global AI Data Analyst Modal */}
-      <AIDataAnalystModal
-        isOpen={isAIAnalystOpen}
-        onClose={() => setIsAIAnalystOpen(false)}
-      />
+      {/* AI Analyst Modal */}
+      <AIDataAnalystModal isOpen={isAIAnalystOpen} onClose={() => setIsAIAnalystOpen(false)} />
     </>
   );
 }

@@ -1,17 +1,24 @@
-import { NextResponse } from 'next/server';
+import { NextRequest } from 'next/server';
 import { DashboardRepository } from '@/lib/db';
 import { requireActiveTeacher } from '@/lib/auth';
+import { getSupabaseUserClient } from '@/lib/supabase';
+import { apiSuccess, apiError, apiServerError } from '@/lib/api-response';
 
-export async function GET() {
+export async function GET(request: NextRequest) {
   try {
-    const authCheck = await requireActiveTeacher();
+    const authCheck = await requireActiveTeacher(request);
     if ('error' in authCheck) {
-      return NextResponse.json({ error: authCheck.error }, { status: authCheck.status });
+      return apiError(authCheck.error, { status: authCheck.status });
     }
-    const stats = await DashboardRepository.getStats(authCheck.user.userId);
-    return NextResponse.json({ stats });
+    const client = getSupabaseUserClient(authCheck.user.supabaseAccessToken);
+    const stats = await DashboardRepository.getStats(authCheck.user.userId, client);
+    return apiSuccess({
+      stats: {
+        ...stats,
+        teacherName: authCheck.user.name,
+      },
+    });
   } catch (error: any) {
-    console.error('Dashboard API Error Details:', error);
-    return NextResponse.json({ error: 'حدث خطأ أثناء جلب إحصائيات لوحة التحكم' }, { status: 500 });
+    return apiServerError('حدث خطأ أثناء جلب إحصائيات لوحة التحكم', error);
   }
 }

@@ -1,16 +1,18 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { UserRepository } from '@/lib/db';
 import { requireOwner } from '@/lib/auth';
+import { getAuthenticatedOwnerClient } from '@/lib/supabase';
 import { UserStatus } from '@/lib/types';
 
 export async function GET(request: NextRequest, { params }: { params: { id: string } }) {
   try {
-    const authCheck = await requireOwner();
+    const authCheck = await requireOwner(request);
     if ('error' in authCheck) {
       return NextResponse.json({ error: authCheck.error }, { status: authCheck.status });
     }
 
-    const teacher = await UserRepository.findById(params.id);
+    const ownerClient = await getAuthenticatedOwnerClient(authCheck.user.supabaseAccessToken);
+    const teacher = await UserRepository.findById(params.id, ownerClient);
     if (!teacher) {
       return NextResponse.json({ error: 'لم يتم العثور على المعلم' }, { status: 404 });
     }
@@ -18,18 +20,23 @@ export async function GET(request: NextRequest, { params }: { params: { id: stri
     return NextResponse.json({ teacher });
   } catch (error: any) {
     console.error('Get teacher error:', error);
-    return NextResponse.json({ error: 'حدث خطأ أثناء جلب بيانات المعلم' }, { status: 500 });
+    return NextResponse.json({
+      error: error.message || 'حدث خطأ أثناء جلب بيانات المعلم',
+      details: error.details || null,
+      code: error.code || null,
+    }, { status: 500 });
   }
 }
 
 export async function PUT(request: NextRequest, { params }: { params: { id: string } }) {
   try {
-    const authCheck = await requireOwner();
+    const authCheck = await requireOwner(request);
     if ('error' in authCheck) {
       return NextResponse.json({ error: authCheck.error }, { status: authCheck.status });
     }
 
-    const teacher = await UserRepository.findById(params.id);
+    const ownerClient = await getAuthenticatedOwnerClient(authCheck.user.supabaseAccessToken);
+    const teacher = await UserRepository.findById(params.id, ownerClient);
     if (!teacher) {
       return NextResponse.json({ error: 'لم يتم العثور على المعلم' }, { status: 404 });
     }
@@ -48,7 +55,7 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
       name: name?.trim(),
       email: email?.trim(),
       status: status as UserStatus,
-    });
+    }, ownerClient);
 
     // Log the audit event
     await UserRepository.logActivity(
@@ -63,18 +70,23 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
     });
   } catch (error: any) {
     console.error('Update teacher error:', error);
-    return NextResponse.json({ error: 'حدث خطأ أثناء تحديث بيانات المعلم' }, { status: 500 });
+    return NextResponse.json({
+      error: error.message || 'حدث خطأ أثناء تحديث بيانات المعلم',
+      details: error.details || null,
+      code: error.code || null,
+    }, { status: 500 });
   }
 }
 
 export async function DELETE(request: NextRequest, { params }: { params: { id: string } }) {
   try {
-    const authCheck = await requireOwner();
+    const authCheck = await requireOwner(request);
     if ('error' in authCheck) {
       return NextResponse.json({ error: authCheck.error }, { status: authCheck.status });
     }
 
-    const teacher = await UserRepository.findById(params.id);
+    const ownerClient = await getAuthenticatedOwnerClient(authCheck.user.supabaseAccessToken);
+    const teacher = await UserRepository.findById(params.id, ownerClient);
     if (!teacher) {
       return NextResponse.json({ error: 'لم يتم العثور على حساب المعلم' }, { status: 404 });
     }
@@ -84,7 +96,7 @@ export async function DELETE(request: NextRequest, { params }: { params: { id: s
     }
 
     // Permanently delete teacher and cascaded records
-    await UserRepository.deleteTeacherPermanent(params.id);
+    await UserRepository.deleteTeacherPermanent(params.id, ownerClient);
 
     // Log the security audit event
     await UserRepository.logActivity(
@@ -102,6 +114,10 @@ export async function DELETE(request: NextRequest, { params }: { params: { id: s
     });
   } catch (error: any) {
     console.error('Delete teacher permanent error:', error);
-    return NextResponse.json({ error: 'حدث خطأ أثناء حذف حساب المعلم' }, { status: 500 });
+    return NextResponse.json({
+      error: error.message || 'حدث خطأ أثناء حذف حساب المعلم',
+      details: error.details || null,
+      code: error.code || null,
+    }, { status: 500 });
   }
 }

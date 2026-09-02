@@ -1,20 +1,30 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import dynamic from 'next/dynamic';
 import { useRouter } from 'next/navigation';
 import { Sidebar } from '@/components/Layout/Sidebar';
 import { Header } from '@/components/Layout/Header';
-import { GlobalSearchModal } from '@/components/Layout/GlobalSearchModal';
-import { AddEditNoteModal } from '@/components/Notes/AddEditNoteModal';
-import { InteractiveTour } from '@/components/Tour/InteractiveTour';
-import { FloatingAnalystButton } from '@/components/AI/FloatingAnalystButton';
+import { MobileBottomNav } from '@/components/Layout/MobileBottomNav';
+
+// Lazy-load non-critical interactive overlays to reduce initial JS execution and render delay
+const GlobalSearchModal = dynamic(
+  () => import('@/components/Layout/GlobalSearchModal').then((mod) => mod.GlobalSearchModal),
+  { ssr: false }
+);
+const InteractiveTour = dynamic(
+  () => import('@/components/Tour/InteractiveTour').then((mod) => mod.InteractiveTour),
+  { ssr: false }
+);
+const FloatingAnalystButton = dynamic(
+  () => import('@/components/AI/FloatingAnalystButton').then((mod) => mod.FloatingAnalystButton),
+  { ssr: false }
+);
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
-  const [addNoteOpen, setAddNoteOpen] = useState(false);
   const [user, setUser] = useState<any>(null);
-  const [loading, setLoading] = useState(true);
   const router = useRouter();
 
   useEffect(() => {
@@ -49,7 +59,6 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         }
 
         setUser(data.user);
-        setLoading(false);
       })
       .catch(() => {
         router.replace('/login');
@@ -67,20 +76,9 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, []);
 
-  if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-slate-50 dark:bg-slate-950">
-        <div className="flex flex-col items-center gap-4">
-          <div className="w-10 h-10 border-4 border-indigo-600 border-t-transparent rounded-full animate-spin"></div>
-          <p className="text-xs font-bold text-slate-500">جاري التحقق من الجلسة والصلاحيات...</p>
-        </div>
-      </div>
-    );
-  }
-
   return (
     <div className="min-h-screen flex bg-slate-50 dark:bg-slate-950 transition-colors">
-      {/* Sidebar */}
+      {/* Desktop & Drawer Sidebar */}
       <Sidebar
         isOpen={sidebarOpen}
         onClose={() => setSidebarOpen(false)}
@@ -92,36 +90,21 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         <Header
           onToggleSidebar={() => setSidebarOpen((prev) => !prev)}
           onOpenSearch={() => setSearchOpen(true)}
-          onOpenAddNote={() => setAddNoteOpen(true)}
           user={user}
         />
 
-        <main className="flex-1 overflow-y-auto p-4 lg:p-8">
-          <div className="max-w-7xl mx-auto space-y-6">
-            {children}
-          </div>
+        <main className="flex-1 overflow-y-auto">
+          {children}
         </main>
       </div>
 
-      {/* Interactive Platform Tour */}
+      {/* Mobile Bottom Navigation */}
+      <MobileBottomNav user={user} />
+
+      {/* Global Search & Tour Modals (Lazy Loaded) */}
+      <GlobalSearchModal isOpen={searchOpen} onClose={() => setSearchOpen(false)} />
       <InteractiveTour />
-
-      {/* Floating AI Data Analyst Button */}
       <FloatingAnalystButton />
-
-      {/* Global Modals */}
-      <GlobalSearchModal
-        isOpen={searchOpen}
-        onClose={() => setSearchOpen(false)}
-      />
-
-      <AddEditNoteModal
-        isOpen={addNoteOpen}
-        onClose={() => setAddNoteOpen(false)}
-        onSuccess={() => {
-          window.dispatchEvent(new Event('refresh-data'));
-        }}
-      />
     </div>
   );
 }

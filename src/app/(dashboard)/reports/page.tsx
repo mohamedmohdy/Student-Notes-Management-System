@@ -1,14 +1,19 @@
 'use client';
 
 import React, { useState, useEffect, useCallback } from 'react';
-import * as XLSX from 'xlsx';
-import { BarChart3, Download, Printer, FileSpreadsheet, FileText, Filter, Calendar } from 'lucide-react';
-import { Grade, ClassRoom, Student, Note, FollowUp, ClassNote } from '@/lib/types';
+import { PageContainer } from '@/components/Layout/PageContainer';
+import {
+  ReportsWorkspaceHeader,
+  ReportFilters,
+  ReportSummary,
+  ReportPrintView,
+} from '@/components/Reports';
 import { LoadingSkeleton } from '@/components/UI/LoadingSkeleton';
 import { EmptyState } from '@/components/UI/EmptyState';
+import { Note, Grade, ClassRoom, Student, FollowUp, ClassNote } from '@/lib/types';
 import { NOTE_TYPE_LABELS, NOTE_PRIORITY_LABELS, CLASS_NOTE_TYPE_LABELS, formatDateArabic } from '@/lib/utils';
 import { useToast } from '@/components/UI/Toast';
-import { heroTheme } from '@/lib/heroui-theme';
+import { BarChart3, FileText } from 'lucide-react';
 
 export default function ReportsPage() {
   const [grades, setGrades] = useState<Grade[]>([]);
@@ -29,6 +34,7 @@ export default function ReportsPage() {
     classNotes: [],
   });
   const [loading, setLoading] = useState(true);
+  const [exporting, setExporting] = useState(false);
 
   // Filters
   const [selectedGrade, setSelectedGrade] = useState('');
@@ -95,54 +101,63 @@ export default function ReportsPage() {
   const notes = reportData?.notes || [];
   const students = reportData?.students || [];
   const classNotes = reportData?.classNotes || [];
+  const followUps = reportData?.followUps || [];
 
   // Export to Excel
-  const exportToExcel = () => {
+  const exportToExcel = async () => {
     if (notes.length === 0 && classNotes.length === 0) {
       toast.warning('لا توجد بيانات للتصدير');
       return;
     }
 
-    const workbook = XLSX.utils.book_new();
+    setExporting(true);
+    try {
+      const XLSX = await import('xlsx');
+      const workbook = XLSX.utils.book_new();
 
-    // Sheet 1: Student Notes
-    if (notes.length > 0) {
-      const rows = notes.map((n, idx) => ({
-        'م': idx + 1,
-        'اسم الطالب': n.student_name || '',
-        'رقم الطالب': n.student_number || '',
-        'الصف الدراسي': n.grade_name || '',
-        'الفصل': n.class_name || '',
-        'نوع الملاحظة': NOTE_TYPE_LABELS[n.type]?.label || n.type,
-        'الأولوية': NOTE_PRIORITY_LABELS[n.priority]?.label || n.priority,
-        'نص الملاحظة': n.content,
-        'الإجراء المتخذ': n.action_taken || '—',
-        'تحتاج متابعة؟': n.requires_follow_up === 1 ? 'نعم' : 'لا',
-        'تاريخ التسجيل': formatDateArabic(n.created_at),
-        'المعلم': n.teacher_name || '',
-      }));
-      const worksheet = XLSX.utils.json_to_sheet(rows);
-      XLSX.utils.book_append_sheet(workbook, worksheet, 'ملاحظات الطلاب');
+      // Sheet 1: Student Notes
+      if (notes.length > 0) {
+        const rows = notes.map((n, idx) => ({
+          'م': idx + 1,
+          'اسم الطالب': n.student_name || '',
+          'رقم الطالب': n.student_number || '',
+          'الصف الدراسي': n.grade_name || '',
+          'الفصل': n.class_name || '',
+          'نوع الملاحظة': NOTE_TYPE_LABELS[n.type]?.label || n.type,
+          'الأولوية': NOTE_PRIORITY_LABELS[n.priority]?.label || n.priority,
+          'نص الملاحظة': n.content,
+          'الإجراء المتخذ': n.action_taken || '—',
+          'تحتاج متابعة؟': n.requires_follow_up === 1 ? 'نعم' : 'لا',
+          'تاريخ التسجيل': formatDateArabic(n.created_at),
+          'المعلم': n.teacher_name || '',
+        }));
+        const worksheet = XLSX.utils.json_to_sheet(rows);
+        XLSX.utils.book_append_sheet(workbook, worksheet, 'ملاحظات الطلاب');
+      }
+
+      // Sheet 2: Class Notes
+      if (classNotes.length > 0) {
+        const classRows = classNotes.map((cn, idx) => ({
+          'م': idx + 1,
+          'الصف الدراسي': cn.grade_name || '',
+          'الفصل': cn.class_name || '',
+          'تاريخ الملاحظة': formatDateArabic(cn.note_date),
+          'نوع الملاحظة': CLASS_NOTE_TYPE_LABELS[cn.type]?.label || cn.type,
+          'العنوان': cn.title || '—',
+          'نص الملاحظة': cn.content,
+          'تاريخ التسجيل': formatDateArabic(cn.created_at),
+        }));
+        const classSheet = XLSX.utils.json_to_sheet(classRows);
+        XLSX.utils.book_append_sheet(workbook, classSheet, 'ملاحظات الفصل');
+      }
+
+      XLSX.writeFile(workbook, `تقرير_الملاحظات_${new Date().toISOString().split('T')[0]}.xlsx`);
+      toast.success('تم تصدير ملف Excel بنجاح');
+    } catch {
+      toast.error('حدث خطأ أثناء تصدير Excel');
+    } finally {
+      setExporting(false);
     }
-
-    // Sheet 2: Class Notes
-    if (classNotes.length > 0) {
-      const classRows = classNotes.map((cn, idx) => ({
-        'م': idx + 1,
-        'الصف الدراسي': cn.grade_name || '',
-        'الفصل': cn.class_name || '',
-        'تاريخ الملاحظة': formatDateArabic(cn.note_date),
-        'نوع الملاحظة': CLASS_NOTE_TYPE_LABELS[cn.type]?.label || cn.type,
-        'العنوان': cn.title || '—',
-        'نص الملاحظة': cn.content,
-        'تاريخ التسجيل': formatDateArabic(cn.created_at),
-      }));
-      const classSheet = XLSX.utils.json_to_sheet(classRows);
-      XLSX.utils.book_append_sheet(workbook, classSheet, 'ملاحظات الفصل');
-    }
-
-    XLSX.writeFile(workbook, `تقرير_الملاحظات_${new Date().toISOString().split('T')[0]}.xlsx`);
-    toast.success('تم تصدير ملف Excel بنجاح');
   };
 
   // Export to CSV
@@ -178,259 +193,119 @@ export default function ReportsPage() {
     toast.success('تم تصدير ملف CSV بنجاح');
   };
 
-  const handlePrint = () => {
+  // Print Report as PDF
+  const handlePrintPDF = () => {
+    if (notes.length === 0 && classNotes.length === 0) {
+      toast.warning('لا توجد بيانات مطابقة للطباعة');
+      return;
+    }
     window.print();
   };
 
   return (
-    <div className="space-y-6">
-      {/* Header (Hidden on print) */}
-      <div className="no-print flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div>
-          <h2 className="text-xl sm:text-2xl font-black text-slate-900 dark:text-white">مركز التقارير والتصدير</h2>
-          <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 font-medium mt-0.5">
-            توليد تقارير شاملة عن الصفوف والفصول وملاحظات الطلاب والفصول وتصديرها
-          </p>
-        </div>
+    <PageContainer>
+      {/* Printable Report View (Visible only during window.print()) */}
+      <ReportPrintView
+        notes={notes}
+        classNotes={classNotes}
+        grades={grades}
+        classes={classes}
+        selectedGrade={selectedGrade}
+        selectedClass={selectedClass}
+        startDate={startDate}
+        endDate={endDate}
+        teacherName={notes[0]?.teacher_name || 'المعلم المشرف'}
+        studentsCount={students.length}
+        notesCount={notes.length}
+        classNotesCount={classNotes.length}
+        followUpsCount={followUps.length}
+      />
 
-        <div className="flex flex-wrap items-center gap-2.5">
-          <button
-            onClick={exportToExcel}
-            className="flex items-center gap-2 px-4 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-2xl text-xs font-bold shadow-sm transition"
-          >
-            <FileSpreadsheet className="w-4 h-4" />
-            <span>تصدير Excel (.xlsx)</span>
-          </button>
-
-          <button
-            onClick={exportToCSV}
-            className="flex items-center gap-2 px-4 py-2.5 bg-cyan-700 hover:bg-cyan-800 text-white rounded-2xl text-xs font-bold shadow-sm transition"
-          >
-            <Download className="w-4 h-4" />
-            <span>تصدير CSV</span>
-          </button>
-
-          <button
-            onClick={handlePrint}
-            className="flex items-center gap-2 px-4 py-2.5 bg-slate-800 hover:bg-slate-900 text-white rounded-2xl text-xs font-bold shadow-sm transition"
-          >
-            <Printer className="w-4 h-4" />
-            <span>طباعة / PDF</span>
-          </button>
-        </div>
+      {/* 1. Header with Export Actions */}
+      <div className="screen-only">
+        <ReportsWorkspaceHeader
+          onExportExcel={exportToExcel}
+          onExportCSV={exportToCSV}
+          onPrintPDF={handlePrintPDF}
+          exporting={exporting}
+        />
       </div>
 
-      {/* Filters (Hidden on print) */}
-      <div className="no-print p-5 bg-white dark:bg-slate-900 rounded-3xl border border-slate-200/80 dark:border-slate-800 shadow-xs space-y-4">
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
-          <div>
-            <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">الصف</label>
-            <select
-              value={selectedGrade}
-              onChange={(e) => {
-                setSelectedGrade(e.target.value);
-                setSelectedClass('');
-              }}
-              className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-bold text-slate-700 dark:text-slate-300 focus:ring-2 focus:ring-indigo-500"
-            >
-              <option value="">كافة الصفوف</option>
-              {grades.map((g) => (
-                <option key={g.id} value={g.id}>{g.name}</option>
-              ))}
-            </select>
-          </div>
-
-          <div>
-            <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">الفصل</label>
-            <select
-              value={selectedClass}
-              onChange={(e) => setSelectedClass(e.target.value)}
-              className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-bold text-slate-700 dark:text-slate-300 focus:ring-2 focus:ring-indigo-500"
-            >
-              <option value="">كافة الفصول</option>
-              {classes
-                .filter((c) => !selectedGrade || c.grade_id === selectedGrade)
-                .map((c) => (
-                  <option key={c.id} value={c.id}>{c.grade_name} - {c.name}</option>
-                ))}
-            </select>
-          </div>
-
-          <div>
-            <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">من تاريخ</label>
-            <input
-              type="date"
-              value={startDate}
-              onChange={(e) => setStartDate(e.target.value)}
-              className={heroTheme.input}
-            />
-          </div>
-
-          <div>
-            <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">إلى تاريخ</label>
-            <input
-              type="date"
-              value={endDate}
-              onChange={(e) => setEndDate(e.target.value)}
-              className={heroTheme.input}
-            />
-          </div>
-        </div>
+      {/* 2. Filters Box */}
+      <div className="screen-only p-4 sm:p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 shadow-xs">
+        <ReportFilters
+          grades={grades}
+          classes={classes}
+          selectedGrade={selectedGrade}
+          onSelectGrade={setSelectedGrade}
+          selectedClass={selectedClass}
+          onSelectClass={setSelectedClass}
+          startDate={startDate}
+          onSelectStartDate={setStartDate}
+          endDate={endDate}
+          onSelectEndDate={setEndDate}
+          onResetFilters={() => {
+            setSelectedGrade('');
+            setSelectedClass('');
+            setStartDate('');
+            setEndDate('');
+          }}
+        />
       </div>
 
-      {/* Printable Report View */}
-      <div className="p-8 bg-white dark:bg-slate-900 rounded-3xl border border-slate-200/80 dark:border-slate-800 shadow-xs space-y-6">
-        {/* Printable Header */}
-        <div className="border-b border-slate-200 dark:border-slate-800 pb-5 flex items-center justify-between">
-          <div>
-            <h1 className="text-2xl font-black text-slate-900 dark:text-white">سجل الطالب الإلكتروني — تقرير الملاحظات</h1>
-            <p className="text-xs text-slate-500 dark:text-slate-400 font-semibold mt-1">
-              تاريخ إصدار التقرير: {formatDateArabic(new Date().toISOString())}
-            </p>
-          </div>
-          <div className="text-left text-xs font-bold text-slate-600 dark:text-slate-300">
-            <p>المملكة العربية السعودية</p>
-            <p>وزارة التعليم</p>
-          </div>
-        </div>
+      {/* 3. Summary KPIs */}
+      <div className="screen-only">
+        <ReportSummary
+          studentsCount={students.length}
+          notesCount={notes.length}
+          classNotesCount={classNotes.length}
+          followUpsCount={followUps.length}
+        />
+      </div>
 
-        {/* Report Stats Summary */}
-        <div className="grid grid-cols-2 sm:grid-cols-5 gap-3 p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 text-center">
-          <div>
-            <p className="text-xs font-bold text-slate-400">ملاحظات الطلاب</p>
-            <p className="text-xl font-black text-slate-900 dark:text-white">{notes.length}</p>
-          </div>
-          <div>
-            <p className="text-xs font-bold text-slate-400">ملاحظات الفصول</p>
-            <p className="text-xl font-black text-indigo-600 dark:text-indigo-400">{classNotes.length}</p>
-          </div>
-          <div>
-            <p className="text-xs font-bold text-slate-400">الطلاب المشمولون</p>
-            <p className="text-xl font-black text-slate-900 dark:text-white">{students.length}</p>
-          </div>
-          <div>
-            <p className="text-xs font-bold text-slate-400">ملاحظات إيجابية</p>
-            <p className="text-xl font-black text-emerald-600 dark:text-emerald-400">
-              {notes.filter((n) => n.type === 'positive').length}
-            </p>
-          </div>
-          <div>
-            <p className="text-xs font-bold text-slate-400">تتطلب متابعة</p>
-            <p className="text-xl font-black text-rose-600 dark:text-rose-400">
-              {notes.filter((n) => n.requires_follow_up === 1).length}
-            </p>
-          </div>
-        </div>
-
-        {/* Section 1: Class Notes Section in Report (ملاحظات المعلم عن الفصل) */}
-        {classNotes.length > 0 && (
-          <div className="space-y-3 pt-2">
-            <div className="flex items-center gap-2 border-r-4 border-indigo-600 pr-3">
-              <h3 className="text-base font-extrabold text-slate-900 dark:text-white">
-                📋 ملاحظات المعلم عن الفصل (السجل العام للفصل)
+      {/* 4. Results List */}
+      <div className="screen-only">
+        {loading ? (
+          <LoadingSkeleton count={3} type="card" />
+        ) : notes.length === 0 && classNotes.length === 0 ? (
+          <EmptyState
+            title="لا توجد بيانات مطابقة للفلاتر الحالية"
+            description="جرب تعديل الصف أو الفصل أو نطاق التاريخ لعرض نتائج أخرى."
+            icon={<BarChart3 className="w-10 h-10" />}
+          />
+        ) : (
+          <div className="p-5 sm:p-6 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 shadow-xs space-y-4">
+            <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-3">
+              <h3 className="text-sm sm:text-base font-black text-slate-900 dark:text-slate-100">
+                نتائج كشف الملاحظات الموثقة ({notes.length})
               </h3>
+              <span className="text-xs font-bold text-slate-400">جاهزة للتصدير المباشر</span>
             </div>
 
-            <div className="overflow-x-auto">
-              <table className="w-full text-right text-xs">
-                <thead>
-                  <tr className="bg-indigo-50/80 dark:bg-slate-800 border-b border-indigo-100 dark:border-slate-700 text-indigo-900 dark:text-indigo-300 font-extrabold">
-                    <th className="p-3">م</th>
-                    <th className="p-3">الفصل / الصف</th>
-                    <th className="p-3">تاريخ الملاحظة</th>
-                    <th className="p-3">نوع الملاحظة</th>
-                    <th className="p-3">العنوان</th>
-                    <th className="p-3">تفاصيل الملاحظة العامة</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
-                  {classNotes.map((cn, idx) => {
-                    const typeStyle = CLASS_NOTE_TYPE_LABELS[cn.type] || CLASS_NOTE_TYPE_LABELS.general;
-                    return (
-                      <tr key={cn.id} className="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition">
-                        <td className="p-3 font-bold text-slate-400">{idx + 1}</td>
-                        <td className="p-3 font-bold text-slate-900 dark:text-white">{cn.grade_name} - {cn.class_name}</td>
-                        <td className="p-3 font-semibold text-slate-600 dark:text-slate-300">{formatDateArabic(cn.note_date)}</td>
-                        <td className="p-3">
-                          <span className={`px-2 py-0.5 rounded-md font-bold text-[11px] ${typeStyle.bg} ${typeStyle.text}`}>
-                            {typeStyle.label}
-                          </span>
-                        </td>
-                        <td className="p-3 font-bold text-slate-800 dark:text-slate-200">{cn.title || '—'}</td>
-                        <td className="p-3 text-slate-700 dark:text-slate-300 leading-normal max-w-md">{cn.content}</td>
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
+            <div className="divide-y divide-slate-100 dark:divide-slate-800">
+              {notes.map((n) => (
+                <div key={n.id} className="py-3.5 space-y-1.5 first:pt-0 last:pb-0">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1 text-xs">
+                    <div className="flex items-center gap-2">
+                      <span className="font-black text-slate-900 dark:text-slate-100">{n.student_name}</span>
+                      <span className="text-slate-400">({n.grade_name || ''} - {n.class_name || ''})</span>
+                    </div>
+                    <span className="text-xs text-slate-600 dark:text-slate-400 font-semibold">{formatDateArabic(n.created_at)}</span>
+                  </div>
+                  <p className="text-xs text-slate-700 dark:text-slate-300 font-medium whitespace-pre-line">
+                    {n.content}
+                  </p>
+                  {n.action_taken && (
+                    <p className="text-xs text-slate-600 dark:text-slate-400 font-medium">
+                      الإجراء المتخذ: <strong className="text-slate-800 dark:text-slate-200">{n.action_taken}</strong>
+                    </p>
+                  )}
+                </div>
+              ))}
             </div>
           </div>
         )}
-
-        {/* Section 2: Student Notes Table */}
-        <div className="space-y-3 pt-2">
-          <div className="flex items-center gap-2 border-r-4 border-slate-600 pr-3">
-            <h3 className="text-base font-extrabold text-slate-900 dark:text-white">
-              📝 سجل ملاحظات الطلاب الفردية
-            </h3>
-          </div>
-
-          {loading ? (
-            <LoadingSkeleton count={5} type="table" />
-          ) : notes.length === 0 ? (
-            <EmptyState
-              title="لا توجد ملاحظات طلاب مطابقة لمعايير التقرير"
-              description="جرب توسيع نطاق التاريخ أو اختيار صفوف أخرى."
-              icon={<FileText className="w-10 h-10" />}
-            />
-          ) : (
-            <div className="overflow-x-auto">
-              <table className="w-full text-right text-xs">
-                <thead>
-                  <tr className="bg-slate-100/80 dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 font-extrabold">
-                    <th className="p-3.5">م</th>
-                    <th className="p-3.5">اسم الطالب</th>
-                    <th className="p-3.5">الرقم</th>
-                    <th className="p-3.5">الصف / الفصل</th>
-                    <th className="p-3.5">نوع الملاحظة</th>
-                    <th className="p-3.5">الأولوية</th>
-                    <th className="p-3.5">نص الملاحظة</th>
-                    <th className="p-3.5">الإجراء المتخذ</th>
-                    <th className="p-3.5">التاريخ</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
-                  {notes.map((note, idx) => {
-                    const typeStyle = NOTE_TYPE_LABELS[note.type] || NOTE_TYPE_LABELS.other;
-                    const prioStyle = NOTE_PRIORITY_LABELS[note.priority] || NOTE_PRIORITY_LABELS.medium;
-                    return (
-                      <tr key={note.id} className="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition">
-                        <td className="p-3.5 font-bold text-slate-400">{idx + 1}</td>
-                        <td className="p-3.5 font-bold text-slate-900 dark:text-white">{note.student_name}</td>
-                        <td className="p-3.5 font-mono text-slate-600 dark:text-slate-400">{note.student_number}</td>
-                        <td className="p-3.5 text-slate-600 dark:text-slate-300">{note.grade_name} - {note.class_name}</td>
-                        <td className="p-3.5">
-                          <span className={`px-2 py-0.5 rounded-md font-bold text-[11px] ${typeStyle.bg} ${typeStyle.text}`}>
-                            {typeStyle.label}
-                          </span>
-                        </td>
-                        <td className="p-3.5">
-                          <span className={`px-2 py-0.5 rounded-md font-bold text-[11px] ${prioStyle.bg} ${prioStyle.text}`}>
-                            {prioStyle.label}
-                          </span>
-                        </td>
-                        <td className="p-3.5 text-slate-800 dark:text-slate-200 max-w-xs leading-normal">{note.content}</td>
-                        <td className="p-3.5 text-slate-600 dark:text-slate-400 max-w-xs">{note.action_taken || '—'}</td>
-                        <td className="p-3.5 text-slate-500 dark:text-slate-400 font-semibold">{formatDateArabic(note.created_at)}</td>
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
-            </div>
-          )}
-        </div>
       </div>
-    </div>
+    </PageContainer>
   );
 }

@@ -1,36 +1,42 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest } from 'next/server';
 import { GradeRepository } from '@/lib/db';
 import { requireActiveTeacher } from '@/lib/auth';
+import { getSupabaseUserClient } from '@/lib/supabase';
+import { apiSuccess, apiError, apiBadRequest, apiServerError } from '@/lib/api-response';
+import { validateGradeInput } from '@/lib/validation';
 
 export async function GET(request: NextRequest) {
   try {
-    const authCheck = await requireActiveTeacher();
+    const authCheck = await requireActiveTeacher(request);
     if ('error' in authCheck) {
-      return NextResponse.json({ error: authCheck.error }, { status: authCheck.status });
+      return apiError(authCheck.error, { status: authCheck.status });
     }
     const searchParams = request.nextUrl.searchParams;
     const includeArchived = searchParams.get('includeArchived') === 'true';
-    const grades = await GradeRepository.getAll({ includeArchived, teacherId: authCheck.user.userId });
-    return NextResponse.json({ grades });
+    const client = getSupabaseUserClient(authCheck.user.supabaseAccessToken);
+    const grades = await GradeRepository.getAll({ includeArchived, teacherId: authCheck.user.userId }, client);
+    return apiSuccess({ grades });
   } catch (error: any) {
-    return NextResponse.json({ error: 'حدث خطأ أثناء جلب الصفوف' }, { status: 500 });
+    return apiServerError('حدث خطأ أثناء جلب الصفوف', error);
   }
 }
 
 export async function POST(request: NextRequest) {
   try {
-    const authCheck = await requireActiveTeacher();
+    const authCheck = await requireActiveTeacher(request);
     if ('error' in authCheck) {
-      return NextResponse.json({ error: authCheck.error }, { status: authCheck.status });
+      return apiError(authCheck.error, { status: authCheck.status });
     }
-    const body = await request.json();
-    const { name } = body;
-    if (!name || !name.trim()) {
-      return NextResponse.json({ error: 'اسم الصف مطلوب' }, { status: 400 });
+    const body = await request.json().catch(() => ({}));
+    const validation = validateGradeInput(body);
+    if (!validation.valid || !validation.data) {
+      return apiBadRequest(validation.errors[0] || 'بيانات الصف غير صحيحة', validation.errors);
     }
-    const grade = await GradeRepository.create(name.trim(), authCheck.user.userId);
-    return NextResponse.json({ grade, message: 'تم إنشاء الصف بنجاح' });
+
+    const client = getSupabaseUserClient(authCheck.user.supabaseAccessToken);
+    const grade = await GradeRepository.create(validation.data.name, authCheck.user.userId, client);
+    return apiSuccess({ grade, message: 'تم إنشاء الصف بنجاح' }, { status: 201 });
   } catch (error: any) {
-    return NextResponse.json({ error: 'حدث خطأ أثناء إنشاء الصف' }, { status: 500 });
+    return apiServerError('حدث خطأ أثناء إنشاء الصف', error);
   }
 }

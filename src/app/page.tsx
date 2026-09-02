@@ -1,31 +1,25 @@
-'use client';
+import { redirect } from 'next/navigation';
+import { getCurrentUser } from '@/lib/auth';
 
-import { useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+export const dynamic = 'force-dynamic';
 
-export default function RootPage() {
-  const router = useRouter();
+export default async function RootPage() {
+  const user = await getCurrentUser();
 
-  useEffect(() => {
-    fetch('/api/auth/me')
-      .then((res) => {
-        if (res.ok) {
-          router.replace('/dashboard');
-        } else {
-          router.replace('/login');
-        }
-      })
-      .catch(() => {
-        router.replace('/login');
-      });
-  }, [router]);
+  if (user) {
+    const role = (user.role || '').toUpperCase();
+    if (role === 'OWNER' || role === 'ADMIN') {
+      redirect('/owner');
+    } else if (user.status === 'pending') {
+      redirect('/pending-activation');
+    } else if (user.status === 'disabled') {
+      redirect('/account-disabled');
+    } else if (user.must_change_password === 1) {
+      redirect('/change-password');
+    } else {
+      redirect('/dashboard');
+    }
+  }
 
-  return (
-    <div className="min-h-screen flex items-center justify-center bg-slate-50">
-      <div className="flex flex-col items-center gap-4">
-        <div className="w-12 h-12 border-4 border-indigo-600 border-t-transparent rounded-full animate-spin"></div>
-        <p className="text-sm font-bold text-slate-600">جاري تحميل سجل الطالب الإلكتروني...</p>
-      </div>
-    </div>
-  );
+  redirect('/login');
 }

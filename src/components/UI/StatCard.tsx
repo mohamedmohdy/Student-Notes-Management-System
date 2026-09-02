@@ -1,15 +1,20 @@
+'use client';
+
 import React from 'react';
 import Link from 'next/link';
 import { LucideIcon } from 'lucide-react';
-import { heroTheme } from '@/lib/heroui-theme';
 
-interface StatCardProps {
+export interface StatCardProps {
   title: string;
   value: string | number;
   subtitle?: string;
+  description?: string;
+  variant?: string;
   icon: LucideIcon;
   color?: 'indigo' | 'emerald' | 'amber' | 'rose' | 'cyan' | 'purple';
   href?: string;
+  trend?: string;
+  badge?: string;
 }
 
 const colorStyles = {
@@ -34,9 +39,9 @@ const colorStyles = {
     border: 'border-rose-100 dark:border-rose-900/60',
   },
   cyan: {
-    bg: 'bg-cyan-50 dark:bg-cyan-950/60',
-    text: 'text-cyan-600 dark:text-cyan-400',
-    border: 'border-cyan-100 dark:border-cyan-900/60',
+    bg: 'bg-sky-50 dark:bg-sky-950/60',
+    text: 'text-sky-600 dark:text-sky-400',
+    border: 'border-sky-100 dark:border-sky-900/60',
   },
   purple: {
     bg: 'bg-purple-50 dark:bg-purple-950/60',
@@ -45,26 +50,55 @@ const colorStyles = {
   },
 };
 
-export function StatCard({ title, value, subtitle, icon: Icon, color = 'indigo', href }: StatCardProps) {
-  const c = colorStyles[color];
+export function StatCard({
+  title,
+  value,
+  subtitle,
+  description,
+  variant,
+  icon: Icon,
+  color = 'indigo',
+  href,
+  badge,
+}: StatCardProps) {
+  const c = colorStyles[color] || colorStyles.indigo;
 
   const content = (
-    <div className="p-5 rounded-3xl bg-white/90 dark:bg-slate-900/90 backdrop-blur-xl border border-slate-200/80 dark:border-slate-800 shadow-xs hover:shadow-xl hover:border-indigo-200 dark:hover:border-indigo-500/40 transition-all duration-300 flex items-center justify-between gap-4 group">
+    <div className="p-4 sm:p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 shadow-xs hover:border-indigo-300 dark:hover:border-indigo-500/40 transition-all duration-150 flex items-center justify-between gap-3 group">
       <div className="space-y-1">
-        <p className="text-xs font-bold text-slate-500 dark:text-slate-400">{title}</p>
-        <p className="text-2xl font-black text-slate-900 dark:text-white tracking-tight">{value}</p>
-        {subtitle && <p className="text-[11px] font-semibold text-slate-400 dark:text-slate-400">{subtitle}</p>}
+        <div className="flex items-center gap-2">
+          <p className="text-xs font-bold text-slate-500 dark:text-slate-400">{title}</p>
+          {badge && (
+            <span className="text-[10px] px-1.5 py-0.5 rounded-md bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 font-bold">
+              {badge}
+            </span>
+          )}
+        </div>
+        <p className="text-xl sm:text-2xl font-black text-slate-900 dark:text-slate-100 tracking-tight">
+          {value}
+        </p>
+        {(subtitle || description) && (
+          <p className="text-xs font-semibold text-slate-600 dark:text-slate-400 truncate max-w-[180px]">
+            {subtitle || description}
+          </p>
+        )}
       </div>
 
-      <div className={`w-12 h-12 rounded-2xl ${c.bg} ${c.text} ${c.border} border flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform duration-300`}>
-        <Icon className="w-6 h-6" />
+      <div
+        className={`w-11 h-11 sm:w-12 sm:h-12 rounded-xl flex items-center justify-center shrink-0 border ${c.bg} ${c.text} ${c.border} group-hover:scale-105 transition-transform duration-150`}
+      >
+        <Icon className="w-5 h-5 sm:w-6 sm:h-6" />
       </div>
     </div>
   );
 
   if (href) {
     return (
-      <Link href={href} className="block">
+      <Link
+        href={href}
+        aria-label={`${title}: ${value} ${subtitle || description || ''}`}
+        className="block outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 rounded-2xl"
+      >
         {content}
       </Link>
     );

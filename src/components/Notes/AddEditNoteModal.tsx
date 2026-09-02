@@ -8,6 +8,8 @@ import { NOTE_TYPE_LABELS, NOTE_PRIORITY_LABELS } from '@/lib/utils';
 import { Calendar, AlertCircle } from 'lucide-react';
 
 interface AddEditNoteModalProps {
+  initialStudent?: any;
+  initialStudentId?: string;
   isOpen: boolean;
   onClose: () => void;
   onSuccess: () => void;

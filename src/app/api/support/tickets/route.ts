@@ -7,7 +7,7 @@ import { SupportTicketCategory } from '@/lib/types';
 
 export async function GET(request: NextRequest) {
   try {
-    const authCheck = await requireActiveTeacher();
+    const authCheck = await requireActiveTeacher(request);
     if ('error' in authCheck) {
       return NextResponse.json({ error: authCheck.error }, { status: authCheck.status });
     }
@@ -24,16 +24,19 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
-    const authCheck = await requireActiveTeacher();
+    const authCheck = await requireActiveTeacher(request);
     if ('error' in authCheck) {
       return NextResponse.json({ error: authCheck.error }, { status: authCheck.status });
     }
 
     const user = authCheck.user;
     const body = await request.json();
-    const { category, subject, description, attachment_url } = body;
+    const category = body.category || body.type || body.priority || 'general';
+    const subject = body.subject || body.title;
+    const description = body.description || body.message || body.content;
+    const attachment_url = body.attachment_url || body.attachmentUrl;
 
-    if (!category || !subject || !subject.trim() || !description || !description.trim()) {
+    if (!subject || !subject.trim() || !description || !description.trim()) {
       return NextResponse.json(
         { error: 'يرجى اختيار نوع المشكلة وكتابة العنوان والوصف التفصيلي' },
         { status: 400 }
@@ -43,7 +46,6 @@ export async function POST(request: NextRequest) {
     const categoryKey = category as SupportTicketCategory;
     const categoryLabel = TICKET_CATEGORY_LABELS[categoryKey]?.label || category;
 
-    // Create ticket in database with strict teacher scoping
     const ticket = await SupportTicketRepository.create({
       teacherId: user.userId,
       teacherName: user.name,
@@ -54,7 +56,6 @@ export async function POST(request: NextRequest) {
       attachmentUrl: attachment_url || null,
     });
 
-    // Send notification email to admin support (asynchronous/non-blocking)
     sendSupportTicketEmailToAdmin({
       ticketNumber: ticket.ticket_number,
       teacherName: ticket.teacher_name,

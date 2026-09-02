@@ -1,44 +1,21 @@
-// Student Notes Service Worker for PWA & Offline Notifications
-const CACHE_NAME = 'student-notes-cache-v1';
-const urlsToCache = [
-  '/',
-  '/dashboard',
-  '/students',
-  '/notes',
-  '/follow-ups',
-  '/manifest.json'
-];
+// Student Notes Service Worker for PWA
+const CACHE_NAME = 'student-notes-v2';
 
 self.addEventListener('install', (event) => {
   self.skipWaiting();
-  event.waitUntil(
-    caches.open(CACHE_NAME).then((cache) => {
-      return cache.addAll(urlsToCache);
-    })
-  );
 });
 
 self.addEventListener('activate', (event) => {
   event.waitUntil(
     caches.keys().then((keys) => {
       return Promise.all(
-        keys.filter((key) => key !== CACHE_NAME).map((key) => caches.delete(key))
+        keys.map((key) => caches.delete(key))
       );
-    })
+    }).then(() => self.clients.claim())
   );
 });
 
-self.addEventListener('fetch', (event) => {
-  // Let network handle dynamic API requests
-  if (event.request.url.includes('/api/')) {
-    return;
-  }
-  event.respondWith(
-    fetch(event.request).catch(() => caches.match(event.request))
-  );
-});
-
-// Handle Background Push / Notification events
+// Notifications
 self.addEventListener('notificationclick', (event) => {
   event.notification.close();
   event.waitUntil(

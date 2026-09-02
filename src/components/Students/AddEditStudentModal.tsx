@@ -7,6 +7,8 @@ import { Student, StudentStatus, ClassRoom } from '@/lib/types';
 import { STUDENT_STATUS_LABELS } from '@/lib/utils';
 
 interface AddEditStudentModalProps {
+  initialGradeId?: string;
+  initialClassId?: string;
   isOpen: boolean;
   onClose: () => void;
   onSuccess: () => void;

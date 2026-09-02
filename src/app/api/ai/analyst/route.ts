@@ -207,7 +207,7 @@ export async function POST(request: NextRequest) {
       normal: allStudents.filter((s) => s.status === 'normal').length,
       excellent: allStudents.filter((s) => s.status === 'excellent').length,
       needs_followup: allStudents.filter((s) => s.status === 'needs_followup').length,
-      weak: allStudents.filter((s) => s.status === 'weak').length,
+      weak: allStudents.filter((s) => (s.status as any) === 'weak' || s.status === 'needs_followup').length,
     };
 
     // Note Type Distribution

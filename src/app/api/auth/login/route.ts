@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { UserRepository } from '@/lib/db';
 import { verifyPassword, createToken, AUTH_COOKIE_NAME } from '@/lib/auth';
+import { supabase, getSupabaseUserClient } from '@/lib/supabase';
 
 export async function POST(request: NextRequest) {
   try {
@@ -11,14 +12,54 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'يرجى إدخال البريد الإلكتروني وكلمة المرور' }, { status: 400 });
     }
 
-    const user = await UserRepository.findByEmail(email);
-    if (!user) {
-      return NextResponse.json({ error: 'البريد الإلكتروني أو كلمة المرور غير صحيحة' }, { status: 401 });
-    }
+    const cleanEmail = email.trim().toLowerCase();
 
-    const isValid = verifyPassword(password, user.password_hash);
-    if (!isValid) {
-      return NextResponse.json({ error: 'البريد الإلكتروني أو كلمة المرور غير صحيحة' }, { status: 401 });
+    // 1. Try Supabase Auth Sign In first
+    const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
+      email: cleanEmail,
+      password,
+    });
+
+    let user: any = null;
+    let supabaseAccessToken: string | undefined = undefined;
+
+    if (authData?.session && authData.user) {
+      supabaseAccessToken = authData.session.access_token;
+      const userClient = getSupabaseUserClient(supabaseAccessToken);
+      const { data: profile } = await userClient
+        .from('users')
+        .select('*')
+        .eq('id', authData.user.id)
+        .maybeSingle();
+
+      if (profile) {
+        user = profile;
+      } else {
+        user = {
+          id: authData.user.id,
+          name: authData.user.user_metadata?.name || cleanEmail.split('@')[0],
+          email: cleanEmail,
+          role: authData.user.user_metadata?.role || 'TEACHER',
+          status: 'active',
+          must_change_password: 0,
+        };
+      }
+    } else {
+      // 2. Fallback to UserRepository check from public.users
+      user = await UserRepository.findByEmail(cleanEmail);
+      if (!user) {
+        return NextResponse.json(
+          { error: authError?.message === 'Email not confirmed' ? 'يرجى تأكيد البريد الإلكتروني أولاً' : 'البريد الإلكتروني أو كلمة المرور غير صحيحة' },
+          { status: 401 }
+        );
+      }
+
+      if (user.password_hash) {
+        const isValid = verifyPassword(password, user.password_hash);
+        if (!isValid) {
+          return NextResponse.json({ error: 'البريد الإلكتروني أو كلمة المرور غير صحيحة' }, { status: 401 });
+        }
+      }
     }
 
     // Update last login timestamp
@@ -31,9 +72,10 @@ export async function POST(request: NextRequest) {
       role: user.role,
       status: user.status,
       must_change_password: user.must_change_password || 0,
+      supabaseAccessToken,
     });
 
-    const isOwner = user.role.toUpperCase() === 'OWNER';
+    const isOwner = String(user.role).toUpperCase() === 'OWNER';
     let redirectUrl = '/dashboard';
 
     if (isOwner) {

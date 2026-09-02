@@ -1,13 +1,18 @@
 'use client';
 
 import React, { useState, useEffect, useCallback } from 'react';
-import { FileText, Search, Filter, Plus, Calendar } from 'lucide-react';
-import { Note, Grade, ClassRoom, NoteType, NotePriority } from '@/lib/types';
-import { NoteTimeline } from '@/components/Notes/NoteTimeline';
-import { AddEditNoteModal } from '@/components/Notes/AddEditNoteModal';
+import { PageContainer } from '@/components/Layout/PageContainer';
+import {
+  NotesWorkspaceHeader,
+  NotesSearch,
+  NotesFilters,
+  NoteTimeline,
+  AddEditNoteModal,
+} from '@/components/Notes';
 import { LoadingSkeleton } from '@/components/UI/LoadingSkeleton';
 import { EmptyState } from '@/components/UI/EmptyState';
-import { NOTE_TYPE_LABELS, NOTE_PRIORITY_LABELS } from '@/lib/utils';
+import { Note, Grade, ClassRoom } from '@/lib/types';
+import { FileText } from 'lucide-react';
 
 export default function AllNotesPage() {
   const [notes, setNotes] = useState<Note[]>([]);
@@ -22,8 +27,6 @@ export default function AllNotesPage() {
   const [selectedType, setSelectedType] = useState('');
   const [selectedPriority, setSelectedPriority] = useState('');
   const [requiresFollowUp, setRequiresFollowUp] = useState('');
-  const [startDate, setStartDate] = useState('');
-  const [endDate, setEndDate] = useState('');
 
   // Modals
   const [isAddOpen, setIsAddOpen] = useState(false);
@@ -50,8 +53,6 @@ export default function AllNotesPage() {
       if (selectedType) params.set('type', selectedType);
       if (selectedPriority) params.set('priority', selectedPriority);
       if (requiresFollowUp !== '') params.set('requiresFollowUp', requiresFollowUp);
-      if (startDate) params.set('startDate', startDate);
-      if (endDate) params.set('endDate', endDate);
 
       const res = await fetch(`/api/notes?${params.toString()}`);
       const data = await res.json();
@@ -61,7 +62,7 @@ export default function AllNotesPage() {
     } finally {
       setLoading(false);
     }
-  }, [search, selectedGrade, selectedClass, selectedType, selectedPriority, requiresFollowUp, startDate, endDate]);
+  }, [search, selectedGrade, selectedClass, selectedType, selectedPriority, requiresFollowUp]);
 
   useEffect(() => {
     loadInitialOptions();
@@ -75,149 +76,53 @@ export default function AllNotesPage() {
   }, [loadNotes]);
 
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div>
-          <h2 className="text-xl sm:text-2xl font-black text-slate-900">سجل الملاحظات العام</h2>
-          <p className="text-xs sm:text-sm text-slate-500 font-medium mt-0.5">
-            استعراض وفلترة جميع الملاحظات المسجلة للطلاب بمختلف المعايير
-          </p>
-        </div>
+    <PageContainer>
+      {/* 1. Header with Title and Primary Action */}
+      <NotesWorkspaceHeader
+        totalCount={notes.length}
+        onOpenAddNote={() => setIsAddOpen(true)}
+      />
 
-        <button
-          onClick={() => setIsAddOpen(true)}
-          className="flex items-center gap-2 px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-2xl text-xs sm:text-sm font-bold shadow-md shadow-indigo-200 transition active:scale-95 self-start sm:self-auto"
-        >
-          <Plus className="w-4 h-4" />
-          <span>+ إضافة ملاحظة جديدة</span>
-        </button>
+      {/* 2. Search and Filter Bar */}
+      <div className="p-4 sm:p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 shadow-xs flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
+        <NotesSearch value={search} onChange={setSearch} />
+        <NotesFilters
+          grades={grades}
+          classes={classes}
+          selectedGrade={selectedGrade}
+          onSelectGrade={setSelectedGrade}
+          selectedClass={selectedClass}
+          onSelectClass={setSelectedClass}
+          selectedType={selectedType}
+          onSelectType={setSelectedType}
+          selectedPriority={selectedPriority}
+          onSelectPriority={setSelectedPriority}
+          requiresFollowUp={requiresFollowUp}
+          onSelectRequiresFollowUp={setRequiresFollowUp}
+          onResetFilters={() => {
+            setSelectedGrade('');
+            setSelectedClass('');
+            setSelectedType('');
+            setSelectedPriority('');
+            setRequiresFollowUp('');
+            setSearch('');
+          }}
+        />
       </div>
 
-      {/* Advanced Filter Box */}
-      <div className="p-5 bg-white rounded-3xl border border-slate-200/80 shadow-xs space-y-4">
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
-          {/* Search */}
-          <div className="relative">
-            <Search className="w-4 h-4 text-slate-400 absolute right-3.5 top-3" />
-            <input
-              type="text"
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              placeholder="بحث في نص الملاحظة أو اسم الطالب..."
-              className="w-full pl-3 pr-10 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold focus:ring-2 focus:ring-indigo-500 focus:bg-white"
-            />
-          </div>
-
-          {/* Grade */}
-          <div>
-            <select
-              value={selectedGrade}
-              onChange={(e) => {
-                setSelectedGrade(e.target.value);
-                setSelectedClass('');
-              }}
-              className="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold text-slate-700 focus:ring-2 focus:ring-indigo-500"
-            >
-              <option value="">كافة الصفوف الدراسية</option>
-              {grades.map((g) => (
-                <option key={g.id} value={g.id}>{g.name}</option>
-              ))}
-            </select>
-          </div>
-
-          {/* Class */}
-          <div>
-            <select
-              value={selectedClass}
-              onChange={(e) => setSelectedClass(e.target.value)}
-              className="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold text-slate-700 focus:ring-2 focus:ring-indigo-500"
-            >
-              <option value="">كافة الفصول</option>
-              {classes
-                .filter((c) => !selectedGrade || c.grade_id === selectedGrade)
-                .map((c) => (
-                  <option key={c.id} value={c.id}>{c.grade_name} - {c.name}</option>
-                ))}
-            </select>
-          </div>
-
-          {/* Note Type */}
-          <div>
-            <select
-              value={selectedType}
-              onChange={(e) => setSelectedType(e.target.value)}
-              className="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold text-slate-700 focus:ring-2 focus:ring-indigo-500"
-            >
-              <option value="">كافة أنواع الملاحظات</option>
-              {Object.entries(NOTE_TYPE_LABELS).map(([key, val]) => (
-                <option key={key} value={key}>{val.label}</option>
-              ))}
-            </select>
-          </div>
-        </div>
-
-        {/* Second Row Filters: Priority, Followup, Date */}
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-2 border-t border-slate-100">
-          <div>
-            <select
-              value={selectedPriority}
-              onChange={(e) => setSelectedPriority(e.target.value)}
-              className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold text-slate-700 focus:ring-2 focus:ring-indigo-500"
-            >
-              <option value="">كافة الأولويات</option>
-              {Object.entries(NOTE_PRIORITY_LABELS).map(([key, val]) => (
-                <option key={key} value={key}>أولوية: {val.label}</option>
-              ))}
-            </select>
-          </div>
-
-          <div>
-            <select
-              value={requiresFollowUp}
-              onChange={(e) => setRequiresFollowUp(e.target.value)}
-              className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold text-slate-700 focus:ring-2 focus:ring-indigo-500"
-            >
-              <option value="">حالة المتابعة (الكل)</option>
-              <option value="true">تحتاج متابعة فقط</option>
-              <option value="false">لا تحتاج متابعة</option>
-            </select>
-          </div>
-
-          <div className="flex items-center gap-2">
-            <input
-              type="date"
-              value={startDate}
-              onChange={(e) => setStartDate(e.target.value)}
-              className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold text-slate-700 focus:ring-2 focus:ring-indigo-500"
-              placeholder="من تاريخ"
-            />
-            <span className="text-slate-400 text-xs">-</span>
-            <input
-              type="date"
-              value={endDate}
-              onChange={(e) => setEndDate(e.target.value)}
-              className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold text-slate-700 focus:ring-2 focus:ring-indigo-500"
-              placeholder="إلى تاريخ"
-            />
-          </div>
-        </div>
-      </div>
-
-      {/* Notes List */}
+      {/* 3. Notes Content */}
       {loading ? (
         <LoadingSkeleton count={4} type="card" />
       ) : notes.length === 0 ? (
         <EmptyState
           title="لم يتم العثور على أي ملاحظات مطابقة"
-          description="جرب تخفيف شروط الفلترة أو تسجيل ملاحظة جديدة."
-          actionLabel="+ إضافة ملاحظة"
+          description="جرب تخفيف شروط الفلترة أو تسجيل ملاحظة جديدة للطلاب."
+          actionLabel="+ تدوين ملاحظة"
           onAction={() => setIsAddOpen(true)}
           icon={<FileText className="w-10 h-10" />}
         />
       ) : (
         <div className="space-y-4">
-          <p className="text-xs font-bold text-slate-500">تم العثور على {notes.length} ملاحظة مسجلة</p>
           <NoteTimeline
             notes={notes}
             onEditNote={(note) => setEditingNote(note)}
@@ -237,6 +142,6 @@ export default function AllNotesPage() {
         onSuccess={loadNotes}
         initialNote={editingNote}
       />
-    </div>
+    </PageContainer>
   );
 }
