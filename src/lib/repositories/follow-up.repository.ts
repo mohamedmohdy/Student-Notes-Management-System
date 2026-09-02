@@ -1,5 +1,5 @@
 import { SupabaseClient } from '@supabase/supabase-js';
-import { supabase } from '../supabase';
+import { supabase, supabaseAdmin } from '../supabase';
 import { FollowUp, FollowUpStatus } from '../types';
 import { toNum, toBool } from './base';
 
@@ -16,13 +16,13 @@ export const FollowUpRepository = {
     const teacherId = options?.teacherId;
     if (!teacherId) return [];
 
-    const db = client || supabase;
+    const db = client || supabaseAdmin || supabase;
     let query = db
       .from('follow_ups')
       .select(`
         *,
-        students!inner(id, name, student_number, class_id, classes!inner(id, name, grade_id, grades!inner(id, name))),
-        notes!inner(id, content, type, priority, action_taken)
+        students(id, name, student_number, class_id, classes(id, name, grade_id, grades(id, name))),
+        notes(id, content, type, priority, action_taken)
       `)
       .eq('teacher_id', teacherId)
       .order('follow_up_date', { ascending: true });
@@ -63,21 +63,22 @@ export const FollowUpRepository = {
     }));
   },
 
-  findById: async (id: string, teacherId: string): Promise<FollowUp | null> => {
-    return FollowUpRepository.getById(id, teacherId);
+  findById: async (id: string, teacherId: string, client?: any): Promise<FollowUp | null> => {
+    return FollowUpRepository.getById(id, teacherId, client);
   },
 
-  resolve: async (id: string, result: string, teacherId: string): Promise<FollowUp | null> => {
-    return FollowUpRepository.updateStatus(id, 'completed', result, undefined, teacherId);
+  resolve: async (id: string, result: string, teacherId: string, client?: any): Promise<FollowUp | null> => {
+    return FollowUpRepository.updateStatus(id, 'completed', result, undefined, teacherId, client);
   },
 
-  getById: async (id: string, teacherId: string): Promise<FollowUp | null> => {
-    const { data, error } = await supabase
+  getById: async (id: string, teacherId: string, client?: any): Promise<FollowUp | null> => {
+    const db = client || supabaseAdmin || supabase;
+    const { data, error } = await db
       .from('follow_ups')
       .select(`
         *,
-        students!inner(id, name, student_number, class_id, classes!inner(id, name, grade_id, grades!inner(id, name))),
-        notes!inner(id, content, type, priority, action_taken)
+        students(id, name, student_number, class_id, classes(id, name, grade_id, grades(id, name))),
+        notes(id, content, type, priority, action_taken)
       `)
       .eq('id', id)
       .eq('teacher_id', teacherId)
@@ -106,11 +107,12 @@ export const FollowUpRepository = {
     };
   },
 
-  create: async (data: { noteId: string; studentId: string; followUpDate: string; teacherId: string }): Promise<FollowUp> => {
+  create: async (data: { noteId: string; studentId: string; followUpDate: string; teacherId: string }, client?: SupabaseClient): Promise<FollowUp> => {
+    const sb = client || supabaseAdmin || supabase;
     const now = new Date().toISOString();
     const followUpDate = data.followUpDate.includes('T') ? data.followUpDate.split('T')[0] : data.followUpDate;
 
-    const { data: inserted, error } = await supabase
+    const { data: inserted, error } = await sb
       .from('follow_ups')
       .insert({
         teacher_id: data.teacherId,
@@ -125,10 +127,11 @@ export const FollowUpRepository = {
       .single();
 
     if (error || !inserted) throw error || new Error('Failed to create follow-up');
-    return (await FollowUpRepository.getById(inserted.id, data.teacherId))!;
+    return (await FollowUpRepository.getById(inserted.id, data.teacherId, sb))!;
   },
 
-  updateStatus: async (id: string, status: FollowUpStatus, result?: string, additionalNotes?: string, teacherId?: string): Promise<FollowUp | null> => {
+  updateStatus: async (id: string, status: FollowUpStatus, result?: string, additionalNotes?: string, teacherId?: string, client?: any): Promise<FollowUp | null> => {
+    const db = client || supabaseAdmin || supabase;
     const now = new Date().toISOString();
     const updatePayload: any = {
       status,
@@ -137,7 +140,7 @@ export const FollowUpRepository = {
       updated_at: now,
     };
 
-    let query = supabase.from('follow_ups').update(updatePayload).eq('id', id);
+    let query = db.from('follow_ups').update(updatePayload).eq('id', id);
     if (teacherId) {
       query = query.eq('teacher_id', teacherId);
     }
@@ -145,6 +148,6 @@ export const FollowUpRepository = {
     const { error } = await query;
     if (error) return null;
 
-    return teacherId ? FollowUpRepository.getById(id, teacherId) : null;
+    return teacherId ? FollowUpRepository.getById(id, teacherId, db) : null;
   },
 };

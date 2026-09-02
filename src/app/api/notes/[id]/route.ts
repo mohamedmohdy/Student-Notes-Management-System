@@ -1,13 +1,15 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { NoteRepository } from '@/lib/db';
 import { requireActiveTeacher } from '@/lib/auth';
+import { getSupabaseUserClient } from '@/lib/supabase';
 
 export async function GET(request: NextRequest, { params }: { params: { id: string } }) {
   try {
-    const authCheck = await requireActiveTeacher();
+    const authCheck = await requireActiveTeacher(request);
     if ('error' in authCheck) return NextResponse.json({ error: authCheck.error }, { status: authCheck.status });
 
-    const note = await NoteRepository.findById(params.id, authCheck.user.userId);
+    const client = getSupabaseUserClient(authCheck.user.supabaseAccessToken);
+    const note = await NoteRepository.findById(params.id, authCheck.user.userId, client);
     if (!note) return NextResponse.json({ error: 'الملاحظة غير موجودة أو غير تابعة لحسابك' }, { status: 404 });
 
     return NextResponse.json({ note });
@@ -18,11 +20,12 @@ export async function GET(request: NextRequest, { params }: { params: { id: stri
 
 export async function PUT(request: NextRequest, { params }: { params: { id: string } }) {
   try {
-    const authCheck = await requireActiveTeacher();
+    const authCheck = await requireActiveTeacher(request);
     if ('error' in authCheck) return NextResponse.json({ error: authCheck.error }, { status: authCheck.status });
 
+    const client = getSupabaseUserClient(authCheck.user.supabaseAccessToken);
     const body = await request.json();
-    const note = await NoteRepository.update(params.id, body, authCheck.user.userId);
+    const note = await NoteRepository.update(params.id, body, authCheck.user.userId, client);
     if (!note) return NextResponse.json({ error: 'الملاحظة غير موجودة أو غير تابعة لحسابك' }, { status: 404 });
 
     return NextResponse.json({ note, message: 'تم تعديل الملاحظة بنجاح' });
@@ -33,10 +36,11 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
 
 export async function DELETE(request: NextRequest, { params }: { params: { id: string } }) {
   try {
-    const authCheck = await requireActiveTeacher();
+    const authCheck = await requireActiveTeacher(request);
     if ('error' in authCheck) return NextResponse.json({ error: authCheck.error }, { status: authCheck.status });
 
-    const ok = await NoteRepository.setArchived(params.id, true, authCheck.user.userId);
+    const client = getSupabaseUserClient(authCheck.user.supabaseAccessToken);
+    const ok = await NoteRepository.setArchived(params.id, true, authCheck.user.userId, client);
     if (!ok) return NextResponse.json({ error: 'الملاحظة غير موجودة أو غير تابعة لحسابك' }, { status: 404 });
 
     return NextResponse.json({ message: 'تم أرشفة الملاحظة بنجاح' });

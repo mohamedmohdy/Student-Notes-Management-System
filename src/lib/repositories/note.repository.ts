@@ -1,12 +1,12 @@
 import { FollowUpRepository } from './follow-up.repository';
-import { supabase } from '../supabase';
+import { supabase, supabaseAdmin } from '../supabase';
 import { SupabaseClient } from '@supabase/supabase-js';
 import { Note, NoteType, NotePriority } from '../types';
 import { toNum, toBool } from './base';
 
 export const NoteRepository = {
-  findById: async (id: string, teacherId: string): Promise<Note | null> => {
-    return NoteRepository.getById(id, teacherId);
+  findById: async (id: string, teacherId: string, client?: any): Promise<Note | null> => {
+    return NoteRepository.getById(id, teacherId, client);
   },
 
   getAll: async (options?: {
@@ -28,12 +28,12 @@ export const NoteRepository = {
     const teacherId = options?.teacherId;
     if (!teacherId) return [];
 
-    const db = client || supabase;
+    const db = client || supabaseAdmin || supabase;
     let query = db
       .from('notes')
       .select(`
         *,
-        students!inner(id, name, student_number, class_id, classes!inner(id, name, grade_id, grades!inner(id, name)))
+        students(id, name, student_number, class_id, classes(id, name, grade_id, grades(id, name)))
       `)
       .eq('teacher_id', teacherId)
       .order('created_at', { ascending: false });
@@ -98,13 +98,14 @@ export const NoteRepository = {
     }));
   },
 
-  getById: async (id: string, teacherId: string): Promise<Note | null> => {
-    const { data, error } = await supabase
+  getById: async (id: string, teacherId: string, client?: any): Promise<Note | null> => {
+    const db = client || supabaseAdmin || supabase;
+    const { data, error } = await db
       .from('notes')
       .select(`
         *,
-        students!inner(id, name, student_number, class_id, classes!inner(id, name, grade_id, grades!inner(id, name))),
-        users!inner(id, name)
+        students(id, name, student_number, class_id, classes(id, name, grade_id, grades(id, name))),
+        users(id, name)
       `)
       .eq('id', id)
       .eq('teacher_id', teacherId)
@@ -147,7 +148,7 @@ export const NoteRepository = {
     teacher_id?: string;
     teacherId?: string;
   }, client?: SupabaseClient): Promise<Note> => {
-    const sb = client || supabase;
+    const sb = client || supabaseAdmin || supabase;
     const now = new Date().toISOString();
     const teacherId = data.teacherId || data.teacher_id || '';
     const studentId = data.studentId || data.student_id || '';
@@ -188,10 +189,10 @@ export const NoteRepository = {
         studentId,
         followUpDate,
         teacherId,
-      });
+      }, sb);
     }
 
-    return (await NoteRepository.getById(inserted.id, teacherId))!;
+    return (await NoteRepository.getById(inserted.id, teacherId, sb))!;
   },
 
   update: async (
@@ -203,9 +204,11 @@ export const NoteRepository = {
       actionTaken?: string;
       requiresFollowUp?: boolean;
     },
-    teacherId: string
+    teacherId: string,
+    client?: any
   ): Promise<Note | null> => {
-    const current = await NoteRepository.getById(id, teacherId);
+    const db = client || supabaseAdmin || supabase;
+    const current = await NoteRepository.getById(id, teacherId, db);
     if (!current) return null;
 
     const now = new Date().toISOString();
@@ -216,23 +219,24 @@ export const NoteRepository = {
     if (data.actionTaken !== undefined) updatePayload.action_taken = data.actionTaken.trim() || null;
     if (data.requiresFollowUp !== undefined) updatePayload.requires_follow_up = Boolean(data.requiresFollowUp);
 
-    const { error } = await supabase
+    const { error } = await db
       .from('notes')
       .update(updatePayload)
       .eq('id', id)
       .eq('teacher_id', teacherId);
 
     if (error) return null;
-    return NoteRepository.getById(id, teacherId);
+    return NoteRepository.getById(id, teacherId, db);
   },
 
-  archive: async (id: string, teacherId: string): Promise<boolean> => {
-    return NoteRepository.setArchived(id, true, teacherId);
+  archive: async (id: string, teacherId: string, client?: any): Promise<boolean> => {
+    return NoteRepository.setArchived(id, true, teacherId, client);
   },
 
-  setArchived: async (id: string, archived: boolean, teacherId: string): Promise<boolean> => {
+  setArchived: async (id: string, archived: boolean, teacherId: string, client?: any): Promise<boolean> => {
+    const db = client || supabaseAdmin || supabase;
     const now = new Date().toISOString();
-    const { error } = await supabase
+    const { error } = await db
       .from('notes')
       .update({ archived, updated_at: now })
       .eq('id', id)
@@ -241,11 +245,12 @@ export const NoteRepository = {
     return !error;
   },
 
-  restore: async (id: string, teacherId: string): Promise<boolean> => {
-    return NoteRepository.setArchived(id, false, teacherId);
+  restore: async (id: string, teacherId: string, client?: any): Promise<boolean> => {
+    return NoteRepository.setArchived(id, false, teacherId, client);
   },
 
-  delete: async (id: string, teacherId: string): Promise<void> => {
-    await supabase.from('notes').delete().eq('id', id).eq('teacher_id', teacherId);
+  delete: async (id: string, teacherId: string, client?: any): Promise<void> => {
+    const db = client || supabaseAdmin || supabase;
+    await db.from('notes').delete().eq('id', id).eq('teacher_id', teacherId);
   },
 };
