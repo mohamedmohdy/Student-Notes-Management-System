@@ -104,13 +104,14 @@ export const GradeRepository = {
   setArchived: async (id: string, archived: boolean, teacherId: string, client?: any): Promise<boolean> => {
     const db = client || supabaseAdmin || supabase;
     const now = new Date().toISOString();
-    const { error } = await db
+    const { data, error } = await db
       .from('grades')
       .update({ archived, updated_at: now })
       .eq('id', id)
-      .eq('teacher_id', teacherId);
+      .eq('teacher_id', teacherId)
+      .select('id');
 
-    return !error;
+    return !error && Array.isArray(data) && data.length > 0;
   },
 
   restore: async (id: string, teacherId: string, client?: any): Promise<boolean> => {

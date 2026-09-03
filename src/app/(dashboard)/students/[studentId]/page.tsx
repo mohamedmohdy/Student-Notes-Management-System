@@ -9,6 +9,7 @@ import {
   StudentProfileHeader,
   StudentOverview,
   AddEditStudentModal,
+  StudentProfilePrintView,
 } from '@/components/Students';
 import { NoteTimeline } from '@/components/Notes/NoteTimeline';
 import { AddEditNoteModal } from '@/components/Notes/AddEditNoteModal';
@@ -105,75 +106,85 @@ export default function StudentProfilePage() {
     );
   }
 
+  const handlePrintPDF = () => {
+    window.print();
+  };
+
   const filteredNotes = notes.filter((n) => selectedType === 'all' || n.type === selectedType);
 
   return (
     <PageContainer>
-      {/* 1. Header with back link, avatar, name, and actions */}
-      <StudentProfileHeader
-        student={student}
-        onOpenAddNote={() => {
-          setEditingNote(null);
-          setIsAddNoteOpen(true);
-        }}
-        onOpenEditStudent={() => setIsEditStudentOpen(true)}
-        onOpenArchiveConfirm={() => setIsArchiveConfirmOpen(true)}
-      />
+      {/* Printable View (Visible only during window.print()) */}
+      <StudentProfilePrintView student={student} notes={notes} />
 
-      {/* 2. Overview metrics & status selector */}
-      <StudentOverview
-        student={student}
-        notesCount={notes.length}
-        onStatusChange={handleStatusChange}
-      />
-
-      {/* 3. AI Student Analysis */}
-      <StudentAIAnalysisCard studentId={studentId} />
-
-      {/* 4. Notes Section with Type Filter */}
-      <div className="p-5 sm:p-6 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 shadow-xs space-y-5">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-100 dark:border-slate-800 pb-3">
-          <div className="flex items-center gap-2">
-            <div className="p-1.5 rounded-lg bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400">
-              <FileText className="w-4 h-4" />
-            </div>
-            <div>
-              <h3 className="text-sm sm:text-base font-black text-slate-900 dark:text-slate-100">
-                السجل التاريخي لملاحظات الطالب ({filteredNotes.length})
-              </h3>
-              <p className="text-[11px] text-slate-400 font-semibold">
-                كافة الملاحظات والمتابعات المسجلة للطالب
-              </p>
-            </div>
-          </div>
-
-          {/* Type Filter */}
-          <div className="flex items-center gap-2">
-            <Filter className="w-4 h-4 text-slate-400" />
-            <select
-              value={selectedType}
-              onChange={(e) => setSelectedType(e.target.value)}
-              className="min-h-[36px] px-3 py-1.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-bold text-slate-700 dark:text-slate-200 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-600 outline-none transition"
-            >
-              <option value="all">كافة أنواع الملاحظات</option>
-              {Object.entries(NOTE_TYPE_LABELS).map(([key, val]) => (
-                <option key={key} value={key}>
-                  {val.label}
-                </option>
-              ))}
-            </select>
-          </div>
-        </div>
-
-        {/* Notes Timeline */}
-        <NoteTimeline
-          notes={filteredNotes}
-          onEdit={(n) => {
-            setEditingNote(n);
+      <div className="screen-only space-y-6">
+        {/* 1. Header with back link, avatar, name, and actions */}
+        <StudentProfileHeader
+          student={student}
+          onOpenAddNote={() => {
+            setEditingNote(null);
             setIsAddNoteOpen(true);
           }}
-          onRefresh={loadStudentProfile}
+          onOpenEditStudent={() => setIsEditStudentOpen(true)}
+          onOpenArchiveConfirm={() => setIsArchiveConfirmOpen(true)}
+          onPrintReport={handlePrintPDF}
         />
+
+        {/* 2. Overview metrics & status selector */}
+        <StudentOverview
+          student={student}
+          notesCount={notes.length}
+          onStatusChange={handleStatusChange}
+        />
+
+        {/* 3. AI Student Analysis */}
+        <StudentAIAnalysisCard studentId={studentId} />
+
+        {/* 4. Notes Section with Type Filter */}
+        <div className="p-5 sm:p-6 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 shadow-xs space-y-5">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-100 dark:border-slate-800 pb-3">
+            <div className="flex items-center gap-2">
+              <div className="p-1.5 rounded-lg bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400">
+                <FileText className="w-4 h-4" />
+              </div>
+              <div>
+                <h3 className="text-sm sm:text-base font-black text-slate-900 dark:text-slate-100">
+                  السجل التاريخي لملاحظات الطالب ({filteredNotes.length})
+                </h3>
+                <p className="text-[11px] text-slate-400 font-semibold">
+                  كافة الملاحظات والمتابعات المسجلة للطالب
+                </p>
+              </div>
+            </div>
+
+            {/* Type Filter */}
+            <div className="flex items-center gap-2">
+              <Filter className="w-4 h-4 text-slate-400" />
+              <select
+                value={selectedType}
+                onChange={(e) => setSelectedType(e.target.value)}
+                className="min-h-[36px] px-3 py-1.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-bold text-slate-700 dark:text-slate-200 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-600 outline-none transition"
+              >
+                <option value="all">كافة أنواع الملاحظات</option>
+                {Object.entries(NOTE_TYPE_LABELS).map(([key, val]) => (
+                  <option key={key} value={key}>
+                    {val.label}
+                  </option>
+                ))}
+              </select>
+            </div>
+          </div>
+
+          {/* Notes Timeline */}
+          <NoteTimeline
+            notes={filteredNotes}
+            onEdit={(n) => {
+              setEditingNote(n);
+              setIsAddNoteOpen(true);
+            }}
+            onRefresh={loadStudentProfile}
+          />
+        </div>
       </div>
 
       {/* Modals */}

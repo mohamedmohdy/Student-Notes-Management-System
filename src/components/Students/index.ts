@@ -7,3 +7,4 @@ export * from './StudentProfileHeader';
 export * from './StudentOverview';
 export * from './AddEditStudentModal';
 export * from './ImportStudentsModal';
+export * from './StudentProfilePrintView';

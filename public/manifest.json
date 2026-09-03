@@ -1,24 +1,26 @@
 {
-  "name": "سجل الطالب الإلكتروني — Student Notes",
-  "short_name": "سجل الطالب",
-  "description": "المنظومة الإلكترونية المتكاملة للمعلم لإدارة الصفوف والطلاب والملاحظات والمتابعات",
+  "name": "بسيطة - Basita",
+  "short_name": "Basita",
+  "description": "منظومة بسيطة لإدارة سجلات وملاحظات ومتابعات الطلاب التعليمية والتربوية",
   "start_url": "/dashboard",
   "display": "standalone",
-  "background_color": "#0f172a",
-  "theme_color": "#4f46e5",
+  "background_color": "#ffffff",
+  "theme_color": "#4338ca",
   "orientation": "portrait-primary",
   "dir": "rtl",
   "lang": "ar",
   "icons": [
     {
-      "src": "/icon.png",
+      "src": "/icon-192.png",
       "sizes": "192x192",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any maskable"
     },
     {
-      "src": "/icon.png",
+      "src": "/icon-512.png",
       "sizes": "512x512",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any maskable"
     }
   ]
 }

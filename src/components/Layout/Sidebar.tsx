@@ -4,7 +4,6 @@ import React from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import {
-  BookOpenCheck,
   LogOut,
   ChevronLeft,
   LifeBuoy,
@@ -57,14 +56,14 @@ export function Sidebar({ isOpen, onClose, user }: SidebarProps) {
         {/* Brand Header */}
         <div className="p-5 border-b border-slate-100 dark:border-slate-800/80 flex items-center justify-between shrink-0">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-indigo-600 text-white flex items-center justify-center shadow-sm shrink-0">
-              <BookOpenCheck className="w-5 h-5" />
+            <div className="w-10 h-10 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 p-1 flex items-center justify-center shadow-xs shrink-0 overflow-hidden">
+              <img src="/icon-192.png" alt="شعار بسيطة" className="w-full h-full object-contain" />
             </div>
             <div>
               <h1 className="font-black text-base text-slate-900 dark:text-slate-100 tracking-tight leading-tight">
-                سجل الطالب
+                بسيطة — Basita
               </h1>
-              <p className="text-[11px] font-bold text-indigo-600 dark:text-indigo-400">المنظومة التعليمية</p>
+              <p className="text-[11px] font-bold text-indigo-600 dark:text-indigo-400">سجل الطالب الإلكتروني</p>
             </div>
           </div>
         </div>

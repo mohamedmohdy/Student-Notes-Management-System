@@ -2,7 +2,7 @@
 
 import React from 'react';
 import Link from 'next/link';
-import { ArrowRight, Plus, Edit2, Archive } from 'lucide-react';
+import { ArrowRight, Plus, Edit2, Archive, Printer } from 'lucide-react';
 import { Student } from '@/lib/types';
 import { StudentStatusBadge } from './StudentStatusBadge';
 import { Button } from '../UI/Button';
@@ -12,6 +12,7 @@ export interface StudentProfileHeaderProps {
   onOpenAddNote: () => void;
   onOpenEditStudent: () => void;
   onOpenArchiveConfirm: () => void;
+  onPrintReport?: () => void;
 }
 
 export function StudentProfileHeader({
@@ -19,6 +20,7 @@ export function StudentProfileHeader({
   onOpenAddNote,
   onOpenEditStudent,
   onOpenArchiveConfirm,
+  onPrintReport,
 }: StudentProfileHeaderProps) {
   return (
     <div className="space-y-4">
@@ -56,6 +58,19 @@ export function StudentProfileHeader({
 
           {/* Action Buttons */}
           <div className="flex flex-wrap items-center gap-2.5">
+            {onPrintReport && (
+              <Button
+                type="button"
+                onClick={onPrintReport}
+                variant="secondary"
+                size="md"
+                leftIcon={<Printer className="w-4 h-4" />}
+                className="gap-2 font-bold text-slate-700 dark:text-slate-200 hover:text-indigo-600 dark:hover:text-indigo-400"
+              >
+                طباعة التقرير
+              </Button>
+            )}
+
             <Button
               onClick={onOpenAddNote}
               variant="primary"

@@ -45,7 +45,7 @@ export function getSupabaseUserClient(accessToken?: string): SupabaseClient {
       },
     });
   }
-  return supabase;
+  return supabaseAdmin || supabase;
 }
 
 let cachedOwnerToken: { token: string; expiresAt: number } | null = null;

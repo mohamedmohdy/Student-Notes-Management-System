@@ -13,17 +13,25 @@ const cairo = Cairo({
 });
 
 export const metadata: Metadata = {
-  title: 'سجل الطالب الإلكتروني — Student Notes',
-  description: 'المنظومة الإلكترونية المتكاملة للمعلم لإدارة الصفوف والطلاب والملاحظات والمتابعات',
+  title: 'بسيطة — Basita | سجل الطالب الإلكتروني',
+  description: 'منظومة بسيطة لإدارة سجلات وملاحظات ومتابعات الطلاب التعليمية والتربوية',
   manifest: '/manifest.json',
   icons: {
-    icon: '/icon.png',
-    apple: '/icon.png',
+    icon: [
+      { url: '/favicon.ico' },
+      { url: '/icon-192.png', sizes: '192x192', type: 'image/png' },
+      { url: '/icon-512.png', sizes: '512x512', type: 'image/png' },
+    ],
+    shortcut: '/favicon.ico',
+    apple: [
+      { url: '/apple-touch-icon.png', sizes: '180x180', type: 'image/png' },
+      { url: '/icon-192.png', sizes: '192x192', type: 'image/png' },
+    ],
   },
   appleWebApp: {
     capable: true,
     statusBarStyle: 'default',
-    title: 'سجل الطالب',
+    title: 'بسيطة - Basita',
   },
 };
 

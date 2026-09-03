@@ -61,7 +61,7 @@ export function ReportPrintView({
       <div className="border-b-2 border-slate-900 pb-4 mb-5 print-avoid-break">
         <div className="flex items-start justify-between gap-4">
           <div className="space-y-1">
-            <p className="text-xs font-bold text-slate-600">المملكة العربية السعودية — سجل الطالب الإلكتروني</p>
+            <p className="text-xs font-bold text-slate-600">منظومة بسيطة (Basita) — سجل الطالب الإلكتروني</p>
             <h1 className="text-xl font-black text-slate-900">تقرير متابعة وسجل ملاحظات الطلاب</h1>
             <p className="text-xs font-semibold text-slate-700">تقرير إداري وتربوي شامل معتمد</p>
           </div>
