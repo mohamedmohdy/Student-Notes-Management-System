@@ -107,7 +107,9 @@ export default function StudentProfilePage() {
   }
 
   const handlePrintPDF = () => {
-    window.print();
+    requestAnimationFrame(() => {
+      window.print();
+    });
   };
 
   const filteredNotes = notes.filter((n) => selectedType === 'all' || n.type === selectedType);

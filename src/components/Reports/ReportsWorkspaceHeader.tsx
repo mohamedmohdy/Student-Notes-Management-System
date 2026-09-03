@@ -9,6 +9,7 @@ export interface ReportsWorkspaceHeaderProps {
   onExportCSV: () => void;
   onPrintPDF: () => void;
   exporting?: boolean;
+  loading?: boolean;
 }
 
 export function ReportsWorkspaceHeader({
@@ -16,7 +17,10 @@ export function ReportsWorkspaceHeader({
   onExportCSV,
   onPrintPDF,
   exporting = false,
+  loading = false,
 }: ReportsWorkspaceHeaderProps) {
+  const isBusy = exporting || loading;
+
   return (
     <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
       <div className="space-y-1">
@@ -39,11 +43,11 @@ export function ReportsWorkspaceHeader({
           variant="outline"
           size="md"
           leftIcon={<Printer className="w-4 h-4 text-indigo-600 dark:text-indigo-400" />}
-          disabled={exporting}
+          disabled={isBusy}
           className="border-slate-200 dark:border-slate-700"
           aria-label="طباعة التقرير أو حفظ كملف PDF"
         >
-          طباعة التقرير PDF
+          {loading ? 'جاري التحميل...' : 'طباعة التقرير PDF'}
         </Button>
 
         <Button
@@ -51,7 +55,7 @@ export function ReportsWorkspaceHeader({
           variant="outline"
           size="md"
           leftIcon={<Download className="w-4 h-4" />}
-          disabled={exporting}
+          disabled={isBusy}
           className="border-slate-200 dark:border-slate-700"
           aria-label="تصدير كملف CSV"
         >
@@ -63,7 +67,7 @@ export function ReportsWorkspaceHeader({
           variant="primary"
           size="md"
           leftIcon={<FileSpreadsheet className="w-4 h-4 text-emerald-300" />}
-          disabled={exporting}
+          disabled={isBusy}
           aria-label="تصدير كشف Excel شامل"
         >
           {exporting ? 'جاري المعالجة...' : 'تصدير كشف Excel'}

@@ -195,11 +195,18 @@ export default function ReportsPage() {
 
   // Print Report as PDF
   const handlePrintPDF = () => {
+    if (loading) {
+      toast.info('جاري تحميل وتجهيز بيانات التقرير...');
+      return;
+    }
     if (notes.length === 0 && classNotes.length === 0) {
       toast.warning('لا توجد بيانات مطابقة للطباعة');
       return;
     }
-    window.print();
+    // Ensure DOM is fully painted before initiating modal print dialog
+    requestAnimationFrame(() => {
+      window.print();
+    });
   };
 
   return (
@@ -228,6 +235,7 @@ export default function ReportsPage() {
           onExportCSV={exportToCSV}
           onPrintPDF={handlePrintPDF}
           exporting={exporting}
+          loading={loading}
         />
       </div>
 
