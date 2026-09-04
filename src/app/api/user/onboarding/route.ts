@@ -3,9 +3,12 @@ import { requireActiveTeacher } from '@/lib/auth';
 import { UserRepository } from '@/lib/db';
 
 export async function GET(req: NextRequest) {
-  const auth = await requireActiveTeacher();
+  const auth = await requireActiveTeacher(req);
   if ('error' in auth) {
-    return NextResponse.json({ error: auth.error }, { status: auth.status });
+    return NextResponse.json(
+      { error: auth.error, code: auth.code || null },
+      { status: auth.status, headers: auth.headers }
+    );
   }
 
   try {
@@ -18,9 +21,12 @@ export async function GET(req: NextRequest) {
 }
 
 export async function POST(req: NextRequest) {
-  const auth = await requireActiveTeacher();
+  const auth = await requireActiveTeacher(req);
   if ('error' in auth) {
-    return NextResponse.json({ error: auth.error }, { status: auth.status });
+    return NextResponse.json(
+      { error: auth.error, code: auth.code || null },
+      { status: auth.status, headers: auth.headers }
+    );
   }
 
   try {

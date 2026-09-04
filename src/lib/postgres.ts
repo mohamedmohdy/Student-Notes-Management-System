@@ -193,6 +193,13 @@ function getSchemaSql(): string {
       value TEXT NOT NULL,
       updated_at TEXT NOT NULL
     );
+    CREATE TABLE IF NOT EXISTS rate_limits (
+      key TEXT PRIMARY KEY,
+      count INTEGER NOT NULL,
+      reset_at BIGINT NOT NULL,
+      updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+    );
+    CREATE INDEX IF NOT EXISTS idx_rate_limits_reset_at ON rate_limits(reset_at);
     CREATE INDEX IF NOT EXISTS idx_grades_teacher ON grades(teacher_id, archived);
     CREATE INDEX IF NOT EXISTS idx_classes_teacher_grade ON classes(teacher_id, grade_id, archived);
     CREATE INDEX IF NOT EXISTS idx_students_teacher_class ON students(teacher_id, class_id, archived);

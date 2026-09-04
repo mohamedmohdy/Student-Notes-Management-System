@@ -22,7 +22,7 @@ export const UserRepository = {
   },
 
   findById: async (id: string, client?: any): Promise<User | null> => {
-    const activeClient = client || supabase;
+    const activeClient = client || supabaseAdmin || supabase;
     const { data, error } = await activeClient
       .from('users')
       .select('*')

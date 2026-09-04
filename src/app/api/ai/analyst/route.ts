@@ -14,9 +14,12 @@ import { NOTE_TYPE_LABELS, NOTE_PRIORITY_LABELS, CLASS_NOTE_TYPE_LABELS } from '
 
 export async function POST(request: NextRequest) {
   try {
-    const authCheck = await requireActiveTeacher();
+    const authCheck = await requireActiveTeacher(request, 'AI');
     if ('error' in authCheck) {
-      return NextResponse.json({ error: authCheck.error }, { status: authCheck.status });
+      return NextResponse.json(
+        { error: authCheck.error, code: authCheck.code || null },
+        { status: authCheck.status, headers: authCheck.headers }
+      );
     }
 
     const teacherId = authCheck.user.userId;

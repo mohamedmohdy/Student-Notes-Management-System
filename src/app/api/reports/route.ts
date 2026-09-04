@@ -4,9 +4,12 @@ import { requireActiveTeacher } from '@/lib/auth';
 
 export async function GET(request: NextRequest) {
   try {
-    const authCheck = await requireActiveTeacher();
+    const authCheck = await requireActiveTeacher(request);
     if ('error' in authCheck) {
-      return NextResponse.json({ error: authCheck.error }, { status: authCheck.status });
+      return NextResponse.json(
+        { error: authCheck.error, code: authCheck.code || null },
+        { status: authCheck.status, headers: authCheck.headers }
+      );
     }
     const searchParams = request.nextUrl.searchParams;
     const gradeId = searchParams.get('gradeId') || undefined;

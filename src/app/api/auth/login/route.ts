@@ -2,11 +2,18 @@ import { NextRequest, NextResponse } from 'next/server';
 import { UserRepository } from '@/lib/db';
 import { verifyPassword, createToken, AUTH_COOKIE_NAME } from '@/lib/auth';
 import { supabase, getSupabaseUserClient } from '@/lib/supabase';
+import { rateLimitGuard } from '@/lib/security/rate-limit';
+import { parseJsonWithLimit } from '@/lib/security/request-size-limiter';
 
 export async function POST(request: NextRequest) {
   try {
-    const body = await request.json();
-    const { email, password } = body;
+    const rateLimitResponse = await rateLimitGuard(request, 'AUTH', { action: 'login' });
+    if (rateLimitResponse) return rateLimitResponse;
+
+    const { data: body, errorResponse } = await parseJsonWithLimit<{ email?: string; password?: string }>(request, 'AUTH');
+    if (errorResponse) return errorResponse;
+
+    const { email, password } = body || {};
 
     if (!email || !password) {
       return NextResponse.json({ error: 'يرجى إدخال البريد الإلكتروني وكلمة المرور' }, { status: 400 });

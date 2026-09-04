@@ -1,14 +1,26 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { StudentRepository } from '@/lib/db';
 import { requireActiveTeacher } from '@/lib/auth';
+import { parseJsonWithLimit } from '@/lib/security/request-size-limiter';
 
 export async function POST(request: NextRequest) {
   try {
-    const authCheck = await requireActiveTeacher(request);
-    if ('error' in authCheck) return NextResponse.json({ error: authCheck.error }, { status: authCheck.status });
+    const authCheck = await requireActiveTeacher(request, 'EXPORT');
+    if ('error' in authCheck) {
+      return NextResponse.json(
+        { error: authCheck.error, code: authCheck.code || null },
+        { status: authCheck.status, headers: authCheck.headers }
+      );
+    }
 
-    const body = await request.json();
-    let { students, classId } = body;
+    // Server-side Request Body Size Limit (EXCEL_IMPORT: 5 MB cap)
+    const { data: body, errorResponse } = await parseJsonWithLimit<{ students?: any[]; classId?: string }>(
+      request,
+      'EXCEL_IMPORT'
+    );
+    if (errorResponse) return errorResponse;
+
+    let { students, classId } = body || {};
 
     if (!Array.isArray(students) || students.length === 0) {
       return NextResponse.json({ error: 'لم يتم العثور على بيانات طلاب في الملف' }, { status: 400 });
@@ -35,3 +47,4 @@ export async function POST(request: NextRequest) {
     }, { status: 500 });
   }
 }
+

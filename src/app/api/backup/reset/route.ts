@@ -4,8 +4,13 @@ import { requireActiveTeacher } from '@/lib/auth';
 
 export async function POST(request: NextRequest) {
   try {
-    const authCheck = await requireActiveTeacher(request);
-    if ('error' in authCheck) return NextResponse.json({ error: authCheck.error }, { status: authCheck.status });
+    const authCheck = await requireActiveTeacher(request, 'BACKUP');
+    if ('error' in authCheck) {
+      return NextResponse.json(
+        { error: authCheck.error, code: authCheck.code || null },
+        { status: authCheck.status, headers: authCheck.headers }
+      );
+    }
 
     await BackupRepository.resetAllData(authCheck.user.userId);
     return NextResponse.json({ message: 'تم تصفير وحذف كافة البيانات بنجاح، يمكنك الآن البدء بإدخال بيانات جديدة.' });

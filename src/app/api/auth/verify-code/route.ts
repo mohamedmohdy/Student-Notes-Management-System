@@ -1,10 +1,17 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { UserRepository } from '@/lib/db';
+import { rateLimitGuard } from '@/lib/security/rate-limit';
+import { parseJsonWithLimit } from '@/lib/security/request-size-limiter';
 
 export async function POST(request: NextRequest) {
   try {
-    const body = await request.json();
-    const { email, code } = body;
+    const rateLimitResponse = await rateLimitGuard(request, 'AUTH', { action: 'verify-code' });
+    if (rateLimitResponse) return rateLimitResponse;
+
+    const { data: body, errorResponse } = await parseJsonWithLimit<{ email?: string; code?: string }>(request, 'AUTH');
+    if (errorResponse) return errorResponse;
+
+    const { email, code } = body || {};
 
     if (!email || !code) {
       return NextResponse.json({ error: 'البريد الإلكتروني ورمز التحقق مطلوبان' }, { status: 400 });

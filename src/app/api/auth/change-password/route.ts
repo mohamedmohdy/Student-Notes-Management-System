@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { UserRepository } from '@/lib/db';
 import { getCurrentUser, hashPassword, createToken, AUTH_COOKIE_NAME } from '@/lib/auth';
+import { rateLimitGuard } from '@/lib/security/rate-limit';
 
 export async function POST(request: NextRequest) {
   try {
@@ -8,6 +9,12 @@ export async function POST(request: NextRequest) {
     if (!session) {
       return NextResponse.json({ error: 'يرجى تسجيل الدخول أولاً' }, { status: 401 });
     }
+
+    const rateLimitResponse = await rateLimitGuard(request, 'AUTH', {
+      userId: session.userId,
+      action: 'change-password',
+    });
+    if (rateLimitResponse) return rateLimitResponse;
 
     const body = await request.json();
     const { newPassword, confirmPassword } = body;

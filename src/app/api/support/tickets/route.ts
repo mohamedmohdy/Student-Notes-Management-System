@@ -4,6 +4,7 @@ import { requireActiveTeacher } from '@/lib/auth';
 import { sendSupportTicketEmailToAdmin } from '@/lib/email';
 import { TICKET_CATEGORY_LABELS } from '@/lib/utils';
 import { SupportTicketCategory } from '@/lib/types';
+import { parseJsonWithLimit } from '@/lib/security/request-size-limiter';
 
 export async function GET(request: NextRequest) {
   try {
@@ -30,11 +31,15 @@ export async function POST(request: NextRequest) {
     }
 
     const user = authCheck.user;
-    const body = await request.json();
-    const category = body.category || body.type || body.priority || 'general';
-    const subject = body.subject || body.title;
-    const description = body.description || body.message || body.content;
-    const attachment_url = body.attachment_url || body.attachmentUrl;
+    
+    // Server-side Request Body Size Limit (SUPPORT_TICKET: 2 MB cap)
+    const { data: body, errorResponse } = await parseJsonWithLimit(request, 'SUPPORT_TICKET');
+    if (errorResponse) return errorResponse;
+
+    const category = body?.category || body?.type || body?.priority || 'general';
+    const subject = body?.subject || body?.title;
+    const description = body?.description || body?.message || body?.content;
+    const attachment_url = body?.attachment_url || body?.attachmentUrl;
 
     if (!subject || !subject.trim() || !description || !description.trim()) {
       return NextResponse.json(

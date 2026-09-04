@@ -77,6 +77,13 @@ export function apiBadRequest(
   return apiError(message, { status: 400, code: 'BAD_REQUEST', errors });
 }
 
+export function apiPayloadTooLarge(
+  message = 'حجم البيانات المرفوعة يتجاوز الحد المسموح به',
+  options?: ApiErrorOptions
+): NextResponse {
+  return apiError(message, { status: 413, code: 'PAYLOAD_TOO_LARGE', ...options });
+}
+
 export function apiServerError(
   message = 'حدث خطأ غير متوقع في الخادم',
   errorDetails?: any

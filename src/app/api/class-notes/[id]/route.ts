@@ -8,9 +8,12 @@ export async function GET(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const authCheck = await requireActiveTeacher();
+    const authCheck = await requireActiveTeacher(request);
     if ('error' in authCheck) {
-      return NextResponse.json({ error: authCheck.error }, { status: authCheck.status });
+      return NextResponse.json(
+        { error: authCheck.error, code: authCheck.code || null },
+        { status: authCheck.status, headers: authCheck.headers }
+      );
     }
 
     const { id } = await params;
@@ -30,9 +33,12 @@ export async function PUT(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const authCheck = await requireActiveTeacher();
+    const authCheck = await requireActiveTeacher(request);
     if ('error' in authCheck) {
-      return NextResponse.json({ error: authCheck.error }, { status: authCheck.status });
+      return NextResponse.json(
+        { error: authCheck.error, code: authCheck.code || null },
+        { status: authCheck.status, headers: authCheck.headers }
+      );
     }
 
     const { id } = await params;
@@ -62,9 +68,12 @@ export async function DELETE(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const authCheck = await requireActiveTeacher();
+    const authCheck = await requireActiveTeacher(request);
     if ('error' in authCheck) {
-      return NextResponse.json({ error: authCheck.error }, { status: authCheck.status });
+      return NextResponse.json(
+        { error: authCheck.error, code: authCheck.code || null },
+        { status: authCheck.status, headers: authCheck.headers }
+      );
     }
 
     const { id } = await params;

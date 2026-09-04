@@ -1,11 +1,16 @@
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 const { seedDatabase } = require('../../../../../scripts/seed.js');
-import { getCurrentUser } from '@/lib/auth';
+import { requireActiveTeacher } from '@/lib/auth';
 
-export async function POST() {
+export async function POST(request: NextRequest) {
   try {
-    const session = await getCurrentUser();
-    if (!session) return NextResponse.json({ error: 'غير مصرح' }, { status: 401 });
+    const authCheck = await requireActiveTeacher(request, 'BACKUP');
+    if ('error' in authCheck) {
+      return NextResponse.json(
+        { error: authCheck.error, code: authCheck.code || null },
+        { status: authCheck.status, headers: authCheck.headers }
+      );
+    }
 
     seedDatabase();
     return NextResponse.json({ message: 'تم إعادة توليد البيانات التجريبية بنجاح' });

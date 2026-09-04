@@ -33,6 +33,21 @@ export function getSupabaseAdmin(): SupabaseClient | null {
 
 export function getSupabaseUserClient(accessToken?: string): SupabaseClient {
   if (accessToken) {
+    try {
+      const parts = accessToken.split('.');
+      if (parts.length === 3) {
+        const payload = JSON.parse(Buffer.from(parts[1], 'base64').toString('utf8'));
+        // If the Supabase JWT token has expired (default Supabase 1-hour TTL),
+        // fallback to server-side authenticated client so long-lived application sessions (7-day PWA/cookie)
+        // do not fail with PGRST301 (JWT expired).
+        if (payload && payload.exp && payload.exp * 1000 <= Date.now()) {
+          return supabaseAdmin || supabase;
+        }
+      }
+    } catch {
+      return supabaseAdmin || supabase;
+    }
+
     return createSupabaseClient(supabaseUrl, supabaseAnonKey, {
       auth: {
         persistSession: false,

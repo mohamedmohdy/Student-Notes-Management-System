@@ -12,8 +12,13 @@ import { NoteType, NotePriority, StudentStatus } from '@/lib/types';
 
 export async function POST(request: NextRequest) {
   try {
-    const authCheck = await requireActiveTeacher();
-    if ('error' in authCheck) return NextResponse.json({ error: authCheck.error }, { status: authCheck.status });
+    const authCheck = await requireActiveTeacher(request, 'AI');
+    if ('error' in authCheck) {
+      return NextResponse.json(
+        { error: authCheck.error, code: authCheck.code || null },
+        { status: authCheck.status, headers: authCheck.headers }
+      );
+    }
 
     const teacherId = authCheck.user.userId;
     const body = await request.json();

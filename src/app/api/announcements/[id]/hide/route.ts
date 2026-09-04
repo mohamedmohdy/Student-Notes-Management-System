@@ -4,9 +4,12 @@ import { requireActiveTeacher } from '@/lib/auth';
 
 export async function POST(request: NextRequest, { params }: { params: { id: string } }) {
   try {
-    const authCheck = await requireActiveTeacher();
+    const authCheck = await requireActiveTeacher(request);
     if ('error' in authCheck) {
-      return NextResponse.json({ error: authCheck.error }, { status: authCheck.status });
+      return NextResponse.json(
+        { error: authCheck.error, code: authCheck.code || null },
+        { status: authCheck.status, headers: authCheck.headers }
+      );
     }
 
     await AnnouncementRepository.markAsHidden(params.id, authCheck.user.userId);

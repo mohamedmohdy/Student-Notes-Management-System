@@ -1,11 +1,18 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { UserRepository } from '@/lib/db';
 import { hashPassword } from '@/lib/auth';
+import { rateLimitGuard } from '@/lib/security/rate-limit';
+import { parseJsonWithLimit } from '@/lib/security/request-size-limiter';
 
 export async function POST(request: NextRequest) {
   try {
-    const body = await request.json();
-    const { email, code, newPassword } = body;
+    const rateLimitResponse = await rateLimitGuard(request, 'AUTH', { action: 'reset-password' });
+    if (rateLimitResponse) return rateLimitResponse;
+
+    const { data: body, errorResponse } = await parseJsonWithLimit<{ email?: string; code?: string; newPassword?: string }>(request, 'AUTH');
+    if (errorResponse) return errorResponse;
+
+    const { email, code, newPassword } = body || {};
 
     if (!email || !code || !newPassword) {
       return NextResponse.json({ error: 'يرجى إكمال جميع الحقول المطلوبة' }, { status: 400 });

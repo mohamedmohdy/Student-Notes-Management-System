@@ -5,6 +5,9 @@ import { NextRequest, NextResponse } from 'next/server';
 import { User, UserRole, UserStatus } from './types';
 import { UserRepository } from './db';
 import { getSupabaseUserClient } from './supabase';
+import { RateLimitPolicy } from './security/rate-limit/types';
+import { checkRateLimit } from './security/rate-limit/limiter';
+import { buildRateLimitHeaders } from './security/rate-limit/response';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'student_notes_secret_key_production_2026_secure';
 export const AUTH_COOKIE_NAME = 'student_notes_auth_token';
@@ -86,7 +89,17 @@ export async function getVerifiedUser(userId: string, client?: any): Promise<Use
   return dbUser;
 }
 
-export async function requireOwner(request?: NextRequest): Promise<{ user: TokenPayload } | { error: string; status: number }> {
+export interface AuthCheckError {
+  error: string;
+  status: number;
+  code?: string;
+  headers?: Record<string, string>;
+}
+
+export async function requireOwner(
+  request?: NextRequest,
+  rateLimitPolicy: RateLimitPolicy = 'OWNER'
+): Promise<{ user: TokenPayload } | AuthCheckError> {
   const tokenUser = request ? getSessionFromRequest(request) : await getCurrentUser();
   if (!tokenUser) {
     return { error: 'يرجى تسجيل الدخول أولاً', status: 401 };
@@ -97,10 +110,35 @@ export async function requireOwner(request?: NextRequest): Promise<{ user: Token
   if (normalizedRole !== 'OWNER' && normalizedRole !== 'ADMIN') {
     return { error: 'غير مصرح لك بالوصول: هذه اللوحة مخصصة فقط لمالك المنصة (Owner)', status: 403 };
   }
+
+  // Rate Limiting Enforcement on Verified Owner ID
+  if (request) {
+    const rateLimitResult = await checkRateLimit({
+      request,
+      policy: rateLimitPolicy,
+      userId: tokenUser.userId,
+    });
+    if (!rateLimitResult.success) {
+      const seconds =
+        rateLimitResult.retryAfter > 0
+          ? rateLimitResult.retryAfter
+          : Math.max(1, Math.ceil((rateLimitResult.resetAt - Date.now()) / 1000));
+      return {
+        error: `تم تجاوز الحد المسموح به من الطلبات. يرجى المحاولة بعد ${seconds} ثانية.`,
+        status: 429,
+        code: 'RATE_LIMIT_EXCEEDED',
+        headers: buildRateLimitHeaders(rateLimitResult),
+      };
+    }
+  }
+
   return { user: { ...tokenUser, role: 'OWNER', status: dbUser?.status || tokenUser.status } };
 }
 
-export async function requireActiveTeacher(request?: NextRequest): Promise<{ user: TokenPayload } | { error: string; status: number }> {
+export async function requireActiveTeacher(
+  request?: NextRequest,
+  rateLimitPolicy: RateLimitPolicy = 'TEACHER'
+): Promise<{ user: TokenPayload } | AuthCheckError> {
   const tokenUser = request ? getSessionFromRequest(request) : await getCurrentUser();
   if (!tokenUser) {
     return { error: 'يرجى تسجيل الدخول أولاً', status: 401 };
@@ -111,6 +149,26 @@ export async function requireActiveTeacher(request?: NextRequest): Promise<{ use
   const userStatus = dbUser?.status || tokenUser.status || 'pending';
 
   if (userRole === 'OWNER') {
+    // Owner accessing teacher endpoint
+    if (request) {
+      const rateLimitResult = await checkRateLimit({
+        request,
+        policy: rateLimitPolicy,
+        userId: tokenUser.userId,
+      });
+      if (!rateLimitResult.success) {
+        const seconds =
+          rateLimitResult.retryAfter > 0
+            ? rateLimitResult.retryAfter
+            : Math.max(1, Math.ceil((rateLimitResult.resetAt - Date.now()) / 1000));
+        return {
+          error: `تم تجاوز الحد المسموح به من الطلبات. يرجى المحاولة بعد ${seconds} ثانية.`,
+          status: 429,
+          code: 'RATE_LIMIT_EXCEEDED',
+          headers: buildRateLimitHeaders(rateLimitResult),
+        };
+      }
+    }
     return { user: { ...tokenUser, role: 'OWNER', status: userStatus } };
   }
   if (userStatus === 'pending') {
@@ -119,5 +177,34 @@ export async function requireActiveTeacher(request?: NextRequest): Promise<{ use
   if (userStatus === 'disabled') {
     return { error: 'تم تعطيل هذا الحساب من قبل إدارة المنصة', status: 403 };
   }
-  return { user: { ...tokenUser, role: userRole as UserRole, status: userStatus as UserStatus, must_change_password: dbUser?.must_change_password ?? tokenUser.must_change_password } };
+
+  // Rate Limiting Enforcement on Verified Teacher ID
+  if (request) {
+    const rateLimitResult = await checkRateLimit({
+      request,
+      policy: rateLimitPolicy,
+      userId: tokenUser.userId,
+    });
+    if (!rateLimitResult.success) {
+      const seconds =
+        rateLimitResult.retryAfter > 0
+          ? rateLimitResult.retryAfter
+          : Math.max(1, Math.ceil((rateLimitResult.resetAt - Date.now()) / 1000));
+      return {
+        error: `تم تجاوز الحد المسموح به من الطلبات. يرجى المحاولة بعد ${seconds} ثانية.`,
+        status: 429,
+        code: 'RATE_LIMIT_EXCEEDED',
+        headers: buildRateLimitHeaders(rateLimitResult),
+      };
+    }
+  }
+
+  return {
+    user: {
+      ...tokenUser,
+      role: userRole as UserRole,
+      status: userStatus as UserStatus,
+      must_change_password: dbUser?.must_change_password ?? tokenUser.must_change_password,
+    },
+  };
 }

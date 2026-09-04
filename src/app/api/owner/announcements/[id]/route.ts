@@ -4,9 +4,12 @@ import { requireOwner } from '@/lib/auth';
 
 export async function GET(request: NextRequest, { params }: { params: { id: string } }) {
   try {
-    const authCheck = await requireOwner();
+    const authCheck = await requireOwner(request);
     if ('error' in authCheck) {
-      return NextResponse.json({ error: authCheck.error }, { status: authCheck.status });
+      return NextResponse.json(
+        { error: authCheck.error, code: authCheck.code || null },
+        { status: authCheck.status, headers: authCheck.headers }
+      );
     }
 
     const announcement = await AnnouncementRepository.findById(params.id);
@@ -22,9 +25,12 @@ export async function GET(request: NextRequest, { params }: { params: { id: stri
 
 export async function PUT(request: NextRequest, { params }: { params: { id: string } }) {
   try {
-    const authCheck = await requireOwner();
+    const authCheck = await requireOwner(request);
     if ('error' in authCheck) {
-      return NextResponse.json({ error: authCheck.error }, { status: authCheck.status });
+      return NextResponse.json(
+        { error: authCheck.error, code: authCheck.code || null },
+        { status: authCheck.status, headers: authCheck.headers }
+      );
     }
 
     const body = await request.json();
@@ -41,9 +47,12 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
 
 export async function DELETE(request: NextRequest, { params }: { params: { id: string } }) {
   try {
-    const authCheck = await requireOwner();
+    const authCheck = await requireOwner(request);
     if ('error' in authCheck) {
-      return NextResponse.json({ error: authCheck.error }, { status: authCheck.status });
+      return NextResponse.json(
+        { error: authCheck.error, code: authCheck.code || null },
+        { status: authCheck.status, headers: authCheck.headers }
+      );
     }
 
     const ok = await AnnouncementRepository.delete(params.id);
