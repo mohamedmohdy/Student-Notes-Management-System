@@ -69,19 +69,19 @@ export function AddEditGradeModal({ isOpen, onClose, onSuccess, initialGrade }: 
           />
         </div>
 
-        <div className="flex items-center justify-end gap-3 pt-3 border-t border-slate-100">
+        <div className="flex flex-col-reverse sm:flex-row items-stretch sm:items-center justify-end gap-2.5 sm:gap-3 pt-3 border-t border-slate-100 dark:border-slate-800">
           <button
             type="button"
             onClick={onClose}
             disabled={loading}
-            className="px-4 py-2 text-slate-600 hover:bg-slate-100 rounded-xl text-xs font-bold transition"
+            className="w-full sm:w-auto px-4 py-2.5 min-h-[44px] text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl text-xs sm:text-sm font-bold transition flex items-center justify-center"
           >
             إلغاء
           </button>
           <button
             type="submit"
             disabled={loading}
-            className="px-5 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold shadow-sm transition disabled:opacity-50"
+            className="w-full sm:w-auto px-5 py-2.5 min-h-[44px] rounded-xl bg-indigo-600 hover:bg-indigo-700 active:bg-indigo-800 text-white text-xs sm:text-sm font-bold shadow-sm transition disabled:opacity-50 flex items-center justify-center"
           >
             {loading ? 'جاري الحفظ...' : initialGrade ? 'تعديل' : 'إضافة'}
           </button>

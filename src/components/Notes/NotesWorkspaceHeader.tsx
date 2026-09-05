@@ -39,6 +39,7 @@ export function NotesWorkspaceHeader({
         variant="primary"
         size="md"
         leftIcon={<Plus className="w-4 h-4" />}
+        className="w-full sm:w-auto justify-center min-h-[44px]"
       >
         تدوين ملاحظة جديدة
       </Button>

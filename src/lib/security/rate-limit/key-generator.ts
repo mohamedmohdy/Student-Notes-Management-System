@@ -8,21 +8,24 @@ export function getClientIp(request: NextRequest | Request): string {
   const headers = request.headers;
 
   // 1. Netlify Verified Client IP (Protected server-injected header)
-  const netlifyIp = headers.get('x-nf-client-connection-ip');
-  if (netlifyIp && isValidIp(netlifyIp.trim())) {
-    return netlifyIp.trim();
+  const netlifyIp = headers.get('x-nf-client-connection-ip') || headers.get('client-ip');
+  if (netlifyIp) {
+    const cleaned = cleanIp(netlifyIp);
+    if (isValidIp(cleaned)) return cleaned;
   }
 
   // 2. Cloudflare Connecting IP
   const cfIp = headers.get('cf-connecting-ip');
-  if (cfIp && isValidIp(cfIp.trim())) {
-    return cfIp.trim();
+  if (cfIp) {
+    const cleaned = cleanIp(cfIp);
+    if (isValidIp(cleaned)) return cleaned;
   }
 
   // 3. X-Real-IP
   const realIp = headers.get('x-real-ip');
-  if (realIp && isValidIp(realIp.trim())) {
-    return realIp.trim();
+  if (realIp) {
+    const cleaned = cleanIp(realIp);
+    if (isValidIp(cleaned)) return cleaned;
   }
 
   // 4. X-Forwarded-For (Extract leftmost public/client IP)
@@ -30,9 +33,9 @@ export function getClientIp(request: NextRequest | Request): string {
   if (forwardedFor) {
     const rawIps = forwardedFor.split(',');
     for (const raw of rawIps) {
-      const trimmed = raw.trim();
-      if (isValidIp(trimmed)) {
-        return trimmed;
+      const cleaned = cleanIp(raw);
+      if (isValidIp(cleaned)) {
+        return cleaned;
       }
     }
   }
@@ -40,12 +43,23 @@ export function getClientIp(request: NextRequest | Request): string {
   // 5. NextRequest .ip property (if available in edge/runtime)
   if ('ip' in request && typeof (request as any).ip === 'string') {
     const directIp = (request as any).ip;
-    if (directIp && isValidIp(directIp)) {
-      return directIp;
+    if (directIp) {
+      const cleaned = cleanIp(directIp);
+      if (isValidIp(cleaned)) return cleaned;
     }
   }
 
   return '127.0.0.1';
+}
+
+function cleanIp(raw: string): string {
+  if (!raw) return '';
+  let ip = raw.trim();
+  // Strip IPv4 port e.g. 192.168.1.1:8080 -> 192.168.1.1
+  if (/^(\d{1,3}\.){3}\d{1,3}:\d+$/.test(ip)) {
+    ip = ip.split(':')[0];
+  }
+  return ip;
 }
 
 function isValidIp(ip: string): boolean {

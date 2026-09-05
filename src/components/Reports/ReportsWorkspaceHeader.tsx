@@ -37,14 +37,14 @@ export function ReportsWorkspaceHeader({
         </p>
       </div>
 
-      <div className="flex flex-wrap items-center gap-2.5">
+      <div className="grid grid-cols-1 sm:grid-cols-3 sm:flex sm:flex-wrap items-center gap-2 sm:gap-2.5 w-full sm:w-auto">
         <Button
           onClick={onPrintPDF}
           variant="outline"
           size="md"
           leftIcon={<Printer className="w-4 h-4 text-indigo-600 dark:text-indigo-400" />}
           disabled={isBusy}
-          className="border-slate-200 dark:border-slate-700"
+          className="w-full sm:w-auto justify-center text-xs sm:text-sm min-h-[44px] border-slate-200 dark:border-slate-700"
           aria-label="طباعة التقرير أو حفظ كملف PDF"
         >
           {loading ? 'جاري التحميل...' : 'طباعة التقرير PDF'}
@@ -56,7 +56,7 @@ export function ReportsWorkspaceHeader({
           size="md"
           leftIcon={<Download className="w-4 h-4" />}
           disabled={isBusy}
-          className="border-slate-200 dark:border-slate-700"
+          className="w-full sm:w-auto justify-center text-xs sm:text-sm min-h-[44px] border-slate-200 dark:border-slate-700"
           aria-label="تصدير كملف CSV"
         >
           تصدير CSV
@@ -68,6 +68,7 @@ export function ReportsWorkspaceHeader({
           size="md"
           leftIcon={<FileSpreadsheet className="w-4 h-4 text-emerald-300" />}
           disabled={isBusy}
+          className="w-full sm:w-auto justify-center text-xs sm:text-sm min-h-[44px]"
           aria-label="تصدير كشف Excel شامل"
         >
           {exporting ? 'جاري المعالجة...' : 'تصدير كشف Excel'}

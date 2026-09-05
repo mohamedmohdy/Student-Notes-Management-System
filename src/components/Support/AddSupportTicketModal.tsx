@@ -116,16 +116,16 @@ export function AddSupportTicketModal({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-slate-950/70 backdrop-blur-md animate-fadeIn">
-      <div className="w-full max-w-xl bg-white dark:bg-slate-900 rounded-3xl border border-slate-200/80 dark:border-slate-800 shadow-2xl overflow-hidden animate-scaleUp text-slate-900 dark:text-white">
+      <div className="w-full max-w-xl max-h-[90vh] flex flex-col bg-white dark:bg-slate-900 rounded-3xl border border-slate-200/80 dark:border-slate-800 shadow-2xl overflow-hidden animate-scaleUp text-slate-900 dark:text-white">
         {/* Header */}
-        <div className="p-5 sm:p-6 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between bg-gradient-to-r from-indigo-50/70 via-transparent to-purple-50/70 dark:from-indigo-950/30 dark:to-purple-950/20">
+        <div className="p-4 sm:p-6 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between shrink-0 bg-gradient-to-r from-indigo-50/70 via-transparent to-purple-50/70 dark:from-indigo-950/30 dark:to-purple-950/20">
           <div className="flex items-center gap-3">
-            <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-indigo-600 to-indigo-700 text-white flex items-center justify-center shadow-lg shadow-indigo-500/25">
-              <LifeBuoy className="w-6 h-6" />
+            <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-2xl bg-gradient-to-tr from-indigo-600 to-indigo-700 text-white flex items-center justify-center shadow-lg shadow-indigo-500/25 shrink-0">
+              <LifeBuoy className="w-5 h-5 sm:w-6 sm:h-6" />
             </div>
             <div>
-              <h3 className="text-base sm:text-lg font-black">إنشاء تذكرة دعم فني جديدة</h3>
-              <p className="text-xs text-slate-500 dark:text-slate-400 font-semibold mt-0.5">
+              <h3 className="text-sm sm:text-lg font-black">إنشاء تذكرة دعم فني جديدة</h3>
+              <p className="text-[11px] sm:text-xs text-slate-500 dark:text-slate-400 font-semibold mt-0.5">
                 نحن هنا لمساعدتك 🤝 سيتم مراجعة طلبك والرد عليك فورياً
               </p>
             </div>
@@ -133,7 +133,7 @@ export function AddSupportTicketModal({
 
           <button
             onClick={onClose}
-            className="p-2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 transition"
+            className="p-2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 transition shrink-0"
           >
             <X className="w-5 h-5" />
           </button>
@@ -141,7 +141,7 @@ export function AddSupportTicketModal({
 
         {/* Success Confirmation View */}
         {submittedTicket ? (
-          <div className="p-6 sm:p-8 text-center space-y-5">
+          <div className="p-6 sm:p-8 text-center space-y-5 overflow-y-auto flex-1">
             <div className="w-16 h-16 rounded-3xl bg-gradient-to-tr from-emerald-500 to-teal-600 text-white flex items-center justify-center mx-auto shadow-xl shadow-emerald-500/25">
               <CheckCircle2 className="w-9 h-9" />
             </div>
@@ -168,14 +168,14 @@ export function AddSupportTicketModal({
 
             <button
               onClick={onClose}
-              className="w-full py-3.5 bg-gradient-to-r from-indigo-600 to-indigo-700 hover:from-indigo-500 hover:to-indigo-600 text-white font-extrabold text-sm rounded-2xl shadow-md shadow-indigo-500/20 transition active:scale-98"
+              className="w-full py-3.5 min-h-[44px] bg-gradient-to-r from-indigo-600 to-indigo-700 hover:from-indigo-500 hover:to-indigo-600 text-white font-extrabold text-sm rounded-2xl shadow-md shadow-indigo-500/20 transition active:scale-98 flex items-center justify-center"
             >
               العودة إلى المنصة
             </button>
           </div>
         ) : (
           /* Ticket Form */
-          <form onSubmit={handleSubmit} className="p-5 sm:p-6 space-y-4 max-h-[80vh] overflow-y-auto">
+          <form onSubmit={handleSubmit} className="p-4 sm:p-6 space-y-4 overflow-y-auto flex-1">
             {/* Auto-filled Teacher Info Banner */}
             <div className="p-3.5 rounded-2xl bg-indigo-50/70 dark:bg-indigo-950/40 border border-indigo-100 dark:border-indigo-900/60 flex items-center justify-between text-xs font-bold">
               <div className="space-y-0.5">
@@ -241,7 +241,7 @@ export function AddSupportTicketModal({
                 إرفاق لقطة شاشة للمشكلة (اختياري)
               </label>
               <div className="flex items-center gap-3">
-                <label className="flex items-center gap-2 px-4 py-2.5 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 rounded-xl text-xs font-bold cursor-pointer transition border border-slate-200 dark:border-slate-700">
+                <label className="flex items-center gap-2 px-4 py-2.5 min-h-[44px] bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 rounded-xl text-xs font-bold cursor-pointer transition border border-slate-200 dark:border-slate-700">
                   <Paperclip className="w-4 h-4 text-indigo-500" />
                   <span>{attachmentName ? 'تغيير الصورة' : 'اختر صورة من جهازك'}</span>
                   <input
@@ -261,11 +261,11 @@ export function AddSupportTicketModal({
             </div>
 
             {/* Submit Button */}
-            <div className="pt-3 border-t border-slate-100 dark:border-slate-800 flex items-center justify-end gap-2.5">
+            <div className="pt-3 border-t border-slate-100 dark:border-slate-800 flex flex-col-reverse sm:flex-row items-stretch sm:items-center justify-end gap-2 sm:gap-2.5">
               <button
                 type="button"
                 onClick={onClose}
-                className="px-4 py-2.5 text-xs font-bold text-slate-500 hover:text-slate-700 dark:hover:text-slate-300 transition"
+                className="w-full sm:w-auto px-4 py-2.5 min-h-[44px] text-xs sm:text-sm font-bold text-slate-500 hover:text-slate-700 dark:hover:text-slate-300 transition flex items-center justify-center"
               >
                 إلغاء
               </button>
@@ -273,7 +273,7 @@ export function AddSupportTicketModal({
               <button
                 type="submit"
                 disabled={loading}
-                className="flex items-center gap-2 px-6 py-2.5 bg-gradient-to-r from-indigo-600 to-indigo-700 hover:from-indigo-500 hover:to-indigo-600 text-white text-xs font-black rounded-xl shadow-md shadow-indigo-500/20 transition active:scale-95 disabled:opacity-50"
+                className="w-full sm:w-auto flex items-center justify-center gap-2 px-6 py-2.5 min-h-[44px] bg-gradient-to-r from-indigo-600 to-indigo-700 hover:from-indigo-500 hover:to-indigo-600 text-white text-xs sm:text-sm font-black rounded-xl shadow-md shadow-indigo-500/20 transition active:scale-95 disabled:opacity-50"
               >
                 <Send className="w-4 h-4" />
                 <span>{loading ? 'جاري الإرسال...' : '📨 إرسال التذكرة'}</span>

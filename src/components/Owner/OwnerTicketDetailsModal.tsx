@@ -173,16 +173,16 @@ export function OwnerTicketDetailsModal({
         </div>
 
         {/* Footer */}
-        <div className="p-4 border-t border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/50 flex items-center justify-between">
-          <span className="text-[11px] text-slate-400 font-medium">
+        <div className="p-4 border-t border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/50 flex flex-col-reverse sm:flex-row items-stretch sm:items-center justify-between gap-3">
+          <span className="text-[11px] text-slate-400 font-medium text-center sm:text-right">
             يتم إرسال الرد والإشعار للمعلم فور الحفظ
           </span>
 
-          <div className="flex items-center gap-2">
+          <div className="flex flex-col-reverse sm:flex-row items-stretch sm:items-center gap-2">
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2.5 text-xs font-bold text-slate-500 hover:text-slate-700 dark:hover:text-slate-300 transition"
+              className="w-full sm:w-auto px-4 py-2.5 min-h-[44px] text-xs sm:text-sm font-bold text-slate-500 hover:text-slate-700 dark:hover:text-slate-300 transition flex items-center justify-center"
             >
               إلغاء
             </button>
@@ -190,7 +190,7 @@ export function OwnerTicketDetailsModal({
             <button
               onClick={handleSave}
               disabled={saving}
-              className="flex items-center gap-2 px-6 py-2.5 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-white text-xs font-black rounded-xl shadow-md shadow-amber-500/20 transition active:scale-95 disabled:opacity-50"
+              className="w-full sm:w-auto flex items-center justify-center gap-2 px-6 py-2.5 min-h-[44px] bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-white text-xs sm:text-sm font-black rounded-xl shadow-md shadow-amber-500/20 transition active:scale-95 disabled:opacity-50"
             >
               <Save className="w-4 h-4" />
               <span>{saving ? 'جاري الحفظ...' : 'حفظ التعديلات والرد'}</span>

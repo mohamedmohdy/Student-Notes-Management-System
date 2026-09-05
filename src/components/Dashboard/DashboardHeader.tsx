@@ -50,22 +50,22 @@ export function DashboardHeader({
         </div>
 
         {/* Header Action Buttons */}
-        <div className="flex flex-wrap items-center gap-2.5 shrink-0">
+        <div className="grid grid-cols-2 sm:flex sm:flex-wrap items-center gap-2 sm:gap-2.5 shrink-0 w-full sm:w-auto">
           <button
             type="button"
             onClick={onOpenAddNote}
             aria-label="تدوين ملاحظة سريعة"
-            className="inline-flex items-center justify-center gap-2 px-4 py-2.5 min-h-[44px] rounded-xl bg-white hover:bg-slate-100 active:bg-slate-200 text-slate-900 dark:text-slate-950 font-black text-xs sm:text-sm shadow-sm border border-white transition-all duration-150 active:scale-[0.98] outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-indigo-900 select-none cursor-pointer"
+            className="w-full sm:w-auto inline-flex items-center justify-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2.5 min-h-[44px] rounded-xl bg-white hover:bg-slate-100 active:bg-slate-200 text-slate-900 dark:text-slate-950 font-black text-xs sm:text-sm shadow-sm border border-white transition-all duration-150 active:scale-[0.98] outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-indigo-900 select-none cursor-pointer"
           >
             <Plus className="w-4 h-4 text-indigo-600 dark:text-indigo-700 shrink-0 stroke-[2.5]" />
-            <span className="text-slate-900 dark:text-slate-950 font-black">تدوين ملاحظة سريعة</span>
+            <span className="text-slate-900 dark:text-slate-950 font-black truncate">تدوين ملاحظة</span>
           </button>
 
           <Link
             href="/reports"
-            className="inline-flex items-center justify-center gap-2 px-4 py-2.5 min-h-[44px] rounded-xl bg-white/10 hover:bg-white/20 text-white font-bold text-xs sm:text-sm border border-white/20 transition active:scale-[0.98]"
+            className="w-full sm:w-auto inline-flex items-center justify-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2.5 min-h-[44px] rounded-xl bg-white/10 hover:bg-white/20 text-white font-bold text-xs sm:text-sm border border-white/20 transition active:scale-[0.98]"
           >
-            <BarChart3 className="w-4 h-4" />
+            <BarChart3 className="w-4 h-4 shrink-0" />
             <span>التقارير</span>
           </Link>
         </div>

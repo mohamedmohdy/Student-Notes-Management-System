@@ -36,13 +36,13 @@ export function StudentDirectoryHeader({
         </p>
       </div>
 
-      <div className="flex flex-wrap items-center gap-2.5">
+      <div className="grid grid-cols-2 sm:flex sm:flex-wrap items-center gap-2 sm:gap-2.5 w-full sm:w-auto">
         <Button
           onClick={onOpenImport}
           variant="outline"
           size="md"
           leftIcon={<FileSpreadsheet className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />}
-          className="border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800"
+          className="w-full sm:w-auto justify-center text-xs sm:text-sm border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800 min-h-[44px]"
         >
           استيراد Excel
         </Button>
@@ -52,6 +52,7 @@ export function StudentDirectoryHeader({
           variant="primary"
           size="md"
           leftIcon={<Plus className="w-4 h-4" />}
+          className="w-full sm:w-auto justify-center text-xs sm:text-sm min-h-[44px]"
         >
           إضافة طالب جديد
         </Button>

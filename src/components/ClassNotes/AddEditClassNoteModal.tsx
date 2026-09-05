@@ -99,12 +99,12 @@ export function AddEditClassNoteModal({
   ];
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-fadeIn">
-      <div className="w-full max-w-lg bg-white dark:bg-slate-900 rounded-3xl border border-slate-200/80 dark:border-slate-800 shadow-2xl overflow-hidden animate-scaleUp">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-slate-900/60 backdrop-blur-sm animate-fadeIn">
+      <div className="w-full max-w-lg max-h-[90vh] flex flex-col bg-white dark:bg-slate-900 rounded-3xl border border-slate-200/80 dark:border-slate-800 shadow-2xl overflow-hidden animate-scaleUp">
         {/* Modal Header */}
-        <div className="p-6 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between bg-gradient-to-r from-indigo-50/50 via-transparent to-transparent dark:from-indigo-950/20">
+        <div className="p-4 sm:p-6 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between shrink-0 bg-gradient-to-r from-indigo-50/50 via-transparent to-transparent dark:from-indigo-950/20">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-2xl bg-indigo-600 text-white flex items-center justify-center shadow-md shadow-indigo-500/20">
+            <div className="w-10 h-10 rounded-2xl bg-indigo-600 text-white flex items-center justify-center shadow-md shadow-indigo-500/20 shrink-0">
               <FileText className="w-5 h-5" />
             </div>
             <div>
@@ -118,14 +118,14 @@ export function AddEditClassNoteModal({
           </div>
           <button
             onClick={onClose}
-            className="p-2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 transition"
+            className="p-2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 transition shrink-0"
           >
             <X className="w-5 h-5" />
           </button>
         </div>
 
         {/* Modal Form */}
-        <form onSubmit={handleSubmit} className="p-6 space-y-4">
+        <form onSubmit={handleSubmit} className="p-4 sm:p-6 space-y-4 overflow-y-auto flex-1">
           {/* Note Type Selector */}
           <div>
             <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-2 flex items-center gap-1.5">
@@ -138,7 +138,7 @@ export function AddEditClassNoteModal({
                   type="button"
                   key={key}
                   onClick={() => setType(key)}
-                  className={`px-3 py-2 rounded-xl text-xs font-bold border transition-all text-center ${
+                  className={`px-3 py-2 min-h-[38px] rounded-xl text-xs font-bold border transition-all text-center flex items-center justify-center ${
                     type === key
                       ? 'border-indigo-600 bg-indigo-50 dark:bg-indigo-950/60 text-indigo-700 dark:text-indigo-300 shadow-xs ring-2 ring-indigo-500/20'
                       : 'border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/50 text-slate-600 dark:text-slate-400 hover:border-slate-300'
@@ -217,19 +217,19 @@ export function AddEditClassNoteModal({
           )}
 
           {/* Action Buttons */}
-          <div className="pt-3 border-t border-slate-100 dark:border-slate-800 flex items-center justify-end gap-2.5">
+          <div className="pt-3 border-t border-slate-100 dark:border-slate-800 flex flex-col-reverse sm:flex-row items-stretch sm:items-center justify-end gap-2 sm:gap-2.5">
             <button
               type="button"
               onClick={onClose}
               disabled={loading}
-              className={heroTheme.button.secondary}
+              className={`${heroTheme.button.secondary} w-full sm:w-auto min-h-[44px] justify-center`}
             >
               إلغاء
             </button>
             <button
               type="submit"
               disabled={loading}
-              className={heroTheme.button.primary}
+              className={`${heroTheme.button.primary} w-full sm:w-auto min-h-[44px] justify-center`}
             >
               {loading ? 'جاري الحفظ...' : isEdit ? 'تحديث الملاحظة' : 'حفظ الملاحظة'}
             </button>

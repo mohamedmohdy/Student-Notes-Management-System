@@ -147,11 +147,12 @@ export function StudentFilters({
       >
         <div className="space-y-4">
           {filterContent}
-          <div className="flex items-center justify-end gap-2.5 pt-4 border-t border-slate-100 dark:border-slate-800">
+          <div className="flex flex-col-reverse sm:flex-row items-stretch sm:items-center justify-end gap-2.5 pt-4 border-t border-slate-100 dark:border-slate-800">
             {activeFiltersCount > 0 && (
               <Button
                 variant="ghost"
                 size="md"
+                className="w-full sm:w-auto min-h-[44px] justify-center"
                 onClick={() => {
                   onResetFilters();
                   setIsMobileFilterOpen(false);
@@ -163,6 +164,7 @@ export function StudentFilters({
             <Button
               variant="primary"
               size="md"
+              className="w-full sm:w-auto min-h-[44px] justify-center"
               onClick={() => setIsMobileFilterOpen(false)}
             >
               تطبيق الفلاتر

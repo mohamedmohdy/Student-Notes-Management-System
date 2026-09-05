@@ -75,19 +75,19 @@ export function QuickActions({ onOpenAddNote }: QuickActionsProps) {
         </p>
       </div>
 
-      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2.5 sm:gap-3">
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2 sm:gap-3">
         {actions.map((act) => {
           const Icon = act.icon;
           const content = (
-            <div className="p-3.5 rounded-xl border border-slate-200/80 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/60 hover:border-indigo-300 dark:hover:border-indigo-600/40 hover:bg-white dark:hover:bg-slate-800/80 transition-all duration-150 flex flex-col items-center text-center gap-2 group min-h-[96px] justify-center cursor-pointer select-none">
-              <div className={`w-9 h-9 rounded-xl flex items-center justify-center border shrink-0 ${act.color} group-hover:scale-105 transition-transform duration-150`}>
+            <div className="p-2.5 sm:p-3.5 rounded-xl border border-slate-200/80 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/60 hover:border-indigo-300 dark:hover:border-indigo-600/40 hover:bg-white dark:hover:bg-slate-800/80 transition-all duration-150 flex flex-col items-center text-center gap-1.5 sm:gap-2 group min-h-[88px] sm:min-h-[96px] justify-center cursor-pointer select-none">
+              <div className={`w-8 h-8 sm:w-9 sm:h-9 rounded-xl flex items-center justify-center border shrink-0 ${act.color} group-hover:scale-105 transition-transform duration-150`}>
                 <Icon className="w-4 h-4" />
               </div>
-              <div>
-                <p className="text-xs font-black text-slate-800 dark:text-slate-200 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">
+              <div className="w-full overflow-hidden">
+                <p className="text-xs font-black text-slate-800 dark:text-slate-200 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors truncate">
                   {act.label}
                 </p>
-                <p className="text-xs text-slate-600 dark:text-slate-400 font-medium line-clamp-1 mt-0.5">
+                <p className="text-[11px] sm:text-xs text-slate-500 dark:text-slate-400 font-medium line-clamp-1 mt-0.5">
                   {act.description}
                 </p>
               </div>

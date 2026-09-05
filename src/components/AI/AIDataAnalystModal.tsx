@@ -99,10 +99,10 @@ export function AIDataAnalystModal({ isOpen, onClose }: AIDataAnalystModalProps)
         </div>
 
         {/* Tab Switcher */}
-        <div className="px-6 pt-4 border-b border-slate-100 dark:border-slate-800 flex items-center gap-2">
+        <div className="px-4 sm:px-6 pt-3 sm:pt-4 border-b border-slate-100 dark:border-slate-800 flex items-center gap-1.5 sm:gap-2 overflow-x-auto no-scrollbar">
           <button
             onClick={() => setActiveTab('overview')}
-            className={`px-4 py-2 rounded-xl text-xs font-extrabold transition ${
+            className={`shrink-0 px-3 sm:px-4 py-2 min-h-[38px] rounded-xl text-xs font-extrabold transition ${
               activeTab === 'overview'
                 ? 'bg-indigo-50 dark:bg-indigo-950/80 text-indigo-600 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800 shadow-xs'
                 : 'text-slate-500 hover:text-slate-800 dark:hover:text-slate-200'
@@ -113,7 +113,7 @@ export function AIDataAnalystModal({ isOpen, onClose }: AIDataAnalystModalProps)
 
           <button
             onClick={() => setActiveTab('weekly')}
-            className={`px-4 py-2 rounded-xl text-xs font-extrabold transition ${
+            className={`shrink-0 px-3 sm:px-4 py-2 min-h-[38px] rounded-xl text-xs font-extrabold transition ${
               activeTab === 'weekly'
                 ? 'bg-indigo-50 dark:bg-indigo-950/80 text-indigo-600 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800 shadow-xs'
                 : 'text-slate-500 hover:text-slate-800 dark:hover:text-slate-200'
@@ -124,7 +124,7 @@ export function AIDataAnalystModal({ isOpen, onClose }: AIDataAnalystModalProps)
 
           <button
             onClick={() => setActiveTab('recommendations')}
-            className={`px-4 py-2 rounded-xl text-xs font-extrabold transition ${
+            className={`shrink-0 px-3 sm:px-4 py-2 min-h-[38px] rounded-xl text-xs font-extrabold transition ${
               activeTab === 'recommendations'
                 ? 'bg-indigo-50 dark:bg-indigo-950/80 text-indigo-600 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800 shadow-xs'
                 : 'text-slate-500 hover:text-slate-800 dark:hover:text-slate-200'
@@ -135,7 +135,7 @@ export function AIDataAnalystModal({ isOpen, onClose }: AIDataAnalystModalProps)
         </div>
 
         {/* Content Body */}
-        <div className="p-6 overflow-y-auto space-y-6 flex-1">
+        <div className="p-4 sm:p-6 overflow-y-auto space-y-5 sm:space-y-6 flex-1">
           {loading ? (
             <div className="py-12 text-center space-y-3">
               <div className="w-10 h-10 border-3 border-indigo-600 border-t-transparent rounded-full animate-spin mx-auto"></div>
@@ -155,23 +155,23 @@ export function AIDataAnalystModal({ isOpen, onClose }: AIDataAnalystModalProps)
               {activeTab === 'overview' && (
                 <div className="space-y-5">
                   {/* Summary Metric Cards */}
-                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                    <div className="p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200/80 dark:border-slate-700 text-center">
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 sm:gap-3">
+                    <div className="p-3.5 sm:p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200/80 dark:border-slate-700 text-center">
                       <p className="text-xs font-bold text-slate-400">إجمالي الطلاب</p>
                       <p className="text-xl font-black text-slate-900 dark:text-white mt-1">{data?.overview?.totalStudents}</p>
                     </div>
 
-                    <div className="p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200/80 dark:border-slate-700 text-center">
+                    <div className="p-3.5 sm:p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200/80 dark:border-slate-700 text-center">
                       <p className="text-xs font-bold text-slate-400">إجمالي الملاحظات</p>
                       <p className="text-xl font-black text-indigo-600 dark:text-indigo-400 mt-1">{data?.overview?.totalNotes}</p>
                     </div>
 
-                    <div className="p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200/80 dark:border-slate-700 text-center">
+                    <div className="p-3.5 sm:p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200/80 dark:border-slate-700 text-center">
                       <p className="text-xs font-bold text-slate-400">ملاحظات الفصول</p>
                       <p className="text-xl font-black text-purple-600 dark:text-purple-400 mt-1">{data?.overview?.totalClassNotes}</p>
                     </div>
 
-                    <div className="p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200/80 dark:border-slate-700 text-center">
+                    <div className="p-3.5 sm:p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200/80 dark:border-slate-700 text-center">
                       <p className="text-xs font-bold text-slate-400">متابعات معلقة</p>
                       <p className="text-xl font-black text-rose-600 dark:text-rose-400 mt-1">{data?.overview?.pendingFollowUps}</p>
                     </div>
@@ -213,7 +213,7 @@ export function AIDataAnalystModal({ isOpen, onClose }: AIDataAnalystModalProps)
                           <span className="text-indigo-600 dark:text-indigo-400 font-black">{data?.insights?.topBehavior}</span>
                         </div>
                         <div className="flex justify-between font-bold">
-                          <span className="text-slate-600 dark:text-slate-400">نسبة الملاحظات الإيجابية:</span>
+                          <span className="text-emerald-600 dark:text-emerald-400">نسبة الملاحظات الإيجابية:</span>
                           <span className="text-emerald-600 dark:text-emerald-400 font-black">{data?.insights?.positiveRatio}%</span>
                         </div>
                         <div className="flex justify-between font-bold">
@@ -239,20 +239,20 @@ export function AIDataAnalystModal({ isOpen, onClose }: AIDataAnalystModalProps)
                     </p>
                   </div>
 
-                  <div className="grid grid-cols-3 gap-3 text-center">
-                    <div className="p-3.5 rounded-2xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700">
+                  <div className="grid grid-cols-3 gap-2.5 sm:gap-3 text-center">
+                    <div className="p-3 sm:p-3.5 rounded-2xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700">
                       <p className="text-xs text-slate-400 font-bold">ملاحظات الطلاب</p>
-                      <p className="text-lg font-black text-slate-900 dark:text-white mt-1">{data?.weekly?.notesThisWeek}</p>
+                      <p className="text-base sm:text-lg font-black text-slate-900 dark:text-white mt-1">{data?.weekly?.notesThisWeek}</p>
                     </div>
 
-                    <div className="p-3.5 rounded-2xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700">
+                    <div className="p-3 sm:p-3.5 rounded-2xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700">
                       <p className="text-xs text-slate-400 font-bold">ملاحظات الفصول</p>
-                      <p className="text-lg font-black text-indigo-600 dark:text-indigo-400 mt-1">{data?.weekly?.classNotesThisWeek}</p>
+                      <p className="text-base sm:text-lg font-black text-indigo-600 dark:text-indigo-400 mt-1">{data?.weekly?.classNotesThisWeek}</p>
                     </div>
 
-                    <div className="p-3.5 rounded-2xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700">
+                    <div className="p-3 sm:p-3.5 rounded-2xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700">
                       <p className="text-xs text-slate-400 font-bold">متابعات جديدة</p>
-                      <p className="text-lg font-black text-purple-600 dark:text-purple-400 mt-1">{data?.weekly?.followUpsThisWeek}</p>
+                      <p className="text-base sm:text-lg font-black text-purple-600 dark:text-purple-400 mt-1">{data?.weekly?.followUpsThisWeek}</p>
                     </div>
                   </div>
                 </div>
@@ -288,15 +288,15 @@ export function AIDataAnalystModal({ isOpen, onClose }: AIDataAnalystModalProps)
         </div>
 
         {/* Footer */}
-        <div className="p-4 sm:p-5 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between bg-slate-50/50 dark:bg-slate-900/50">
-          <span className="text-[11px] text-slate-400 font-medium">
+        <div className="p-3.5 sm:p-5 border-t border-slate-100 dark:border-slate-800 flex flex-col-reverse sm:flex-row items-stretch sm:items-center justify-between gap-3 bg-slate-50/50 dark:bg-slate-900/50">
+          <span className="text-[11px] text-slate-400 font-medium text-center sm:text-right">
             مبني على المعالجة الإحصائية لبيانات حسابك فقط 🔒
           </span>
 
           <button
             onClick={fetchAnalysis}
             disabled={loading}
-            className="flex items-center gap-1.5 px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold rounded-xl transition"
+            className="flex items-center justify-center gap-1.5 px-4 py-2.5 min-h-[44px] sm:min-h-[38px] bg-indigo-600 hover:bg-indigo-700 active:bg-indigo-800 text-white text-xs sm:text-sm font-bold rounded-xl transition disabled:opacity-50"
           >
             <RefreshCw className={`w-3.5 h-3.5 ${loading ? 'animate-spin' : ''}`} />
             <span>تحديث التحليل</span>

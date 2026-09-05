@@ -26,13 +26,13 @@ export function OwnerDashboardHeader({ onOpenAddTeacher }: OwnerDashboardHeaderP
         </p>
       </div>
 
-      <div className="flex flex-wrap items-center gap-2.5">
-        <Link href="/owner/teachers">
+      <div className="grid grid-cols-2 sm:flex sm:flex-wrap items-center gap-2 sm:gap-2.5 w-full sm:w-auto">
+        <Link href="/owner/teachers" className="w-full sm:w-auto">
           <Button
             variant="outline"
             size="md"
             leftIcon={<Users className="w-4 h-4 text-amber-600 dark:text-amber-400" />}
-            className="border-slate-200 dark:border-slate-700"
+            className="w-full sm:w-auto justify-center text-xs sm:text-sm min-h-[44px] border-slate-200 dark:border-slate-700"
           >
             قائمة المعلمين
           </Button>
@@ -43,6 +43,7 @@ export function OwnerDashboardHeader({ onOpenAddTeacher }: OwnerDashboardHeaderP
           variant="primary"
           size="md"
           leftIcon={<UserPlus className="w-4 h-4" />}
+          className="w-full sm:w-auto justify-center text-xs sm:text-sm min-h-[44px]"
         >
           إضافة معلم جديد
         </Button>

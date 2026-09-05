@@ -66,6 +66,9 @@ export async function POST(request: NextRequest) {
         if (!isValid) {
           return NextResponse.json({ error: 'البريد الإلكتروني أو كلمة المرور غير صحيحة' }, { status: 401 });
         }
+      } else {
+        // Supabase Auth failed and no fallback password_hash exists
+        return NextResponse.json({ error: 'البريد الإلكتروني أو كلمة المرور غير صحيحة' }, { status: 401 });
       }
     }
 

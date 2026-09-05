@@ -51,9 +51,9 @@ export function TicketDetailsModal({ ticket, isOpen, onClose }: TicketDetailsMod
         </div>
 
         {/* Content Body */}
-        <div className="p-5 sm:p-6 overflow-y-auto space-y-5 flex-1">
+        <div className="p-4 sm:p-6 overflow-y-auto space-y-4 sm:space-y-5 flex-1">
           {/* Metadata Grid */}
-          <div className="grid grid-cols-2 gap-3 text-xs">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 sm:gap-3 text-xs">
             <div className="p-3 bg-slate-50 dark:bg-slate-800/60 rounded-2xl border border-slate-100 dark:border-slate-700">
               <span className="text-slate-400 font-bold block">نوع المشكلة:</span>
               <span className="font-extrabold text-slate-800 dark:text-slate-200 mt-0.5 block">{categoryInfo.label}</span>
@@ -119,7 +119,7 @@ export function TicketDetailsModal({ ticket, isOpen, onClose }: TicketDetailsMod
         <div className="p-4 border-t border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/50 flex justify-end">
           <button
             onClick={onClose}
-            className="px-5 py-2 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 text-xs font-black rounded-xl transition"
+            className="w-full sm:w-auto px-6 py-2.5 min-h-[44px] bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 active:bg-slate-300 dark:active:bg-slate-600 text-slate-700 dark:text-slate-200 text-xs sm:text-sm font-black rounded-xl transition flex items-center justify-center"
           >
             إغلاق
           </button>

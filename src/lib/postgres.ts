@@ -4,8 +4,12 @@ import { PGlite } from '@electric-sql/pglite';
 import { Pool } from 'pg';
 
 const dataDir = path.join(process.cwd(), 'data');
-if (!fs.existsSync(dataDir)) {
-  fs.mkdirSync(dataDir, { recursive: true });
+try {
+  if (!fs.existsSync(dataDir)) {
+    fs.mkdirSync(dataDir, { recursive: true });
+  }
+} catch {
+  // Ignore read-only filesystem errors in serverless edge environments
 }
 
 const pgDataPath = path.join(dataDir, 'postgres_db');
@@ -16,13 +20,17 @@ let pgPoolInstance: Pool | null = null;
 let schemaInitPromise: Promise<void> | null = null;
 
 async function getPool(): Promise<Pool> {
+  if (process.env.NODE_ENV === 'production' && !process.env.DATABASE_URL) {
+    throw new Error('DATABASE_URL is not configured for production environment');
+  }
+
   if (!pgPoolInstance) {
     const databaseUrl = process.env.DATABASE_URL || DEFAULT_DATABASE_URL;
     pgPoolInstance = new Pool({
       connectionString: databaseUrl,
       max: 20,
       idleTimeoutMillis: 30000,
-      connectionTimeoutMillis: 5000,
+      connectionTimeoutMillis: 2000,
     });
   }
 

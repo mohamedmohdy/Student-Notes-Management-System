@@ -63,30 +63,30 @@ export function AddTeacherModal({ isOpen, onClose, onSuccess }: AddTeacherModalP
   };
 
   return (
-    <div className="fixed inset-0 z-50 bg-slate-950/70 backdrop-blur-md flex items-center justify-center p-4 animate-in fade-in">
-      <div className="w-full max-w-lg bg-white dark:bg-slate-900 rounded-3xl p-6 sm:p-8 shadow-2xl border border-slate-200/80 dark:border-slate-800 space-y-6 animate-in zoom-in-95 text-slate-900 dark:text-white">
+    <div className="fixed inset-0 z-50 bg-slate-950/70 backdrop-blur-md flex items-center justify-center p-3 sm:p-4 animate-in fade-in">
+      <div className="w-full max-w-lg max-h-[90vh] flex flex-col bg-white dark:bg-slate-900 rounded-3xl p-5 sm:p-8 shadow-2xl border border-slate-200/80 dark:border-slate-800 animate-in zoom-in-95 text-slate-900 dark:text-white overflow-hidden">
         {/* Header */}
-        <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-4">
+        <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-4 shrink-0">
           <div className="flex items-center gap-3">
-            <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-amber-500 to-amber-600 text-white flex items-center justify-center shadow-lg shadow-amber-500/20">
-              <UserPlus className="w-6 h-6" />
+            <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-2xl bg-gradient-to-tr from-amber-500 to-amber-600 text-white flex items-center justify-center shadow-lg shadow-amber-500/20 shrink-0">
+              <UserPlus className="w-5 h-5 sm:w-6 sm:h-6" />
             </div>
             <div>
-              <h3 className="font-black text-lg">إضافة وتفعيل معلم جديد</h3>
-              <p className="text-xs text-slate-500 dark:text-slate-400 font-semibold">إنشاء حساب المعلم وتعيين كلمة المرور وتفعيله فورياً</p>
+              <h3 className="font-black text-base sm:text-lg">إضافة وتفعيل معلم جديد</h3>
+              <p className="text-[11px] sm:text-xs text-slate-500 dark:text-slate-400 font-semibold">إنشاء حساب المعلم وتعيين كلمة المرور وتفعيله فورياً</p>
             </div>
           </div>
 
           <button
             onClick={onClose}
-            className="p-2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 rounded-xl"
+            className="p-2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 rounded-xl shrink-0"
           >
             <X className="w-5 h-5" />
           </button>
         </div>
 
         {/* Form */}
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit} className="space-y-4 overflow-y-auto flex-1 pt-2">
           <div>
             <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">اسم المعلم الكامل</label>
             <div className="relative">
@@ -136,14 +136,14 @@ export function AddTeacherModal({ isOpen, onClose, onSuccess }: AddTeacherModalP
 
           <div>
             <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">حالة الحساب المبدئية</label>
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 sm:gap-3">
               <button
                 type="button"
                 onClick={() => setStatus('active')}
-                className={`p-3 rounded-2xl border text-xs font-black flex items-center justify-center gap-2 transition ${
+                className={`p-3 min-h-[44px] rounded-2xl border text-xs font-black flex items-center justify-center gap-2 transition ${
                   status === 'active'
                     ? 'bg-emerald-50 dark:bg-emerald-950/60 border-emerald-500 text-emerald-700 dark:text-emerald-300 shadow-xs'
-                    : 'border-slate-200 dark:border-slate-700 text-slate-500 hover:bg-slate-50'
+                    : 'border-slate-200 dark:border-slate-700 text-slate-500 hover:bg-slate-50 dark:hover:bg-slate-800'
                 }`}
               >
                 <CheckCircle2 className="w-4 h-4 text-emerald-600" />
@@ -153,10 +153,10 @@ export function AddTeacherModal({ isOpen, onClose, onSuccess }: AddTeacherModalP
               <button
                 type="button"
                 onClick={() => setStatus('pending')}
-                className={`p-3 rounded-2xl border text-xs font-black flex items-center justify-center gap-2 transition ${
+                className={`p-3 min-h-[44px] rounded-2xl border text-xs font-black flex items-center justify-center gap-2 transition ${
                   status === 'pending'
                     ? 'bg-amber-50 dark:bg-amber-950/60 border-amber-500 text-amber-700 dark:text-amber-300 shadow-xs'
-                    : 'border-slate-200 dark:border-slate-700 text-slate-500 hover:bg-slate-50'
+                    : 'border-slate-200 dark:border-slate-700 text-slate-500 hover:bg-slate-50 dark:hover:bg-slate-800'
                 }`}
               >
                 <span>قيد المراجعة (Pending 🟡)</span>
@@ -165,23 +165,23 @@ export function AddTeacherModal({ isOpen, onClose, onSuccess }: AddTeacherModalP
           </div>
 
           {/* Submit */}
-          <div className="flex items-center gap-3 pt-4 border-t border-slate-100 dark:border-slate-800">
-            <button
-              type="submit"
-              disabled={loading}
-              className={heroTheme.button.primary + ' flex-1 py-3.5 bg-gradient-to-r from-amber-600 to-amber-700 hover:from-amber-500 hover:to-amber-600 shadow-amber-500/20'}
-            >
-              {loading ? 'جاري إنشاء الحساب...' : 'حفظ وإنشاء حساب المعلم'}
-              {!loading && <CheckCircle2 className="w-4 h-4" />}
-            </button>
-
+          <div className="flex flex-col-reverse sm:flex-row items-stretch sm:items-center gap-2.5 sm:gap-3 pt-4 border-t border-slate-100 dark:border-slate-800">
             <button
               type="button"
               onClick={onClose}
               disabled={loading}
-              className={heroTheme.button.secondary + ' py-3.5'}
+              className={heroTheme.button.secondary + ' w-full sm:w-auto py-3 min-h-[44px] justify-center text-xs sm:text-sm'}
             >
               إلغاء
+            </button>
+
+            <button
+              type="submit"
+              disabled={loading}
+              className={heroTheme.button.primary + ' flex-1 w-full sm:w-auto py-3 min-h-[44px] justify-center text-xs sm:text-sm bg-gradient-to-r from-amber-600 to-amber-700 hover:from-amber-500 hover:to-amber-600 shadow-amber-500/20'}
+            >
+              {loading ? 'جاري إنشاء الحساب...' : 'حفظ وإنشاء حساب المعلم'}
+              {!loading && <CheckCircle2 className="w-4 h-4" />}
             </button>
           </div>
         </form>

@@ -60,11 +60,11 @@ export function NoteCard({ note, onEdit, onArchiveSuccess, onResolveFollowUp }: 
             </div>
 
             {/* Menu */}
-            <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition">
+            <div className="flex items-center gap-1 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition">
               {onEdit && (
                 <button
                   onClick={() => onEdit(note)}
-                  className="p-1.5 text-slate-400 hover:text-indigo-600 hover:bg-slate-100 rounded-lg transition"
+                  className="p-1.5 min-h-[36px] min-w-[36px] text-slate-400 hover:text-indigo-600 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition flex items-center justify-center"
                   title="تعديل الملاحظة"
                 >
                   <Edit2 className="w-3.5 h-3.5" />
@@ -72,7 +72,7 @@ export function NoteCard({ note, onEdit, onArchiveSuccess, onResolveFollowUp }: 
               )}
               <button
                 onClick={() => setShowArchiveConfirm(true)}
-                className="p-1.5 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition"
+                className="p-1.5 min-h-[36px] min-w-[36px] text-slate-400 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/40 rounded-lg transition flex items-center justify-center"
                 title="أرشفة الملاحظة"
               >
                 <Archive className="w-3.5 h-3.5" />

@@ -80,11 +80,12 @@ export function FollowUpCard({ followUp, onResolve }: FollowUpCardProps) {
           <span>تاريخ المتابعة: <strong className="text-slate-700 dark:text-slate-300">{formatDateArabic(followUp.follow_up_date)}</strong></span>
         </div>
 
-        <div className="flex items-center gap-2.5">
+        <div className="flex items-center gap-2.5 w-full sm:w-auto">
           <Button
             onClick={() => onResolve(followUp)}
             variant={isCompleted ? 'outline' : 'primary'}
             size="sm"
+            className="w-full sm:w-auto min-h-[44px] sm:min-h-[36px] justify-center"
           >
             {isCompleted ? 'تحديث الإجراء' : 'معالجة المتابعة'}
           </Button>

@@ -16,10 +16,6 @@ const InteractiveTour = dynamic(
   () => import('@/components/Tour/InteractiveTour').then((mod) => mod.InteractiveTour),
   { ssr: false }
 );
-const FloatingAnalystButton = dynamic(
-  () => import('@/components/AI/FloatingAnalystButton').then((mod) => mod.FloatingAnalystButton),
-  { ssr: false }
-);
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -104,7 +100,6 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       {/* Global Search & Tour Modals (Lazy Loaded) */}
       <GlobalSearchModal isOpen={searchOpen} onClose={() => setSearchOpen(false)} />
       <InteractiveTour />
-      <FloatingAnalystButton />
     </div>
   );
 }

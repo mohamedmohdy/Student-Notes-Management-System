@@ -63,11 +63,11 @@ export function EditTeacherModal({ isOpen, onClose, teacher, onSuccess }: EditTe
   };
 
   return (
-    <div className="fixed inset-0 z-50 bg-slate-950/70 backdrop-blur-md flex items-center justify-center p-4 animate-in fade-in">
-      <div className="w-full max-w-md bg-white dark:bg-slate-900 rounded-3xl p-6 sm:p-8 shadow-2xl border border-slate-200 dark:border-slate-800 space-y-6 animate-in zoom-in-95 text-slate-900 dark:text-white">
-        <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-4">
+    <div className="fixed inset-0 z-50 bg-slate-950/70 backdrop-blur-md flex items-center justify-center p-3 sm:p-4 animate-in fade-in">
+      <div className="w-full max-w-md max-h-[90vh] flex flex-col bg-white dark:bg-slate-900 rounded-3xl p-5 sm:p-8 shadow-2xl border border-slate-200 dark:border-slate-800 animate-in zoom-in-95 text-slate-900 dark:text-white overflow-hidden">
+        <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-4 shrink-0">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-2xl bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 flex items-center justify-center font-black">
+            <div className="w-10 h-10 rounded-2xl bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 flex items-center justify-center font-black shrink-0">
               <UserCheck className="w-5 h-5" />
             </div>
             <div>
@@ -78,13 +78,13 @@ export function EditTeacherModal({ isOpen, onClose, teacher, onSuccess }: EditTe
 
           <button
             onClick={onClose}
-            className="p-1.5 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 rounded-xl"
+            className="p-1.5 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 rounded-xl shrink-0"
           >
             <X className="w-5 h-5" />
           </button>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit} className="space-y-4 overflow-y-auto flex-1 pt-2">
           <div>
             <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">
               اسم المعلم الكامل *
@@ -134,22 +134,22 @@ export function EditTeacherModal({ isOpen, onClose, teacher, onSuccess }: EditTe
             </select>
           </div>
 
-          <div className="flex items-center gap-3 pt-3">
-            <button
-              type="submit"
-              disabled={loading}
-              className={heroTheme.button.primary + ' flex-1 py-3'}
-            >
-              {loading ? 'جاري الحفظ...' : 'حفظ التعديلات'}
-            </button>
-
+          <div className="flex flex-col-reverse sm:flex-row items-stretch sm:items-center gap-2.5 sm:gap-3 pt-3 border-t border-slate-100 dark:border-slate-800">
             <button
               type="button"
               onClick={onClose}
               disabled={loading}
-              className={heroTheme.button.secondary + ' py-3'}
+              className={heroTheme.button.secondary + ' w-full sm:w-auto py-2.5 min-h-[44px] justify-center text-xs sm:text-sm'}
             >
               إلغاء
+            </button>
+
+            <button
+              type="submit"
+              disabled={loading}
+              className={heroTheme.button.primary + ' flex-1 w-full sm:w-auto py-2.5 min-h-[44px] justify-center text-xs sm:text-sm'}
+            >
+              {loading ? 'جاري الحفظ...' : 'حفظ التعديلات'}
             </button>
           </div>
         </form>

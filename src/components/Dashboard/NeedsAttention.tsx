@@ -75,7 +75,7 @@ export function NeedsAttention({
                 type="button"
                 onClick={() => onResolveFollowUp(f)}
                 aria-label={`معالجة حالة الطالب ${f.student_name || ''}`}
-                className="self-end sm:self-center px-4 py-2.5 min-h-[44px] bg-rose-600 hover:bg-rose-700 active:bg-rose-800 text-white rounded-xl text-xs font-bold transition shadow-xs shrink-0 inline-flex items-center justify-center"
+                className="w-full sm:w-auto self-stretch sm:self-center px-4 py-2.5 min-h-[44px] bg-rose-600 hover:bg-rose-700 active:bg-rose-800 text-white rounded-xl text-xs sm:text-sm font-bold transition shadow-xs shrink-0 inline-flex items-center justify-center"
               >
                 معالجة الحالة
               </button>

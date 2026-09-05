@@ -1,19 +1,25 @@
 import { IRateLimitStore } from '../types';
 import { postgresRateLimitStore } from './postgres-store';
 import { memoryRateLimitStore } from './memory-store';
+import { resilientRateLimitStore } from './resilient-store';
 
 export * from './base';
 export * from './memory-store';
 export * from './postgres-store';
+export * from './resilient-store';
 
 /**
  * Returns the active Rate Limit Store.
- * In production / serverless, the primary distributed store is PostgreSQL.
- * Memory store is strictly used for testing and emergency fallback.
+ * By default, uses the Resilient Hybrid Store:
+ * Attempts distributed PostgreSQL row-level locks, with zero-downtime in-memory fallback.
  */
 export function getDefaultRateLimitStore(): IRateLimitStore {
-  if (process.env.RATE_LIMIT_STORE === 'memory') {
+  const configuredStore = process.env.RATE_LIMIT_STORE?.toLowerCase();
+  if (configuredStore === 'memory') {
     return memoryRateLimitStore;
   }
-  return postgresRateLimitStore;
+  if (configuredStore === 'postgres') {
+    return postgresRateLimitStore;
+  }
+  return resilientRateLimitStore;
 }
